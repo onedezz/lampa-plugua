@@ -5,39 +5,49 @@
         if (window.plugin_mal_installed) return;
         window.plugin_mal_installed = true;
 
-        // 1. Реєструємо новий компонент для перегляду аніме
-        Lampa.Component.add('mal_anime', function () {
+        // 1. Реєстрація компонента сторінки
+        Lampa.Component.add('mal_anime', function (object) {
             var self = this;
+            var scroll = new Lampa.Scroll({ mask: true, over: true });
+            var html = $('<div></div>');
+            var body = $('<div class="category-full"><div class="category-full__body"></div></div>');
 
             this.create = function () {
+                var _this = this;
+
+                // Вмикаємо індикатор завантаження Lampa
                 this.activity.loader(true);
 
-                // Отримуємо Топ аніме з MAL
+                // Отримуємо дані з Jikan API (MyAnimeList)
                 $.ajax({
                     url: 'https://api.jikan.moe/v4/top/anime',
                     type: 'GET',
                     dataType: 'json',
                     success: function (response) {
-                        if (response && response.data) {
-                            var cards = self.formatCards(response.data);
-                            self.buildList(cards);
+                        if (response && response.data && response.data.length) {
+                            _this.build(response.data);
                         } else {
-                            self.empty('Дані відсутні');
+                            _this.empty('Дані відсутні');
                         }
                     },
                     error: function () {
-                        Lampa.Noty.show('Помилка завантаження даних з MAL');
-                        self.empty('Помилка завантаження');
+                        Lampa.Noty.show('Помилка завантаження Jikan API');
+                        _this.empty('Помилка мережі');
+                    },
+                    complete: function () {
+                        _this.activity.loader(false);
                     }
                 });
 
                 return this.render();
             };
 
-            // Перетворення даних MAL у формат карток Lampa
-            this.formatCards = function (items) {
-                return items.map(function (item) {
-                    return {
+            // Побудова сітки карток через нативний Lampa.Card
+            this.build = function (items) {
+                var container = body.find('.category-full__body');
+
+                items.forEach(function (item) {
+                    var card_data = {
                         id: item.mal_id,
                         title: item.title_japanese || item.title,
                         original_title: item.title_english || item.title,
@@ -46,34 +56,53 @@
                         background_image: item.images && item.images.jpg ? item.images.jpg.large_image_url : '',
                         vote_average: item.score || 0,
                         release_date: item.aired && item.aired.from ? item.aired.from.split('T')[0] : '',
-                        first_air_date: item.aired && item.aired.from ? item.aired.from.split('T')[0] : '',
                         overview: item.synopsis || 'Опис відсутній.',
                         type: 'tv',
                         source: 'tmdb'
                     };
+
+                    // Створюємо картку Lampa
+                    var card = new Lampa.Card(card_data, {
+                        card_category: true
+                    });
+
+                    card.create();
+
+                    // Малювання зображення
+                    card.visible = function () {
+                        card.draw();
+                    };
+
+                    // Подія натискання на картку
+                    card.on('hover:enter', function () {
+                        Lampa.Activity.push({
+                            url: '',
+                            component: 'full',
+                            id: card_data.id,
+                            method: 'anime',
+                            card: card_data,
+                            source: 'tmdb'
+                        });
+                    });
+
+                    container.append(card.render());
                 });
+
+                scroll.append(body);
+                html.append(scroll.render());
+
+                self.start();
             };
 
-            this.buildList = function (cards) {
-                var scroll = new Lampa.Scroll({ mask: true, over: true });
-                var items = new Lampa.Items({ items: cards });
+            this.empty = function (msg) {
+                var empty = new Lampa.Empty({ title: msg || 'Порожньо' });
+                scroll.append(empty.render());
+                html.append(scroll.render());
+                self.start();
+            };
 
-                items.on('click', function (card) {
-                    Lampa.Activity.push({
-                        url: '',
-                        component: 'full',
-                        id: card.id,
-                        method: 'anime',
-                        card: card,
-                        source: 'tmdb'
-                    });
-                });
-
-                scroll.append(items.render());
-                this.activity.loader(false);
-                this.activity.append(scroll.render());
-
-                // Передаємо фокус керування на сітку карток
+            // Керування фокусом пульта / клавіатури
+            this.start = function () {
                 Lampa.Controller.add('content', {
                     toggle: function () {
                         Lampa.Controller.collectionSet(scroll.render());
@@ -90,14 +119,18 @@
                 Lampa.Controller.toggle('content');
             };
 
-            this.empty = function (msg) {
-                this.activity.loader(false);
-                var empty = new Lampa.Empty({ title: msg || 'Нічого не знайдено' });
-                this.activity.append(empty.render());
+            this.pause = function () {};
+
+            this.destroy = function () {
+                scroll.destroy();
+            };
+
+            this.render = function () {
+                return html;
             };
         });
 
-        // 2. Інтеграція в меню Lampa
+        // 2. Додавання пункту до бокового меню
         function addMenuItem() {
             var menu = $('.menu .menu__list');
             if (menu.length && !menu.find('[data-action="mal_anime"]').length) {
@@ -112,7 +145,7 @@
 
                 item.on('hover:enter', function () {
                     Lampa.Activity.push({
-                        title: 'Топ Аніме (MAL)',
+                        title: 'Аніме (MAL)',
                         component: 'mal_anime'
                     });
                 });
@@ -121,8 +154,8 @@
             }
         }
 
-        // Запуск додавання меню
         addMenuItem();
+
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') addMenuItem();
         });
