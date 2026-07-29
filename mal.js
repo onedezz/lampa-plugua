@@ -1,10 +1,9 @@
 (function () {
     'use strict';
 
-    // Jikan API (Публічний REST API для MyAnimeList)
+    // Jikan API (Офіційний REST API для MyAnimeList)
     const MAL_API = 'https://api.jikan.moe/v4';
 
-    // Список категорій
     const categories = [
         {
             id: 'airing',
@@ -41,11 +40,11 @@
     const network = new Lampa.Reguest();
 
     /**
-     * Конвертує об'єкт аніме з MAL у формат карточки Lampa
-     * Назва title у Jikan API за замовчуванням повертається в Romaji
+     * Конвертує аніме з MAL у формат картки Lampa
      */
     function formatAnimeItem(item) {
         const romajiTitle = item.title || item.title_english || item.title_japanese;
+        const imgUrl = item.images?.jpg?.large_image_url || item.images?.jpg?.image_url || '';
 
         return {
             id: item.mal_id,
@@ -53,8 +52,8 @@
             title: romajiTitle,
             original_name: item.title_japanese || romajiTitle,
             original_title: item.title_japanese || romajiTitle,
-            poster_path: item.images?.jpg?.large_image_url || item.images?.jpg?.image_url,
-            img: item.images?.jpg?.large_image_url || item.images?.jpg?.image_url,
+            poster_path: imgUrl,
+            img: imgUrl,
             vote_average: item.score || 0,
             first_air_date: item.aired?.from ? item.aired.from.split('T')[0] : '',
             release_date: item.aired?.from ? item.aired.from.split('T')[0] : '',
@@ -63,7 +62,71 @@
         };
     }
 
-    // Шар API для Lampa
+    /**
+     * Пошук картки в TMDB за назвою з MAL та її відкриття
+     */
+    function openAnime(element) {
+        Lampa.Loading.start();
+
+        const searchTitle = element.title || element.name;
+        const tmdbUrl = Lampa.TMDB.api('search/multi?query=' + encodeURIComponent(searchTitle) + '&api_key=' + Lampa.TMDB.key() + '&language=' + Lampa.Storage.get('language', 'uk'));
+
+        network.silent(tmdbUrl, (res) => {
+            Lampa.Loading.stop();
+
+            if (res && res.results && res.results.length > 0) {
+                // Шукаємо найкращий збіг (TV або Movie)
+                const match = res.results.find(r => r.media_type === 'tv' || r.media_type === 'movie') || res.results[0];
+
+                Lampa.Activity.push({
+                    url: '',
+                    component: 'full',
+                    id: match.id,
+                    method: match.media_type || element.type,
+                    card: match
+                });
+            } else {
+                // Якщо в TMDB нічого не знайдено — відкриваємо стандартний пошук Lampa
+                Lampa.Activity.push({
+                    url: '',
+                    title: searchTitle,
+                    component: 'search',
+                    query: searchTitle
+                });
+            }
+        }, () => {
+            Lampa.Loading.stop();
+            Lampa.Activity.push({
+                url: '',
+                title: searchTitle,
+                component: 'search',
+                query: searchTitle
+            });
+        });
+    }
+
+    /**
+     * Фікс обкладинок та кліку для картки
+     */
+    function attachCardFixes(element, card) {
+        // 1. Прибираємо Referer, щоб cdn.myanimelist.net віддавав обкладинки
+        setTimeout(() => {
+            const cardEl = card.render ? card.render() : $(card);
+            const img = cardEl.find('img');
+
+            img.attr('referrerpolicy', 'no-referrer');
+            if (element.img) {
+                img.attr('src', element.img);
+            }
+        }, 10);
+
+        // 2. Перехоплюємо натискання
+        card.onEnter = () => {
+            openAnime(element);
+        };
+    }
+
+    // Шар API
     const Api = {
         main(params, oncomplete, onerror) {
             let status = new Lampa.Status(categories.length);
@@ -87,23 +150,26 @@
                 }
             };
 
-            categories.forEach(cat => {
-                let sep = cat.url.includes('?') ? '&' : '?';
-                let url = `${MAL_API}${cat.url}${sep}page=1`;
+            // Завантажуємо з невеличкою затримкою, щоб не перевищити ліміти API (429)
+            categories.forEach((cat, index) => {
+                setTimeout(() => {
+                    let sep = cat.url.includes('?') ? '&' : '?';
+                    let url = `${MAL_API}${cat.url}${sep}page=1`;
 
-                network.silent(url, (res) => {
-                    if (res && res.data) {
-                        let results = res.data.map(formatAnimeItem);
-                        status.append(cat.id, {
-                            title: cat.title,
-                            category: cat.id,
-                            results: results,
-                            total_pages: res.pagination?.last_visible_page || 1
-                        });
-                    } else {
-                        status.error();
-                    }
-                }, status.error.bind(status));
+                    network.silent(url, (res) => {
+                        if (res && res.data) {
+                            let results = res.data.map(formatAnimeItem);
+                            status.append(cat.id, {
+                                title: cat.title,
+                                category: cat.id,
+                                results: results,
+                                total_pages: res.pagination?.last_visible_page || 1
+                            });
+                        } else {
+                            status.error();
+                        }
+                    }, status.error.bind(status));
+                }, index * 250);
             });
         },
 
@@ -130,7 +196,7 @@
         }
     };
 
-    // Компонент головної сторінки списків аніме
+    // Компонент головної сторінки
     function MainComponent(object) {
         let comp = new Lampa.InteractionMain(object);
 
@@ -154,21 +220,13 @@
         };
 
         comp.cardRender = function (object, element, card) {
-            card.onEnter = () => {
-                // Відкриває пошук Lampa / TMDB за назвою в Romaji
-                Lampa.Activity.push({
-                    url: '',
-                    title: element.title,
-                    component: 'search',
-                    query: encodeURIComponent(element.title)
-                });
-            };
+            attachCardFixes(element, card);
         };
 
         return comp;
     }
 
-    // Компонент перегляду однієї категорії (з пагінацією та сіткою)
+    // Компонент розділу категорії
     function CategoryComponent(object) {
         let comp = new Lampa.InteractionCategory(object);
 
@@ -183,26 +241,19 @@
         };
 
         comp.cardRender = function (object, element, card) {
-            card.onEnter = () => {
-                Lampa.Activity.push({
-                    url: '',
-                    title: element.title,
-                    component: 'search',
-                    query: encodeURIComponent(element.title)
-                });
-            };
+            attachCardFixes(element, card);
         };
 
         return comp;
     }
 
-    // Ініціалізація плагіна
+    // Ініціалізація
     function startPlugin() {
         window.mal_anime_plugin = true;
 
         let manifest = {
             type: 'anime',
-            version: '1.0.0',
+            version: '1.0.1',
             name: 'MAL Anime',
             description: 'Каталог аніме з MyAnimeList (Romaji)',
             component: 'mal_anime_main',
