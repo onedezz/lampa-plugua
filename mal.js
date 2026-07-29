@@ -4,7 +4,7 @@
     // Jikan API (Офіційний публічний REST API MyAnimeList)
     const MAL_API = 'https://api.jikan.moe/v4';
 
-    // Список категорій
+    // Категорії
     const categories = [
         {
             id: 'airing',
@@ -41,20 +41,29 @@
     const network = new Lampa.Reguest();
 
     /**
-     * Конвертує об'єкт аніме з MAL у внутрішній формат
+     * Проксі для завантаження обкладинок (обходить блокування CDN MyAnimeList на Smart TV)
+     */
+    function getProxyImg(url) {
+        if (!url) return './img/img_broken.svg';
+        return 'https://wsrv.nl/?url=' + encodeURIComponent(url);
+    }
+
+    /**
+     * Форматування об'єкта аніме з MAL
      */
     function formatAnimeItem(item) {
         const romajiTitle = item.title || item.title_english || item.title_japanese || '';
-        const imgUrl = item.images?.jpg?.large_image_url || item.images?.jpg?.image_url || item.images?.webp?.large_image_url || '';
+        const imgUrl = item.images?.jpg?.large_image_url || item.images?.jpg?.image_url || '';
 
         return {
-            id: item.mal_id,
+            mal_id: item.mal_id, // Змінено з 'id' на 'mal_id', щоб Lampa не плутала з TMDB ID
             title: romajiTitle,
             name: romajiTitle,
             title_english: item.title_english || '',
-            title_japanese: item.title_japanese || '',
-            poster_path: imgUrl,
-            img: imgUrl,
+            original_title: item.title_japanese || romajiTitle,
+            original_name: item.title_japanese || romajiTitle,
+            poster_path: getProxyImg(imgUrl),
+            img: getProxyImg(imgUrl),
             vote_average: item.score || 0,
             first_air_date: item.aired?.from ? item.aired.from.split('T')[0] : '',
             release_date: item.aired?.from ? item.aired.from.split('T')[0] : '',
@@ -64,146 +73,70 @@
     }
 
     /**
-     * Шукає аніме в TMDB за назвою і відкриває відповідну картку TMDB
+     * Пошук картки в TMDB за назвою з MAL
      */
     function openAnimeInTMDB(data) {
         Lampa.Loading.start();
 
-        const titleToSearch = data.title || data.name || data.title_english;
+        const searchTitle = data.title || data.name;
         const lang = Lampa.Storage.get('language', 'uk');
-        const searchUrl = Lampa.TMDB.api('search/multi?query=' + encodeURIComponent(titleToSearch) + '&api_key=' + Lampa.TMDB.key() + '&language=' + lang);
 
-        network.silent(searchUrl, (res) => {
-            Lampa.Loading.stop();
+        function executeSearch(query, onFail) {
+            const tmdbUrl = Lampa.TMDB.api('search/multi?query=' + encodeURIComponent(query) + '&api_key=' + Lampa.TMDB.key() + '&language=' + lang);
 
-            if (res && res.results && res.results.length > 0) {
-                // Пріоритет: Анімація (genre 16) або країна Японія (JP)
-                let bestMatch = res.results.find(r => {
-                    const isMedia = r.media_type === 'tv' || r.media_type === 'movie';
-                    const isAnime = (r.genre_ids && r.genre_ids.includes(16)) || 
-                                    (r.origin_country && r.origin_country.includes('JP'));
-                    return isMedia && isAnime;
-                });
+            network.silent(tmdbUrl, (res) => {
+                if (res && res.results && res.results.length > 0) {
+                    // Пріоритет: Жанр Animation (16) або країна Японія (JP)
+                    let match = res.results.find(r => {
+                        const isMedia = r.media_type === 'tv' || r.media_type === 'movie';
+                        const isAnime = (r.genre_ids && r.genre_ids.includes(16)) || 
+                                        (r.origin_country && r.origin_country.includes('JP'));
+                        return isMedia && isAnime;
+                    });
 
-                // Якщо за жанром не знайшли, беремо перший результат серіалу/фільму
-                if (!bestMatch) {
-                    bestMatch = res.results.find(r => r.media_type === 'tv' || r.media_type === 'movie');
+                    if (!match) {
+                        match = res.results.find(r => r.media_type === 'tv' || r.media_type === 'movie');
+                    }
+
+                    if (match) {
+                        Lampa.Loading.stop();
+                        Lampa.Activity.push({
+                            url: '',
+                            component: 'full',
+                            id: match.id,
+                            method: match.media_type || (data.type === 'movie' ? 'movie' : 'tv'),
+                            card: match
+                        });
+                        return;
+                    }
                 }
+                onFail();
+            }, () => onFail());
+        }
 
-                if (bestMatch) {
+        // Перша спроба: за назвою Romaji
+        executeSearch(searchTitle, () => {
+            // Друга спроба: за англійською назвою (якщо вона відрізняється)
+            if (data.title_english && data.title_english !== searchTitle) {
+                executeSearch(data.title_english, () => {
+                    Lampa.Loading.stop();
                     Lampa.Activity.push({
                         url: '',
-                        component: 'full',
-                        id: bestMatch.id,
-                        method: bestMatch.media_type || (data.type === 'movie' ? 'movie' : 'tv'),
-                        card: bestMatch
+                        title: searchTitle,
+                        component: 'search',
+                        query: searchTitle
                     });
-                    return;
-                }
+                });
+            } else {
+                Lampa.Loading.stop();
+                Lampa.Activity.push({
+                    url: '',
+                    title: searchTitle,
+                    component: 'search',
+                    query: searchTitle
+                });
             }
-
-            // Якщо точно знайти не вдалося — відкриваємо пошукове вікно Lampa
-            Lampa.Activity.push({
-                url: '',
-                title: titleToSearch,
-                component: 'search',
-                query: titleToSearch
-            });
-        }, () => {
-            Lampa.Loading.stop();
-            Lampa.Activity.push({
-                url: '',
-                title: titleToSearch,
-                component: 'search',
-                query: titleToSearch
-            });
         });
-    }
-
-    /**
-     * Кастомний клас Картки Аніме
-     */
-    function AnimeCard(data, params = {}) {
-        this.data = data;
-
-        this.build = function () {
-            this.item = Lampa.Template.get('mal_anime_card', {});
-            this.img = this.item.find('.card__img')[0];
-
-            // Назва
-            this.item.find('.card__title').text(data.title || data.name);
-
-            // Рейтинг
-            if (data.vote_average && data.vote_average > 0) {
-                this.item.find('.card__vote').text(data.vote_average.toFixed(1));
-            } else {
-                this.item.find('.card__vote').remove();
-            }
-
-            // Лейбл типу (TV / MOVIE)
-            if (data.type) {
-                this.item.find('.card__type').text(data.type.toUpperCase());
-            } else {
-                this.item.find('.card__type').remove();
-            }
-
-            this.item.addEventListener('visible', this.visible.bind(this));
-        };
-
-        this.visible = function () {
-            if (this.img && !this.loaded) {
-                this.loaded = true;
-
-                // КЛЮЧОВИЙ ФІКС ДЛЯ CDN MAL: Встановлюємо referrerpolicy ДО присвоєння src
-                this.img.setAttribute('referrerpolicy', 'no-referrer');
-
-                this.img.onload = () => {
-                    this.item.classList.add('card--loaded');
-                };
-
-                this.img.onerror = () => {
-                    this.img.src = './img/img_broken.svg';
-                };
-
-                const imageUrl = data.img || data.poster_path;
-                if (imageUrl) {
-                    this.img.src = imageUrl;
-                } else {
-                    this.img.src = './img/img_broken.svg';
-                }
-            }
-        };
-
-        this.create = function () {
-            if (this.created) return;
-            this.created = true;
-
-            this.build();
-
-            this.item.addEventListener('hover:focus', () => {
-                if (this.onFocus) this.onFocus(this.item, data);
-            });
-
-            this.item.addEventListener('hover:enter', () => {
-                openAnimeInTMDB(data);
-            });
-        };
-
-        this.destroy = function () {
-            if (this.img) {
-                this.img.onerror = null;
-                this.img.onload = null;
-                this.img.src = '';
-            }
-            if (this.item) {
-                this.item.remove();
-            }
-        };
-
-        this.render = function (js) {
-            if (!this.created) this.create();
-            return js ? this.item : $(this.item);
-        };
     }
 
     // Шар API
@@ -230,7 +163,7 @@
                 }
             };
 
-            // Роблю затримку між запитами, щоб Jikan API не видавав помилку 429
+            // Затримка між запитами (захист від ліміту Jikan API 429)
             categories.forEach((cat, index) => {
                 setTimeout(() => {
                     let sep = cat.url.includes('?') ? '&' : '?';
@@ -243,10 +176,7 @@
                                 title: cat.title,
                                 category: cat.id,
                                 results: results,
-                                total_pages: res.pagination?.last_visible_page || 1,
-                                cardClass: function (elem, params) {
-                                    return new AnimeCard(elem, params);
-                                }
+                                total_pages: res.pagination?.last_visible_page || 1
                             });
                         } else {
                             status.error();
@@ -270,10 +200,7 @@
                     oncomplete({
                         results: results,
                         page: page,
-                        total_pages: res.pagination?.last_visible_page || 1,
-                        cardClass: function (elem, params) {
-                            return new AnimeCard(elem, params);
-                        }
+                        total_pages: res.pagination?.last_visible_page || 1
                     });
                 } else {
                     onerror();
@@ -305,10 +232,16 @@
             });
         };
 
+        comp.cardRender = function (object, element, card) {
+            card.onEnter = () => {
+                openAnimeInTMDB(element);
+            };
+        };
+
         return comp;
     }
 
-    // Компонент перегляду всієї категорії
+    // Компонент категорії
     function CategoryComponent(object) {
         let comp = new Lampa.InteractionCategory(object);
 
@@ -322,54 +255,28 @@
             Api.category(object, resolve.bind(comp), reject.bind(comp));
         };
 
+        comp.cardRender = function (object, element, card) {
+            card.onEnter = () => {
+                openAnimeInTMDB(element);
+            };
+        };
+
         return comp;
     }
 
-    // Старт та реєстація плагіна
+    // Реєстрація плагіна
     function startPlugin() {
         window.mal_anime_plugin = true;
 
         let manifest = {
             type: 'anime',
-            version: '1.2.0',
+            version: '1.3.0',
             name: 'MAL Anime',
             description: 'Каталог аніме з MyAnimeList (Romaji)',
             component: 'mal_anime_main',
         };
 
         Lampa.Manifest.plugins = manifest;
-
-        // Шаблони
-        Lampa.Template.add('mal_anime_card', `
-            <div class="card selector layer--visible layer--render">
-                <div class="card__view">
-                    <img class="card__img" src="./img/img_load.svg" />
-                    <div class="card__type"></div>
-                    <div class="card__vote"></div>
-                </div>
-                <div class="card__title"></div>
-            </div>
-        `);
-
-        Lampa.Template.add('mal_anime_style', `
-            <style>
-                .card__type {
-                    position: absolute;
-                    top: 0.4em;
-                    left: 0.4em;
-                    background: #e50914;
-                    color: #fff;
-                    font-size: 0.7em;
-                    font-weight: bold;
-                    padding: 0.1em 0.4em;
-                    border-radius: 0.2em;
-                    text-transform: uppercase;
-                    z-index: 2;
-                }
-            </style>
-        `);
-
-        $('body').append(Lampa.Template.get('mal_anime_style', {}, true));
 
         Lampa.Component.add('mal_anime_main', MainComponent);
         Lampa.Component.add('mal_anime_category', CategoryComponent);
