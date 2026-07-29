@@ -5,15 +5,20 @@
         if (window.plugin_mal_installed) return;
         window.plugin_mal_installed = true;
 
-        // 1. Реєструємо компонент сторінки MAL
+        // 1. Реєструємо компонент
         Lampa.Component.add('mal_anime', function () {
             var self = this;
+            var scroll, items, html;
 
             this.create = function () {
                 var _this = this;
+                
+                html = $('<div></div>');
+                scroll = new Lampa.Scroll({ mask: true, over: true });
+                
                 this.activity.loader(true);
 
-                // Запит до Jikan API (MyAnimeList)
+                // Отримуємо дані з API
                 $.ajax({
                     url: 'https://api.jikan.moe/v4/top/anime',
                     type: 'GET',
@@ -34,6 +39,13 @@
                         _this.activity.loader(false);
                     }
                 });
+
+                return this.render();
+            };
+
+            // Обов'язковий метод для Lampa!
+            this.render = function () {
+                return html;
             };
 
             this.formatCards = function (items) {
@@ -56,8 +68,7 @@
             };
 
             this.buildList = function (cards) {
-                var scroll = new Lampa.Scroll({ mask: true, over: true });
-                var items = new Lampa.Items({ items: cards });
+                items = new Lampa.Items({ items: cards });
 
                 items.on('click', function (card) {
                     Lampa.Activity.push({
@@ -71,16 +82,16 @@
                 });
 
                 scroll.append(items.render());
-                this.activity.append(scroll.render());
+                html.append(scroll.render());
             };
 
             this.empty = function () {
                 var empty = new Lampa.Empty();
-                this.activity.append(empty.render());
+                html.append(empty.render());
             };
         });
 
-        // 2. Додаємо пункт меню безпечним способом
+        // 2. Додаємо пункт меню
         function addMenuItem() {
             var menu = $('.menu .menu__list');
             if (menu.length && !menu.find('[data-action="mal_anime"]').length) {
@@ -104,7 +115,6 @@
             }
         }
 
-        // Пробуємо додати одразу або чекаємо на готовність меню
         addMenuItem();
         Lampa.Listener.follow('app', function (e) {
             if (e.type === 'ready') {
@@ -113,7 +123,6 @@
         });
     }
 
-    // Запуск плагіна
     if (window.appready) {
         startPlugin();
     } else {
