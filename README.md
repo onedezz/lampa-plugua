@@ -1,1 +1,1 @@
-# lampa-mal-plugin
+# lampa-plugua
