@@ -5,78 +5,38 @@
         if (window.plugin_mal_installed) return;
         window.plugin_mal_installed = true;
 
-        // 1. Реєструємо компонент
+        // 1. Реєструємо новий компонент для перегляду аніме
         Lampa.Component.add('mal_anime', function () {
             var self = this;
-            var scroll, items, html;
 
             this.create = function () {
-                var _this = this;
-
-                html = $('<div></div>');
-                scroll = new Lampa.Scroll({ mask: true, over: true });
-
                 this.activity.loader(true);
 
-                // Отримуємо дані з API MyAnimeList (Jikan)
+                // Отримуємо Топ аніме з MAL
                 $.ajax({
                     url: 'https://api.jikan.moe/v4/top/anime',
                     type: 'GET',
                     dataType: 'json',
                     success: function (response) {
                         if (response && response.data) {
-                            var cards = _this.formatCards(response.data);
-                            _this.buildList(cards);
+                            var cards = self.formatCards(response.data);
+                            self.buildList(cards);
                         } else {
-                            _this.empty();
+                            self.empty('Дані відсутні');
                         }
                     },
                     error: function () {
                         Lampa.Noty.show('Помилка завантаження даних з MAL');
-                        _this.empty();
-                    },
-                    complete: function () {
-                        _this.activity.loader(false);
+                        self.empty('Помилка завантаження');
                     }
                 });
 
                 return this.render();
             };
 
-            // Обов'язковий метод start
-            this.start = function () {
-                Lampa.Controller.add('content', {
-                    toggle: function () {
-                        if (items) {
-                            Lampa.Controller.collectionSet(scroll.render());
-                            Lampa.Controller.collectionFocus(false, scroll.render());
-                        }
-                    },
-                    left: function () {
-                        Lampa.Controller.toggle('menu');
-                    },
-                    up: function () {
-                        Lampa.Controller.toggle('head');
-                    }
-                });
-
-                Lampa.Controller.toggle('content');
-            };
-
-            this.pause = function () {};
-
-            this.destroy = function () {
-                if (scroll) scroll.destroy();
-                if (items) items.destroy();
-            };
-
-            // Обов'язковий метод render
-            this.render = function () {
-                return html;
-            };
-
-            this.formatCards = function (items_data) {
-                return items_data.map(function (item) {
+            // Перетворення даних MAL у формат карток Lampa
+            this.formatCards = function (items) {
+                return items.map(function (item) {
                     return {
                         id: item.mal_id,
                         title: item.title_japanese || item.title,
@@ -95,7 +55,8 @@
             };
 
             this.buildList = function (cards) {
-                items = new Lampa.Items({ items: cards });
+                var scroll = new Lampa.Scroll({ mask: true, over: true });
+                var items = new Lampa.Items({ items: cards });
 
                 items.on('click', function (card) {
                     Lampa.Activity.push({
@@ -109,20 +70,34 @@
                 });
 
                 scroll.append(items.render());
-                html.append(scroll.render());
+                this.activity.loader(false);
+                this.activity.append(scroll.render());
 
-                // Активуємо навігацію пульта/клавіатури
-                self.start();
+                // Передаємо фокус керування на сітку карток
+                Lampa.Controller.add('content', {
+                    toggle: function () {
+                        Lampa.Controller.collectionSet(scroll.render());
+                        Lampa.Controller.collectionFocus(false, scroll.render());
+                    },
+                    left: function () {
+                        Lampa.Controller.toggle('menu');
+                    },
+                    up: function () {
+                        Lampa.Controller.toggle('head');
+                    }
+                });
+
+                Lampa.Controller.toggle('content');
             };
 
-            this.empty = function () {
-                var empty = new Lampa.Empty();
-                html.append(empty.render());
-                self.start();
+            this.empty = function (msg) {
+                this.activity.loader(false);
+                var empty = new Lampa.Empty({ title: msg || 'Нічого не знайдено' });
+                this.activity.append(empty.render());
             };
         });
 
-        // 2. Додаємо пункт у бокове меню
+        // 2. Інтеграція в меню Lampa
         function addMenuItem() {
             var menu = $('.menu .menu__list');
             if (menu.length && !menu.find('[data-action="mal_anime"]').length) {
@@ -146,11 +121,10 @@
             }
         }
 
+        // Запуск додавання меню
         addMenuItem();
         Lampa.Listener.follow('app', function (e) {
-            if (e.type === 'ready') {
-                addMenuItem();
-            }
+            if (e.type === 'ready') addMenuItem();
         });
     }
 
