@@ -12,13 +12,13 @@
 
             this.create = function () {
                 var _this = this;
-                
+
                 html = $('<div></div>');
                 scroll = new Lampa.Scroll({ mask: true, over: true });
-                
+
                 this.activity.loader(true);
 
-                // Отримуємо дані з API
+                // Отримуємо дані з API MyAnimeList (Jikan)
                 $.ajax({
                     url: 'https://api.jikan.moe/v4/top/anime',
                     type: 'GET',
@@ -43,13 +43,40 @@
                 return this.render();
             };
 
-            // Обов'язковий метод для Lampa!
+            // Обов'язковий метод start
+            this.start = function () {
+                Lampa.Controller.add('content', {
+                    toggle: function () {
+                        if (items) {
+                            Lampa.Controller.collectionSet(scroll.render());
+                            Lampa.Controller.collectionFocus(false, scroll.render());
+                        }
+                    },
+                    left: function () {
+                        Lampa.Controller.toggle('menu');
+                    },
+                    up: function () {
+                        Lampa.Controller.toggle('head');
+                    }
+                });
+
+                Lampa.Controller.toggle('content');
+            };
+
+            this.pause = function () {};
+
+            this.destroy = function () {
+                if (scroll) scroll.destroy();
+                if (items) items.destroy();
+            };
+
+            // Обов'язковий метод render
             this.render = function () {
                 return html;
             };
 
-            this.formatCards = function (items) {
-                return items.map(function (item) {
+            this.formatCards = function (items_data) {
+                return items_data.map(function (item) {
                     return {
                         id: item.mal_id,
                         title: item.title_japanese || item.title,
@@ -83,15 +110,19 @@
 
                 scroll.append(items.render());
                 html.append(scroll.render());
+
+                // Активуємо навігацію пульта/клавіатури
+                self.start();
             };
 
             this.empty = function () {
                 var empty = new Lampa.Empty();
                 html.append(empty.render());
+                self.start();
             };
         });
 
-        // 2. Додаємо пункт меню
+        // 2. Додаємо пункт у бокове меню
         function addMenuItem() {
             var menu = $('.menu .menu__list');
             if (menu.length && !menu.find('[data-action="mal_anime"]').length) {
