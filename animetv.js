@@ -27,7 +27,7 @@
             { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=80" },
             { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=80" },
             { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=100" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=150" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=300" },
 
             // --- 3. ОКРЕМІ ЖАНРИ (ЗА ОСТАННІЙ 1 РІК) ---
             { title: "⚔️ Бойовики (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,action&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
