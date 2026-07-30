@@ -19,24 +19,24 @@
         icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярне", url: "https://api.trakt.tv/movies/popular?genres=animation&limit=60" },
-            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=animation&limit=60" },
+            { title: "⭐ Популярне", url: "https://api.trakt.tv/movies/popular?genres=animation&limit=200" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=animation&limit=200" },
 
             // --- 2. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
-            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2020-" + currentYear + "&limit=60" },
-            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2010-2019&limit=80" },
-            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2000-2009&limit=80" },
-            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1990-1999&limit=100" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1900-1989&limit=150" },
+            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2020-" + currentYear + "&limit=200" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2010-2019&limit=200" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2000-2009&limit=200" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1990-1999&limit=200" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1900-1989&limit=200" },
 
             // --- 3. ЖАНРИ ЗА ОСТАННІЙ 1 РІК ---
-            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=60" }
+            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=200" },
+            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=200" }
         ]
     };
 
