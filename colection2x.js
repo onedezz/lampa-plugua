@@ -2,154 +2,55 @@
     'use strict';
 
     /**
-     * ANIME MASTER COLLECTION (Regional & Decades Edition)
-     * Categorized by Trends (JP, KO, ZH) and Chronological Decades
+     * ANIME MASTER COLLECTION (90-Day TV Window & Reverse Chronological Decades)
      */
 
     var ANIME_CONFIG = {
         title: 'Аніме',
         icon: '<svg viewBox="0 0 24 24" fill="#FF6F00" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>',
         categories: [
-            // --- РЕГІОНАЛЬНІ ТРЕНДИ (ЯПОНІЯ, КОРЕЯ, КИТАЙ) ---
+            // --- ОСНОВНІ ТРЕНДИ (90 ДНІВ ДЛЯ TV) ---
             { 
-                "title": "🇯🇵 TV Тренди (Японія)", 
+                "title": "🔥 TV Тренди", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja", 
-                    "air_date.gte": "{thirty_days_ago}", 
-                    "sort_by": "popularity.desc" 
+                    "with_original_language": "ja|ko", 
+                    "air_date.gte": "{ninety_days_ago}", 
+                    "sort_by": "first_air_date.desc" 
                 } 
             },
             { 
-                "title": "🎬 Трендові фільми (Японія)", 
+                "title": "🎬 Трендові фільми", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja", 
+                    "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🇰🇷 TV-Тренди Корея", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ko", 
-                    "air_date.gte": "{thirty_days_ago}", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🇰🇷 Трендові фільми Корея", 
-                "url": "discover/movie", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ko", 
-                    "primary_release_date.gte": "{one_year_ago}", 
-                    "primary_release_date.lte": "{current_date}",
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🇨🇳 TV-Тренди Китай", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "zh", 
-                    "air_date.gte": "{thirty_days_ago}", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🇨🇳 Трендові фільми Китай", 
-                "url": "discover/movie", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "zh", 
-                    "primary_release_date.gte": "{one_year_ago}", 
-                    "primary_release_date.lte": "{current_date}",
-                    "sort_by": "popularity.desc" 
+                    "sort_by": "primary_release_date.desc" 
                 } 
             },
 
-            // --- НАЙКРАЩІ АНІМЕ ДЕСЯТИЛІТЬ (ВІД СТАРИХ ДО СУЧАСНИХ) ---
+            // --- ДЕСЯТИЛІТТЯ (ВІД СУЧАСНИХ ДО СТАРИХ) ---
             { 
-                "title": "🏛️ Класика та Легенди (до 1990 року) — Серіали", 
+                "title": "⚡ Сучасний Період 2020-х — Серіали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "first_air_date.lte": "1989-12-31", 
-                    "vote_average.gte": "7.0", 
-                    "vote_count.gte": "30", 
-                    "sort_by": "vote_average.desc" 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "2020-01-01", 
+                    "sort_by": "first_air_date.desc" 
                 } 
             },
             { 
-                "title": "🏛️ Класика та Легенди (до 1990 року) — Фільми", 
+                "title": "⚡ Сучасний Період 2020-х — Фільми", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "primary_release_date.lte": "1989-12-31", 
-                    "vote_average.gte": "7.0", 
-                    "vote_count.gte": "50", 
-                    "sort_by": "vote_average.desc" 
-                } 
-            },
-            { 
-                "title": "📼 Золота ера 1990-х — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "first_air_date.gte": "1990-01-01", 
-                    "first_air_date.lte": "1999-12-31", 
-                    "vote_average.gte": "7.5", 
-                    "vote_count.gte": "100", 
-                    "sort_by": "vote_average.desc" 
-                } 
-            },
-            { 
-                "title": "📼 Золота ера 1990-х — Фільми", 
-                "url": "discover/movie", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "primary_release_date.gte": "1990-01-01", 
-                    "primary_release_date.lte": "1999-12-31", 
-                    "vote_average.gte": "7.5", 
-                    "vote_count.gte": "100", 
-                    "sort_by": "vote_average.desc" 
-                } 
-            },
-            { 
-                "title": "💿 Культові 2000-ні — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "first_air_date.gte": "2000-01-01", 
-                    "first_air_date.lte": "2009-12-31", 
-                    "vote_average.gte": "7.5", 
-                    "vote_count.gte": "200", 
-                    "sort_by": "vote_average.desc" 
-                } 
-            },
-            { 
-                "title": "💿 Культові 2000-ні — Фільми", 
-                "url": "discover/movie", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "primary_release_date.gte": "2000-01-01", 
-                    "primary_release_date.lte": "2009-12-31", 
-                    "vote_average.gte": "7.5", 
-                    "vote_count.gte": "200", 
-                    "sort_by": "vote_average.desc" 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "2020-01-01", 
+                    "sort_by": "primary_release_date.desc" 
                 } 
             },
             { 
@@ -157,12 +58,10 @@
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
+                    "with_original_language": "ja|ko", 
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
-                    "vote_average.gte": "7.8", 
-                    "vote_count.gte": "300", 
-                    "sort_by": "vote_average.desc" 
+                    "sort_by": "first_air_date.desc" 
                 } 
             },
             { 
@@ -170,55 +69,91 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
+                    "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
-                    "vote_average.gte": "7.8", 
-                    "vote_count.gte": "300", 
-                    "sort_by": "vote_average.desc" 
+                    "sort_by": "primary_release_date.desc" 
                 } 
             },
             { 
-                "title": "⚡ Сучасні Хіти 2020-х — Серіали", 
+                "title": "💿 Культові 2000-ні — Серіали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "first_air_date.gte": "2020-01-01", 
-                    "vote_average.gte": "7.8", 
-                    "vote_count.gte": "200", 
-                    "sort_by": "vote_average.desc" 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "2000-01-01", 
+                    "first_air_date.lte": "2009-12-31", 
+                    "sort_by": "first_air_date.desc" 
                 } 
             },
             { 
-                "title": "⚡ Сучасні Хіти 2020-х — Фільми", 
+                "title": "💿 Культові 2000-ні — Фільми", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja|ko|zh", 
-                    "primary_release_date.gte": "2020-01-01", 
-                    "vote_average.gte": "7.8", 
-                    "vote_count.gte": "150", 
-                    "sort_by": "vote_average.desc" 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "2000-01-01", 
+                    "primary_release_date.lte": "2009-12-31", 
+                    "sort_by": "primary_release_date.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "1990-01-01", 
+                    "first_air_date.lte": "1999-12-31", 
+                    "sort_by": "first_air_date.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "1990-01-01", 
+                    "primary_release_date.lte": "1999-12-31", 
+                    "sort_by": "primary_release_date.desc" 
+                } 
+            },
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.lte": "1989-12-31", 
+                    "sort_by": "first_air_date.desc" 
+                } 
+            },
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.lte": "1989-12-31", 
+                    "sort_by": "primary_release_date.desc" 
                 } 
             }
         ]
     };
 
-    // Перевірка на азійську писемність (Японія, Китай, Корея)
     function hasAsianScript(text) {
         if (!text) return false;
         return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text);
     }
 
-    // Хелпер розрахунку динамічних дат
     function resolveParamValue(val) {
         var d = new Date();
         if (val === '{current_date}') {
             return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
         }
-        if (val === '{thirty_days_ago}') {
-            d.setDate(d.getDate() - 30);
+        if (val === '{ninety_days_ago}') {
+            d.setDate(d.getDate() - 90);
             return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
         }
         if (val === '{one_year_ago}') {
@@ -228,7 +163,6 @@
         return val;
     }
 
-    // Запит із фолбеком назви на англійську для азійських тайтлів
     function fetchWithFallback(urlUk, callback) {
         var network = new Lampa.Reguest();
 
