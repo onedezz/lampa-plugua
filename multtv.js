@@ -2,69 +2,144 @@
     'use strict';
 
     /**
-     * REAL EXTERNAL API ANIMATED TV SHOWS (Powered by TVMaze)
+     * ANIMATED TV SHOWS - TRAKT.TV ENGINE
+     * Fetching real-time trend lists from Trakt.tv API + TMDB Posters/Localization
      */
 
-    var API_CONFIG = {
-        title: 'Мультсеріали (TVMaze API)',
-        icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>'
+    var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
+    var EXCLUDED_LANGS = ['ru', 'be', 'ja', 'ko', 'zh'];
+    var EXCLUDED_COUNTRIES = ['ru', 'by', 'jp', 'kr', 'cn'];
+
+    var TRAKT_CONFIG = {
+        title: 'Мультсеріали',
+        icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>',
+        categories: [
+            { title: "🔥 Трендові мультсеріали (Trakt)", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=30&extended=full" },
+            { title: "⭐ Найпопулярніші у спільноті", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=30&extended=full" },
+            { title: "👁️ Найбільше переглядів за тиждень", url: "https://api.trakt.tv/shows/watched/weekly?genres=animation&limit=30&extended=full" },
+            { title: "👍 Топ рекомендацій глядачів", url: "https://api.trakt.tv/shows/recommended/weekly?genres=animation&limit=30&extended=full" },
+            { title: "⚡ Очікувані новинки", url: "https://api.trakt.tv/shows/anticipated?genres=animation&limit=30&extended=full" }
+        ]
     };
 
-    function mapTvMazeToLampa(item) {
-        return {
-            id: item.id,
-            imdb_id: item.externals ? item.externals.imdb : null, // Завдяки IMDb ID балансери Lampa знайдуть відео!
-            name: item.name,
-            original_name: item.name,
-            overview: item.summary ? item.summary.replace(/<[^>]*>?/gm, '') : '',
-            poster_path: item.image ? item.image.original || item.image.medium : null,
-            vote_average: item.rating && item.rating.average ? item.rating.average : 0,
-            first_air_date: item.premiered || '',
-            method: 'tv'
-        };
+    function isUnwanted(show) {
+        if (!show) return true;
+        var lang = (show.language || '').toLowerCase();
+        var country = (show.country || '').toLowerCase();
+
+        if (EXCLUDED_LANGS.indexOf(lang) !== -1) return true;
+        if (EXCLUDED_COUNTRIES.indexOf(country) !== -1) return true;
+        return false;
     }
 
-    function TvMazeAnimatedTvMain(object) {
+    // Підтягуємо постери та українські назви з TMDB за TMDB ID
+    function enrichItemsWithTMDB(items, callback) {
+        var network = new Lampa.Reguest();
+        var lang = Lampa.Storage.get('language', 'uk');
+        var enriched = [];
+        var count = 0;
+
+        if (!items.length) return callback([]);
+
+        items.forEach(function (traktItem, index) {
+            var show = traktItem.show || traktItem;
+            var tmdbId = show.ids ? show.ids.tmdb : null;
+
+            if (!tmdbId || isUnwanted(show)) {
+                count++;
+                if (count === items.length) callback(enriched.filter(Boolean));
+                return;
+            }
+
+            var tmdbUrl = Lampa.TMDB.api('tv/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
+
+            network.silent(tmdbUrl, function (tmdbData) {
+                if (tmdbData && tmdbData.poster_path) {
+                    // Фільтрація аніме за жанрами TMDB про всяк випадок
+                    var isAnimeGenre = tmdbData.genres && tmdbData.genres.some(function(g){ return g.id === 16; });
+                    var isAsianLang = EXCLUDED_LANGS.indexOf(tmdbData.original_language) !== -1;
+
+                    if (!isAsianLang) {
+                        enriched[index] = {
+                            id: tmdbData.id,
+                            name: tmdbData.name || show.title,
+                            original_name: tmdbData.original_name || show.title,
+                            overview: tmdbData.overview || show.overview || '',
+                            poster_path: tmdbData.poster_path,
+                            vote_average: tmdbData.vote_average || show.rating || 0,
+                            first_air_date: tmdbData.first_air_date || show.first_air_date || '',
+                            method: 'tv'
+                        };
+                    }
+                }
+                count++;
+                if (count === items.length) callback(enriched.filter(Boolean));
+            }, function () {
+                count++;
+                if (count === items.length) callback(enriched.filter(Boolean));
+            });
+        });
+    }
+
+    function TraktAnimatedTvMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var network = new Lampa.Reguest();
+            var categories = TRAKT_CONFIG.categories;
+            var status = new Lampa.Status(categories.length);
 
-            // Справжнє працююче API TVMaze
-            var url = 'https://api.tvmaze.com/shows?page=1';
+            status.onComplite = function () {
+                var fulldata = [];
+                Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
+                    var data = status.data[key];
+                    if (data && data.results && data.results.length) {
+                        var cat = categories[parseInt(key)];
+                        Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
+                        fulldata.push({
+                            title: cat.title,
+                            results: data.results
+                        });
+                    }
+                });
 
-            network.silent(url, function (shows) {
-                if (Array.isArray(shows)) {
-                    // Фільтруємо лише анімаційні серіали (Animation)
-                    var animated = shows.filter(function (show) {
-                        return show.genres && show.genres.indexOf('Animation') !== -1 && show.image;
-                    }).map(mapTvMazeToLampa);
-
-                    Lampa.Utils.extendItemsParams(animated, { style: { name: 'wide' } });
-
-                    _this.build([{
-                        title: '🔥 Популярні мультсеріали (з TVMaze)',
-                        results: animated
-                    }]);
+                if (fulldata.length) {
+                    _this.build(fulldata);
                     _this.activity.loader(false);
                 } else {
                     _this.empty();
                 }
-            }, function () {
-                _this.empty();
+            };
+
+            categories.forEach(function (cat, index) {
+                $.ajax({
+                    url: cat.url,
+                    type: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'trakt-api-version': '2',
+                        'trakt-api-key': TRAKT_CLIENT_ID
+                    },
+                    success: function (response) {
+                        var rawList = Array.isArray(response) ? response : [];
+                        enrichItemsWithTMDB(rawList, function (formattedResults) {
+                            status.append(index.toString(), { results: formattedResults });
+                        });
+                    },
+                    error: function () {
+                        status.error();
+                    }
+                });
             });
 
             return this.render();
         };
 
-        // При кліці відкриваємо картку
         comp.onItemSelect = function (item) {
             Lampa.Activity.push({
                 component: 'full',
                 id: item.id,
-                imdb_id: item.imdb_id,
                 method: 'tv',
                 card: item
             });
@@ -74,24 +149,24 @@
     }
 
     function startPlugin() {
-        if (window.plugin_tvmaze_anim_ready) return;
-        window.plugin_tvmaze_anim_ready = true;
+        if (window.plugin_trakt_multtv_ready) return;
+        window.plugin_trakt_multtv_ready = true;
 
-        Lampa.Component.add('tvmaze_anim_main', TvMazeAnimatedTvMain);
+        Lampa.Component.add('trakt_multtv_main', TraktAnimatedTvMain);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="tvmaze_anim"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="trakt_multtv"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="tvmaze_anim">
-                <div class="menu__ico">${API_CONFIG.icon}</div>
-                <div class="menu__text">${API_CONFIG.title}</div>
+            var btn = $(`<li class="menu__item selector" data-action="trakt_multtv">
+                <div class="menu__ico">${TRAKT_CONFIG.icon}</div>
+                <div class="menu__text">${TRAKT_CONFIG.title}</div>
             </li>`);
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: API_CONFIG.title,
-                    component: 'tvmaze_anim_main',
+                    title: TRAKT_CONFIG.title,
+                    component: 'trakt_multtv_main',
                     page: 1
                 });
             });
@@ -106,7 +181,13 @@
                 if (e.type == 'ready') addMenuButton();
             });
         }
+
+        setInterval(function () {
+            if (window.appready && $('.menu .menu__list').eq(0).length) {
+                addMenuButton();
+            }
+        }, 3000);
     }
 
-    if (!window.plugin_tvmaze_anim_ready) startPlugin();
+    if (!window.plugin_trakt_multtv_ready) startPlugin();
 })();
