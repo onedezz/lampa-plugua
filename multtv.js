@@ -2,8 +2,7 @@
     'use strict';
 
     /**
-     * ANIMATED TV SHOWS - TRAKT.TV ENGINE
-     * Fetching real-time trend lists from Trakt.tv API + TMDB Posters/Localization
+     * ANIMATED TV SHOWS - TRAKT.TV ENGINE (With Full Category & Pagination Support)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -14,11 +13,11 @@
         title: 'Мультсеріали',
         icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>',
         categories: [
-            { title: "🔥 Трендові мультсеріали (Trakt)", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=30&extended=full" },
-            { title: "⭐ Найпопулярніші у спільноті", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=30&extended=full" },
-            { title: "👁️ Найбільше переглядів за тиждень", url: "https://api.trakt.tv/shows/watched/weekly?genres=animation&limit=30&extended=full" },
-            { title: "👍 Топ рекомендацій глядачів", url: "https://api.trakt.tv/shows/recommended/weekly?genres=animation&limit=30&extended=full" },
-            { title: "⚡ Очікувані новинки", url: "https://api.trakt.tv/shows/anticipated?genres=animation&limit=30&extended=full" }
+            { title: "🔥 Трендові мультсеріали (Trakt)", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=20" },
+            { title: "⭐ Найпопулярніші у спільноті", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=20" },
+            { title: "👁️ Найбільше переглядів за тиждень", url: "https://api.trakt.tv/shows/watched/weekly?genres=animation&limit=20" },
+            { title: "👍 Топ рекомендацій глядачів", url: "https://api.trakt.tv/shows/recommended/weekly?genres=animation&limit=20" },
+            { title: "⚡ Очікувані новинки", url: "https://api.trakt.tv/shows/anticipated?genres=animation&limit=20" }
         ]
     };
 
@@ -32,14 +31,14 @@
         return false;
     }
 
-    // Підтягуємо постери та українські назви з TMDB за TMDB ID
+    // Збагачення списку Trakt даними та постерами з TMDB
     function enrichItemsWithTMDB(items, callback) {
         var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
         var enriched = [];
         var count = 0;
 
-        if (!items.length) return callback([]);
+        if (!items || !items.length) return callback([]);
 
         items.forEach(function (traktItem, index) {
             var show = traktItem.show || traktItem;
@@ -55,8 +54,6 @@
 
             network.silent(tmdbUrl, function (tmdbData) {
                 if (tmdbData && tmdbData.poster_path) {
-                    // Фільтрація аніме за жанрами TMDB про всяк випадок
-                    var isAnimeGenre = tmdbData.genres && tmdbData.genres.some(function(g){ return g.id === 16; });
                     var isAsianLang = EXCLUDED_LANGS.indexOf(tmdbData.original_language) !== -1;
 
                     if (!isAsianLang) {
@@ -81,6 +78,34 @@
         });
     }
 
+    // Запит до Trakt API
+    function fetchTraktPage(baseUrl, page, callback) {
+        var pageUrl = baseUrl + '&page=' + page;
+        $.ajax({
+            url: pageUrl,
+            type: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'trakt-api-version': '2',
+                'trakt-api-key': TRAKT_CLIENT_ID
+            },
+            success: function (response) {
+                var rawList = Array.isArray(response) ? response : [];
+                enrichItemsWithTMDB(rawList, function (formattedResults) {
+                    callback({
+                        results: formattedResults,
+                        page: page,
+                        total_pages: 50
+                    });
+                });
+            },
+            error: function () {
+                callback(null);
+            }
+        });
+    }
+
+    // 1. Головна сторінка зі смугами
     function TraktAnimatedTvMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
@@ -99,7 +124,8 @@
                         Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
                         fulldata.push({
                             title: cat.title,
-                            results: data.results
+                            results: data.results,
+                            url: cat.url
                         });
                     }
                 });
@@ -113,35 +139,51 @@
             };
 
             categories.forEach(function (cat, index) {
-                $.ajax({
-                    url: cat.url,
-                    type: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'trakt-api-version': '2',
-                        'trakt-api-key': TRAKT_CLIENT_ID
-                    },
-                    success: function (response) {
-                        var rawList = Array.isArray(response) ? response : [];
-                        enrichItemsWithTMDB(rawList, function (formattedResults) {
-                            status.append(index.toString(), { results: formattedResults });
-                        });
-                    },
-                    error: function () {
-                        status.error();
-                    }
+                fetchTraktPage(cat.url, 1, function (data) {
+                    if (data && data.results) status.append(index.toString(), data);
+                    else status.error();
                 });
             });
 
             return this.render();
         };
 
-        comp.onItemSelect = function (item) {
+        // Клік на "Показати більше"
+        comp.onMore = function (data) {
             Lampa.Activity.push({
-                component: 'full',
-                id: item.id,
-                method: 'tv',
-                card: item
+                url: data.url,
+                title: data.title,
+                component: 'trakt_multtv_view',
+                page: 1
+            });
+        };
+
+        return comp;
+    }
+
+    // 2. Сторінка розгорнутої категорії (з пагінацією)
+    function TraktAnimatedTvView(object) {
+        var comp = new Lampa.InteractionCategory(object);
+
+        comp.create = function () {
+            var _this = this;
+            fetchTraktPage(object.url, 1, function (json) {
+                if (json && json.results && json.results.length) {
+                    _this.build(json);
+                } else {
+                    _this.empty();
+                }
+            });
+        };
+
+        // Підгрузка наступних сторінок при скролі вниз
+        comp.nextPageReuest = function (objectData, resolve, reject) {
+            fetchTraktPage(object.url, objectData.page, function (json) {
+                if (json && json.results && json.results.length) {
+                    resolve(json);
+                } else {
+                    reject();
+                }
             });
         };
 
@@ -153,6 +195,7 @@
         window.plugin_trakt_multtv_ready = true;
 
         Lampa.Component.add('trakt_multtv_main', TraktAnimatedTvMain);
+        Lampa.Component.add('trakt_multtv_view', TraktAnimatedTvView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
