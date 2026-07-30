@@ -2,55 +2,90 @@
     'use strict';
 
     /**
-     * ANIMATED FEATURE MOVIES - TRAKT.TV ENGINE
-     * Fixed Classics Pool (limit=150) & Reordered Categories (Decades before Genres)
+     * ANIME FEATURE MOVIES - TRAKT.TV ENGINE (OPTIMIZED)
+     * Fast Initial Loading (limit=20) + Expanded Grid Pagination (limit=60) on "More"
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
-    var EXCLUDED_LANGS = ['ru', 'be', 'ja', 'ko', 'zh'];
-    var EXCLUDED_COUNTRIES = ['ru', 'by', 'jp', 'kr', 'cn'];
+    var ALLOWED_LANGS = ['ja', 'ko'];
+    var ALLOWED_COUNTRIES = ['jp', 'kr'];
 
     var currentYear = new Date().getFullYear();
     var lastYear = currentYear - 1;
     var yearRangeOneYear = lastYear + '-' + currentYear;
 
     var TRAKT_CONFIG = {
-        title: 'Мультфільми',
-        icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>',
+        title: 'Аніме фільми',
+        icon: '<svg viewBox="0 0 24 24" fill="#E91E63" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярне", url: "https://api.trakt.tv/movies/popular?genres=animation&limit=60" },
-            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=animation&limit=60" },
+            { title: "⭐ Популярні аніме фільми", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&limit=20" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=anime&countries=jp,kr&limit=20" },
 
             // --- 2. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
-            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2020-" + currentYear + "&limit=60" },
-            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2010-2019&limit=80" },
-            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=animation&years=2000-2009&limit=80" },
-            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1990-1999&limit=100" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=animation&years=1900-1989&limit=150" },
+            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2020-" + currentYear + "&limit=20" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=20" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=20" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=20" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=20" },
 
-            // --- 3. ЖАНРИ ЗА ОСТАННІЙ 1 РІК ---
-            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=60" }
+            // --- 3. ОКРЕМІ ЖАНРИ (ЗА ОСТАННІЙ 1 РІК) ---
+            { title: "⚔️ Бойовики (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,action&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🤠 Пригоди (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,adventure&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,science-fiction&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,fantasy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🔪 Трилери (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,thriller&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🔎 Детективи (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,mystery&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "😱 Жахи (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,horror&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,comedy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🎭 Драми (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,drama&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "💖 Романтика (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,romance&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🚨 Кримінал (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,crime&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🎼 Музичні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,music&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "⚔️ Військові (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,war&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,family&countries=jp,kr&years=" + yearRangeOneYear + "&limit=20" }
         ]
     };
 
-    function isUnwanted(movie) {
-        if (!movie) return true;
+    function hasCJK(str) {
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
+    }
+
+    function isAllowedAnime(movie) {
+        if (!movie) return false;
         var lang = (movie.language || '').toLowerCase();
         var country = (movie.country || '').toLowerCase();
 
-        if (EXCLUDED_LANGS.indexOf(lang) !== -1) return true;
-        if (EXCLUDED_COUNTRIES.indexOf(country) !== -1) return true;
-        return false;
+        var langOk = !lang || ALLOWED_LANGS.indexOf(lang) !== -1;
+        var countryOk = !country || ALLOWED_COUNTRIES.indexOf(country) !== -1;
+
+        return langOk && countryOk;
     }
 
-    // Збагачення даними TMDB та перевірка наявність жанру Animation (ID 16)
+    function getCleanTitle(tmdbData, movie, callback) {
+        var titleUk = tmdbData.title;
+        
+        if (titleUk && !hasCJK(titleUk)) {
+            return callback(titleUk);
+        }
+
+        if (movie.title && !hasCJK(movie.title)) {
+            return callback(movie.title);
+        }
+
+        var enUrl = Lampa.TMDB.api('movie/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
+        var net = new Lampa.Reguest();
+        net.silent(enUrl, function (enData) {
+            if (enData && enData.title && !hasCJK(enData.title)) {
+                callback(enData.title);
+            } else {
+                callback(movie.title || tmdbData.original_title || tmdbData.title || '');
+            }
+        }, function () {
+            callback(movie.title || tmdbData.title || '');
+        });
+    }
+
     function enrichItemsWithTMDB(items, callback) {
         var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
@@ -63,7 +98,7 @@
             var movie = traktItem.movie || traktItem;
             var tmdbId = movie.ids ? movie.ids.tmdb : null;
 
-            if (!tmdbId || isUnwanted(movie)) {
+            if (!tmdbId || !isAllowedAnime(movie)) {
                 count++;
                 if (count === items.length) callback(enriched.filter(Boolean));
                 return;
@@ -74,19 +109,25 @@
             network.silent(tmdbUrl, function (tmdbData) {
                 if (tmdbData && tmdbData.poster_path) {
                     var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
-                    var isAsianLang = EXCLUDED_LANGS.indexOf(tmdbData.original_language) !== -1;
+                    var origLang = (tmdbData.original_language || '').toLowerCase();
+                    var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
 
-                    if (isAnimation && !isAsianLang) {
-                        enriched[index] = {
-                            id: tmdbData.id,
-                            title: tmdbData.title || movie.title,
-                            original_title: tmdbData.original_title || movie.title,
-                            overview: tmdbData.overview || movie.overview || '',
-                            poster_path: tmdbData.poster_path,
-                            vote_average: tmdbData.vote_average || movie.rating || 0,
-                            release_date: tmdbData.release_date || movie.released || '',
-                            method: 'movie'
-                        };
+                    if (isAnimation && isAsianOrigin) {
+                        getCleanTitle(tmdbData, movie, function (cleanTitle) {
+                            enriched[index] = {
+                                id: tmdbData.id,
+                                title: cleanTitle,
+                                original_title: movie.title || tmdbData.original_title || '',
+                                overview: tmdbData.overview || movie.overview || '',
+                                poster_path: tmdbData.poster_path,
+                                vote_average: tmdbData.vote_average || movie.rating || 0,
+                                release_date: tmdbData.release_date || movie.released || '',
+                                method: 'movie'
+                            };
+                            count++;
+                            if (count === items.length) callback(enriched.filter(Boolean));
+                        });
+                        return;
                     }
                 }
                 count++;
@@ -124,7 +165,7 @@
         });
     }
 
-    function TraktAnimatedMoviesMain(object) {
+    function TraktAnimeMoviesMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
@@ -166,11 +207,14 @@
             return this.render();
         };
 
+        // Клік на "Показати більше" — динамічно розширюємо limit=20 до limit=60
         comp.onMore = function (data) {
+            var fullGridUrl = data.url.replace(/limit=\d+/, 'limit=60');
+
             Lampa.Activity.push({
-                url: data.url,
+                url: fullGridUrl,
                 title: data.title,
-                component: 'trakt_multfilm_view',
+                component: 'trakt_animefilm_view',
                 page: 1
             });
         };
@@ -178,7 +222,7 @@
         return comp;
     }
 
-    function TraktAnimatedMoviesView(object) {
+    function TraktAnimeMoviesView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         comp.create = function () {
@@ -206,17 +250,17 @@
     }
 
     function startPlugin() {
-        if (window.plugin_trakt_multfilm_ready) return;
-        window.plugin_trakt_multfilm_ready = true;
+        if (window.plugin_trakt_animefilm_ready) return;
+        window.plugin_trakt_animefilm_ready = true;
 
-        Lampa.Component.add('trakt_multfilm_main', TraktAnimatedMoviesMain);
-        Lampa.Component.add('trakt_multfilm_view', TraktAnimatedMoviesView);
+        Lampa.Component.add('trakt_animefilm_main', TraktAnimeMoviesMain);
+        Lampa.Component.add('trakt_animefilm_view', TraktAnimeMoviesView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="trakt_multfilm"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="trakt_animefilm"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="trakt_multfilm">
+            var btn = $(`<li class="menu__item selector" data-action="trakt_animefilm">
                 <div class="menu__ico">${TRAKT_CONFIG.icon}</div>
                 <div class="menu__text">${TRAKT_CONFIG.title}</div>
             </li>`);
@@ -224,7 +268,7 @@
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
                     title: TRAKT_CONFIG.title,
-                    component: 'trakt_multfilm_main',
+                    component: 'trakt_animefilm_main',
                     page: 1
                 });
             });
@@ -247,5 +291,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_trakt_multfilm_ready) startPlugin();
+    if (!window.plugin_trakt_animefilm_ready) startPlugin();
 })();
