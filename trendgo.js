@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED ANIME & UA)
+     * TREND GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED ANIME & UA)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -11,7 +11,7 @@
     var ALLOWED_ASIAN = ['ja', 'ko'];
 
     var TRAKT_CONFIG = {
-        title: 'UltimateGO',
+        title: 'trendGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
             { id: "movies", title: "🔥 Фільми", type: "movie", sub: "western" },
