@@ -3,7 +3,7 @@
 
     /**
      * ANIME TV SERIES - TRAKT.TV ENGINE
-     * Single Pure Genres, Strict CJK Detection & Automatic English Fallback
+     * Strict TMDB Animation Genre Enforcement (ID 16), CJK Filter & English Fallback
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -47,7 +47,6 @@
         ]
     };
 
-    // Перевірка на наявність ієрогліфів (японських, корейських, китайських)
     function hasCJK(str) {
         return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
     }
@@ -63,21 +62,17 @@
         return langOk && countryOk;
     }
 
-    // Розумний підбір назви: Українська -> Англійська (Trakt/TMDB) -> Без ієрогліфів
     function getCleanTitle(tmdbData, show, callback) {
         var nameUk = tmdbData.name;
         
-        // 1. Якщо назва з TMDB є і не містить ієрогліфів (тобто перекладена українською)
         if (nameUk && !hasCJK(nameUk)) {
             return callback(nameUk);
         }
 
-        // 2. Якщо в Trakt є англійська назва без ієрогліфів
         if (show.title && !hasCJK(show.title)) {
             return callback(show.title);
         }
 
-        // 3. Фолбек-запит до TMDB англійською мовою (language=en)
         var enUrl = Lampa.TMDB.api('tv/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
         var net = new Lampa.Reguest();
         net.silent(enUrl, function (enData) {
@@ -113,10 +108,14 @@
 
             network.silent(tmdbUrl, function (tmdbData) {
                 if (tmdbData && tmdbData.poster_path) {
+                    // 1. Жорстка перевірка на наявність жанру "Animation" (ID 16) у TMDB
+                    var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
+                    
+                    // 2. Перевірка японського або корейського походження
                     var origLang = (tmdbData.original_language || '').toLowerCase();
                     var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
 
-                    if (isAsianOrigin) {
+                    if (isAnimation && isAsianOrigin) {
                         getCleanTitle(tmdbData, show, function (cleanTitle) {
                             enriched[index] = {
                                 id: tmdbData.id,
