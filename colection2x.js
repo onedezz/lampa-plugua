@@ -2,112 +2,233 @@
     'use strict';
 
     /**
-     * ANIME MASTER COLLECTION (Enhanced)
-     * Dedicated Anime Tab with English Title Fallback & Smart TMDB Filters
+     * ANIME MASTER COLLECTION (Regional & Decades Edition)
+     * Categorized by Trends (JP, KO, ZH) and Chronological Decades
      */
 
     var ANIME_CONFIG = {
         title: 'Аніме',
         icon: '<svg viewBox="0 0 24 24" fill="#FF6F00" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>',
         categories: [
+            // --- РЕГІОНАЛЬНІ ТРЕНДИ (ЯПОНІЯ, КОРЕЯ, КИТАЙ) ---
             { 
-                "title": "🔥 Гарячі онгоїнги та свіжі сезони", 
+                "title": "🇯🇵 TV Тренди (Японія)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja", 
-                    "air_date.gte": "{six_months_ago}", 
+                    "air_date.gte": "{thirty_days_ago}", 
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎬 Аніме-фільми та повнометражки", 
+                "title": "🎬 Трендові фільми (Японія)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja", 
-                    "sort_by": "primary_release_date.desc", 
+                    "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "5" 
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🏆 Золота колекція (Рейтинг 8.0+)", 
+                "title": "🇰🇷 TV-Тренди Корея", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja", 
-                    "vote_average.gte": "8.0", 
+                    "with_original_language": "ko", 
+                    "air_date.gte": "{thirty_days_ago}", 
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🇰🇷 Трендові фільми Корея", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ko", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🇨🇳 TV-Тренди Китай", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "zh", 
+                    "air_date.gte": "{thirty_days_ago}", 
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🇨🇳 Трендові фільми Китай", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "zh", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+
+            // --- НАЙКРАЩІ АНІМЕ ДЕСЯТИЛІТЬ (ВІД СТАРИХ ДО СУЧАСНИХ) ---
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "first_air_date.lte": "1989-12-31", 
+                    "vote_average.gte": "7.0", 
+                    "vote_count.gte": "30", 
+                    "sort_by": "vote_average.desc" 
+                } 
+            },
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "primary_release_date.lte": "1989-12-31", 
+                    "vote_average.gte": "7.0", 
+                    "vote_count.gte": "50", 
+                    "sort_by": "vote_average.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "first_air_date.gte": "1990-01-01", 
+                    "first_air_date.lte": "1999-12-31", 
+                    "vote_average.gte": "7.5", 
+                    "vote_count.gte": "100", 
+                    "sort_by": "vote_average.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "primary_release_date.gte": "1990-01-01", 
+                    "primary_release_date.lte": "1999-12-31", 
+                    "vote_average.gte": "7.5", 
+                    "vote_count.gte": "100", 
+                    "sort_by": "vote_average.desc" 
+                } 
+            },
+            { 
+                "title": "💿 Культові 2000-ні — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "first_air_date.gte": "2000-01-01", 
+                    "first_air_date.lte": "2009-12-31", 
+                    "vote_average.gte": "7.5", 
                     "vote_count.gte": "200", 
                     "sort_by": "vote_average.desc" 
                 } 
             },
             { 
-                "title": "⚔️ Сьонен та Екшн", 
-                "url": "discover/tv", 
+                "title": "💿 Культові 2000-ні — Фільми", 
+                "url": "discover/movie", 
                 "params": { 
-                    "with_genres": "16,10759", 
-                    "with_original_language": "ja", 
-                    "sort_by": "popularity.desc" 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "primary_release_date.gte": "2000-01-01", 
+                    "primary_release_date.lte": "2009-12-31", 
+                    "vote_average.gte": "7.5", 
+                    "vote_count.gte": "200", 
+                    "sort_by": "vote_average.desc" 
                 } 
             },
             { 
-                "title": "🧙‍♂️ Фентезі, Магія та Ісекай", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,10765", 
-                    "with_original_language": "ja", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🧠 Психологія, Трилери та Детективи", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,9648", 
-                    "with_original_language": "ja", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🤖 Меха, Роботи та Кіберпанк", 
+                "title": "💎 Ера Процвітання 2010-х — Серіали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja", 
-                    "with_keywords": "10502|10349", 
-                    "sort_by": "popularity.desc" 
+                    "with_original_language": "ja|ko|zh", 
+                    "first_air_date.gte": "2010-01-01", 
+                    "first_air_date.lte": "2019-12-31", 
+                    "vote_average.gte": "7.8", 
+                    "vote_count.gte": "300", 
+                    "sort_by": "vote_average.desc" 
                 } 
             },
             { 
-                "title": "🏐 Спорт та Змагання", 
+                "title": "💎 Ера Процвітання 2010-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "primary_release_date.gte": "2010-01-01", 
+                    "primary_release_date.lte": "2019-12-31", 
+                    "vote_average.gte": "7.8", 
+                    "vote_count.gte": "300", 
+                    "sort_by": "vote_average.desc" 
+                } 
+            },
+            { 
+                "title": "⚡ Сучасні Хіти 2020-х — Серіали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
-                    "with_original_language": "ja", 
-                    "with_keywords": "11162", 
-                    "sort_by": "popularity.desc" 
+                    "with_original_language": "ja|ko|zh", 
+                    "first_air_date.gte": "2020-01-01", 
+                    "vote_average.gte": "7.8", 
+                    "vote_count.gte": "200", 
+                    "sort_by": "vote_average.desc" 
                 } 
             },
             { 
-                "title": "🏫 Романтика, Школа та Повсякденність", 
-                "url": "discover/tv", 
+                "title": "⚡ Сучасні Хіти 2020-х — Фільми", 
+                "url": "discover/movie", 
                 "params": { 
-                    "with_genres": "16,35", 
-                    "with_original_language": "ja", 
-                    "sort_by": "popularity.desc" 
+                    "with_genres": "16", 
+                    "with_original_language": "ja|ko|zh", 
+                    "primary_release_date.gte": "2020-01-01", 
+                    "vote_average.gte": "7.8", 
+                    "vote_count.gte": "150", 
+                    "sort_by": "vote_average.desc" 
                 } 
             }
         ]
     };
 
-    // Хелпер перевірки на японо-китайські ієрогліфи (CJK)
-    function hasJapanese(text) {
+    // Перевірка на азійську писемність (Японія, Китай, Корея)
+    function hasAsianScript(text) {
         if (!text) return false;
-        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf]/.test(text);
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text);
     }
 
-    // Розумне завантаження з автоматичним фолбеком на англійську назву
+    // Хелпер розрахунку динамічних дат
+    function resolveParamValue(val) {
+        var d = new Date();
+        if (val === '{current_date}') {
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        if (val === '{thirty_days_ago}') {
+            d.setDate(d.getDate() - 30);
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        if (val === '{one_year_ago}') {
+            d.setFullYear(d.getFullYear() - 1);
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        return val;
+    }
+
+    // Запит із фолбеком назви на англійську для азійських тайтлів
     function fetchWithFallback(urlUk, callback) {
         var network = new Lampa.Reguest();
 
@@ -116,10 +237,9 @@
                 return callback(jsonUk);
             }
 
-            // Перевіряємо, чи є ієрогліфи замість назв
             var needEnglish = jsonUk.results.some(function (item) {
                 var title = item.title || item.name || '';
-                return hasJapanese(title);
+                return hasAsianScript(title);
             });
 
             if (needEnglish) {
@@ -128,7 +248,7 @@
                     if (jsonEn && jsonEn.results) {
                         jsonUk.results.forEach(function (item, idx) {
                             var title = item.title || item.name || '';
-                            if (hasJapanese(title) && jsonEn.results[idx]) {
+                            if (hasAsianScript(title) && jsonEn.results[idx]) {
                                 var enTitle = jsonEn.results[idx].title || jsonEn.results[idx].name;
                                 if (enTitle) {
                                     if (item.title) item.title = enTitle;
@@ -190,14 +310,7 @@
                 if (cat.params) {
                     for (var key in cat.params) {
                         var val = cat.params[key];
-                        if (val === '{current_date}') {
-                            var d = new Date();
-                            val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
-                        } else if (val === '{six_months_ago}') {
-                            var d = new Date();
-                            d.setMonth(d.getMonth() - 6);
-                            val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
-                        }
+                        val = resolveParamValue(val);
                         params.push(key + '=' + val);
                     }
                 }
@@ -238,14 +351,7 @@
             if (object.params) {
                 for (var key in object.params) {
                     var val = object.params[key];
-                    if (val === '{current_date}') {
-                        var d = new Date();
-                        val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
-                    } else if (val === '{six_months_ago}') {
-                        var d = new Date();
-                        d.setMonth(d.getMonth() - 6);
-                        val = [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
-                    }
+                    val = resolveParamValue(val);
                     params.push(key + '=' + val);
                 }
             }
