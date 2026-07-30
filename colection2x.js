@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * ANIME MASTER COLLECTION (90-Day TV Window & Reverse Chronological Decades)
+     * ANIME MASTER COLLECTION (Smart Popularity & Anti-Trash Filter)
      */
 
     var ANIME_CONFIG = {
@@ -11,28 +11,30 @@
         categories: [
             // --- ОСНОВНІ ТРЕНДИ (90 ДНІВ ДЛЯ TV) ---
             { 
-                "title": "🔥 TV Тренди", 
+                "title": "🔥 TV Тренди (Останні 90 днів)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "air_date.gte": "{ninety_days_ago}", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎬 Трендові фільми", 
+                "title": "🎬 Трендові фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
                 } 
             },
 
-            // --- ДЕСЯТИЛІТТЯ (ВІД СУЧАСНИХ ДО СТАРИХ) ---
+            // --- ДЕСЯТИЛІТТЯ (ПОПУЛЯРНІСТЬ У МЕЖАХ ЕПОХИ + ВІДСІЮВАННЯ СПАМУ) ---
             { 
                 "title": "⚡ Сучасний Період 2020-х — Серіали", 
                 "url": "discover/tv", 
@@ -40,7 +42,8 @@
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "first_air_date.gte": "2020-01-01", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -50,7 +53,8 @@
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "2020-01-01", 
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -61,7 +65,8 @@
                     "with_original_language": "ja|ko", 
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -72,7 +77,8 @@
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -83,7 +89,8 @@
                     "with_original_language": "ja|ko", 
                     "first_air_date.gte": "2000-01-01", 
                     "first_air_date.lte": "2009-12-31", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -94,7 +101,8 @@
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -105,7 +113,8 @@
                     "with_original_language": "ja|ko", 
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -116,7 +125,8 @@
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -126,7 +136,8 @@
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "first_air_date.lte": "1989-12-31", 
-                    "sort_by": "first_air_date.desc" 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
                 } 
             },
             { 
@@ -136,7 +147,8 @@
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "primary_release_date.lte": "1989-12-31", 
-                    "sort_by": "primary_release_date.desc" 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
                 } 
             }
         ]
@@ -170,6 +182,11 @@
             if (!jsonUk || !jsonUk.results || !jsonUk.results.length) {
                 return callback(jsonUk);
             }
+
+            // 1. ЖОРСТКИЙ ФІЛЬТР ПОСТЕРА: прибираємо тайтли без обкладинки
+            jsonUk.results = jsonUk.results.filter(function (item) {
+                return item.poster_path;
+            });
 
             var needEnglish = jsonUk.results.some(function (item) {
                 var title = item.title || item.name || '';
