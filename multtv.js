@@ -2,8 +2,7 @@
     'use strict';
 
     /**
-     * ANIMATED TV SHOWS - TRAKT.TV ENGINE
-     * Complete Genre & Decades Structure with Trakt API & TMDB Localization
+     * ANIMATED TV SHOWS - TRAKT.TV ENGINE (With Strict TMDB Animation Enforcement)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -19,24 +18,24 @@
         icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярне", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=20" },
-            { title: "📈 Тренди", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=20" },
+            { title: "⭐ Популярне", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=30" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=30" },
 
             // --- 2. ЖАНРИ ЗА ОСТАННІЙ 1 РІК ---
-            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=20" },
-            { title: "👨‍👩‍👧 Сімейні та Дитячі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=30" },
+            { title: "👨‍👩‍👧 Сімейні та Дитячі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=30" },
 
             // --- 3. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
-            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2020-" + currentYear + "&limit=20" },
-            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2010-2019&limit=20" },
-            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2000-2009&limit=20" },
-            { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1990-1999&limit=20" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1900-1989&limit=20" }
+            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2020-" + currentYear + "&limit=30" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2010-2019&limit=30" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2000-2009&limit=30" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1990-1999&limit=30" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1900-1989&limit=30" }
         ]
     };
 
@@ -50,7 +49,7 @@
         return false;
     }
 
-    // Підтягуємо постери та українські назви з TMDB за TMDB ID
+    // Підтягуємо дані з TMDB та ЖОРСТКО перевіряємо наявність жанру "Animation" (ID 16)
     function enrichItemsWithTMDB(items, callback) {
         var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
@@ -73,9 +72,13 @@
 
             network.silent(tmdbUrl, function (tmdbData) {
                 if (tmdbData && tmdbData.poster_path) {
+                    // Жорсткі перевірки через TMDB:
+                    // 1. Обов'язкова наявність жанру "Animation" (ID 16)
+                    var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
+                    // 2. Відсутність небажаних азійських мов оригіналу
                     var isAsianLang = EXCLUDED_LANGS.indexOf(tmdbData.original_language) !== -1;
 
-                    if (!isAsianLang) {
+                    if (isAnimation && !isAsianLang) {
                         enriched[index] = {
                             id: tmdbData.id,
                             name: tmdbData.name || show.title,
