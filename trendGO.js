@@ -18,8 +18,8 @@
             { id: "shows", title: "📺 Серіали", type: "tv", sub: "western" },
             { id: "multfilm", title: "🍿 Мультфільми", type: "movie", sub: "cartoons" },
             { id: "multtv", title: "🎨 Мультсеріали", type: "tv", sub: "cartoons" },
-            { id: "animetv", title: "⚔️ Аніме Серіали", type: "tv", sub: "anime" },
             { id: "animefilm", title: "⛩️ Аніме Фільми", type: "movie", sub: "anime" },
+            { id: "animetv", title: "⚔️ Аніме Серіали", type: "tv", sub: "anime" },
             { id: "doramafilm", title: "🎭 Дорами Фільми", type: "movie", sub: "dorama" },
             { id: "doramatv", title: "🌸 Дорами Серіали", type: "tv", sub: "dorama" },
         ]
