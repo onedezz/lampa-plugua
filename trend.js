@@ -14,14 +14,14 @@
         title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
-            { id: "movies", title: "🔥 Трендові Фільми", type: "movie", sub: "western" },
-            { id: "shows", title: "📺 Трендові Серіали", type: "tv", sub: "western" },
-            { id: "multfilm", title: "🍿 Трендові Мультфільми", type: "movie", sub: "cartoons" },
-            { id: "multtv", title: "🎨 Трендові Мультсеріали", type: "tv", sub: "cartoons" },
-            { id: "animetv", title: "⚔️ Трендові Аніме", type: "tv", sub: "anime" },
-            { id: "animefilm", title: "⛩️ Трендові Аніме Фільми", type: "movie", sub: "anime" },
-            { id: "doramafilm", title: "🎭 Трендові Дорами (Фільми)", type: "movie", sub: "dorama" },
-            { id: "doramatv", title: "🌸 Трендові Дорами (Серіали)", type: "tv", sub: "dorama" },
+            { id: "movies", title: "🔥 Фільми", type: "movie", sub: "western" },
+            { id: "shows", title: "📺 Серіали", type: "tv", sub: "western" },
+            { id: "multfilm", title: "🍿 Мультфільми", type: "movie", sub: "cartoons" },
+            { id: "multtv", title: "🎨 Мультсеріали", type: "tv", sub: "cartoons" },
+            { id: "animetv", title: "⚔️ Аніме Серіали", type: "tv", sub: "anime" },
+            { id: "animefilm", title: "⛩️ Аніме Фільми", type: "movie", sub: "anime" },
+            { id: "doramafilm", title: "🎭 Дорами Фільми", type: "movie", sub: "dorama" },
+            { id: "doramatv", title: "🌸 Дорами Серіали", type: "tv", sub: "dorama" },
         ]
     };
 
