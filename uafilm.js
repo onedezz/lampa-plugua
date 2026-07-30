@@ -2,28 +2,106 @@
     'use strict';
 
     /**
-     * UKRAINIAN CINEMA MASTER COLLECTION
-     * Ukrainian & Soviet-era Ukrainian Cinema Tab with RU Fallback
+     * UKRAINIAN & SOVIET MOVIES MASTER COLLECTION
+     * Feature Films & Documentaries (UA & SU) with RU Fallback
      */
 
-    var UA_CINEMA_CONFIG = {
-        title: 'Кіноспадок',
-        icon: '<svg viewBox="0 0 24 24" fill="#FFD700" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z" fill="#0057B7"/><path d="M4 10h16v8H4z" fill="#FFD700"/></svg>',
+    var UA_MOVIES_CONFIG = {
+        title: 'Вітчизняні фільми',
+        icon: '<svg viewBox="0 0 24 24" fill="#FFD700" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V7h8v2z" fill="#0057B7"/><path d="M4 12h16v6H4z" fill="#FFD700"/></svg>',
         categories: [
-            // --- ОСНОВНІ ТРЕНДИ ---
+            // --- ГОЛОВНІ ТРЕНДИ ---
             { 
-                "title": "🔥 TV Тренди (Останні 90 днів)", 
-                "url": "discover/tv", 
+                "title": "🔥 Тренди (За останній рік)", 
+                "url": "discover/movie", 
                 "params": { 
                     "with_origin_country": "UA", 
-                    "air_date.gte": "{ninety_days_ago}", 
+                    "without_genres": "16", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+
+            // --- ЖАНРИ ЗА ОСТАННІЙ РІК ---
+            { 
+                "title": "😂 Комедії (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "35", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎬 Трендові фільми (За рік)", 
+                "title": "🎭 Драми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
+                    "with_genres": "18", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "⚔️ Бойовики та Екшн (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "28", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "📜 Історичні та Біографія (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "36", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "⚔️ Військові фільми (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "10752", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🕵️ Кримінал та Детективи (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "80,9648", 
+                    "without_genres": "16", 
+                    "with_origin_country": "UA", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🎥 Документальне кіно (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "with_genres": "99", 
+                    "without_genres": "16", 
                     "with_origin_country": "UA", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
@@ -31,39 +109,22 @@
                 } 
             },
 
-            // --- ДЕСЯТИЛІТТЯ (ВІД СУЧАСНИХ ДО СТАРИХ) ---
+            // --- ДЕСЯТИЛІТТЯ (ФІЛЬМИ) ---
             { 
-                "title": "⚡ Сучасний Період 2020-х — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_origin_country": "UA", 
-                    "first_air_date.gte": "2020-01-01", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "⚡ Сучасний Період 2020-х — Фільми", 
+                "title": "⚡ Сучасний Період 2020-х", 
                 "url": "discover/movie", 
                 "params": { 
+                    "without_genres": "16", 
                     "with_origin_country": "UA", 
                     "primary_release_date.gte": "2020-01-01", 
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "💎 Ера 2010-х — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_origin_country": "UA", 
-                    "first_air_date.gte": "2010-01-01", 
-                    "first_air_date.lte": "2019-12-31", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "💎 Ера 2010-х — Фільми", 
+                "title": "💎 Ера 2010-х", 
                 "url": "discover/movie", 
                 "params": { 
+                    "without_genres": "16", 
                     "with_origin_country": "UA", 
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
@@ -71,19 +132,10 @@
                 } 
             },
             { 
-                "title": "💿 2000-ні — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_origin_country": "UA", 
-                    "first_air_date.gte": "2000-01-01", 
-                    "first_air_date.lte": "2009-12-31", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "💿 2000-ні — Фільми", 
+                "title": "💿 2000-ні", 
                 "url": "discover/movie", 
                 "params": { 
+                    "without_genres": "16", 
                     "with_origin_country": "UA", 
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
@@ -91,19 +143,10 @@
                 } 
             },
             { 
-                "title": "📼 1990-ті — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_origin_country": "UA", 
-                    "first_air_date.gte": "1990-01-01", 
-                    "first_air_date.lte": "1999-12-31", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "📼 1990-ті — Фільми", 
+                "title": "📼 1990-ті", 
                 "url": "discover/movie", 
                 "params": { 
+                    "without_genres": "16", 
                     "with_origin_country": "UA", 
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
@@ -111,18 +154,10 @@
                 } 
             },
             { 
-                "title": "🏛️ Класика та Легенди (до 1990 року) — Серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_origin_country": "UA|SU", 
-                    "first_air_date.lte": "1989-12-31", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "🏛️ Класика та Легенди (до 1990 року) — Фільми", 
+                "title": "🏛️ Радянська класика (до 1990 року)", 
                 "url": "discover/movie", 
                 "params": { 
+                    "without_genres": "16", 
                     "with_origin_country": "UA|SU", 
                     "primary_release_date.lte": "1989-12-31", 
                     "sort_by": "popularity.desc" 
@@ -131,7 +166,6 @@
         ]
     };
 
-    // Перевіряємо, чи повернулася назва англійською/латиницею (якщо немає українського перекладу в TMDB)
     function hasLatinScript(text) {
         if (!text) return false;
         return /[a-zA-Z]/.test(text);
@@ -142,10 +176,6 @@
         if (val === '{current_date}') {
             return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
         }
-        if (val === '{ninety_days_ago}') {
-            d.setDate(d.getDate() - 90);
-            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
-        }
         if (val === '{one_year_ago}') {
             d.setFullYear(d.getFullYear() - 1);
             return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
@@ -153,7 +183,6 @@
         return val;
     }
 
-    // Запит із фолбеком на російську мову (ru), якщо українською назва видана латиницею
     function fetchWithFallback(urlUk, callback) {
         var network = new Lampa.Reguest();
 
@@ -162,12 +191,13 @@
                 return callback(jsonUk);
             }
 
-            // Відсіюємо картки без постерів
+            // Відсіюємо картки без постерів та з анімацією
             jsonUk.results = jsonUk.results.filter(function (item) {
-                return item.poster_path;
+                if (!item.poster_path) return false;
+                if (item.genre_ids && item.genre_ids.indexOf(16) !== -1) return false;
+                return true;
             });
 
-            // Якщо назва англійською — робимо фолбек на RU
             var needRussian = jsonUk.results.some(function (item) {
                 var title = item.title || item.name || '';
                 return hasLatinScript(title);
@@ -200,13 +230,13 @@
         });
     }
 
-    function UaCinemaMain(object) {
+    function UaMoviesMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var categories = UA_CINEMA_CONFIG.categories;
+            var categories = UA_MOVIES_CONFIG.categories;
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -262,7 +292,7 @@
                 url: data.url,
                 params: data.params,
                 title: data.title,
-                component: 'ua_cinema_view',
+                component: 'ua_movies_view',
                 page: 1
             });
         };
@@ -270,7 +300,7 @@
         return comp;
     }
 
-    function UaCinemaView(object) {
+    function UaMoviesView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         function buildUrl(page) {
@@ -308,25 +338,25 @@
     }
 
     function startPlugin() {
-        if (window.plugin_ua_cinema_ready) return;
-        window.plugin_ua_cinema_ready = true;
+        if (window.plugin_ua_movies_ready) return;
+        window.plugin_ua_movies_ready = true;
 
-        Lampa.Component.add('ua_cinema_main', UaCinemaMain);
-        Lampa.Component.add('ua_cinema_view', UaCinemaView);
+        Lampa.Component.add('ua_movies_main', UaMoviesMain);
+        Lampa.Component.add('ua_movies_view', UaMoviesView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="ua_cinema_master"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="ua_movies_master"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="ua_cinema_master">
-                <div class="menu__ico">${UA_CINEMA_CONFIG.icon}</div>
-                <div class="menu__text">${UA_CINEMA_CONFIG.title}</div>
+            var btn = $(`<li class="menu__item selector" data-action="ua_movies_master">
+                <div class="menu__ico">${UA_MOVIES_CONFIG.icon}</div>
+                <div class="menu__text">${UA_MOVIES_CONFIG.title}</div>
             </li>`);
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: UA_CINEMA_CONFIG.title,
-                    component: 'ua_cinema_main',
+                    title: UA_MOVIES_CONFIG.title,
+                    component: 'ua_movies_main',
                     page: 1
                 });
             });
@@ -349,5 +379,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_ua_cinema_ready) startPlugin();
+    if (!window.plugin_ua_movies_ready) startPlugin();
 })();
