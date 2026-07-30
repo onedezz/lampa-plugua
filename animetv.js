@@ -3,7 +3,7 @@
 
     /**
      * ANIME TV SERIES - TRAKT.TV ENGINE
-     * Single Pure Genres (No Combinations), Expanded Categories & TMDB Localization
+     * Single Pure Genres, Strict CJK Detection & Automatic English Fallback
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -47,6 +47,11 @@
         ]
     };
 
+    // Перевірка на наявність ієрогліфів (японських, корейських, китайських)
+    function hasCJK(str) {
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
+    }
+
     function isAllowedAnime(show) {
         if (!show) return false;
         var lang = (show.language || '').toLowerCase();
@@ -56,6 +61,34 @@
         var countryOk = !country || ALLOWED_COUNTRIES.indexOf(country) !== -1;
 
         return langOk && countryOk;
+    }
+
+    // Розумний підбір назви: Українська -> Англійська (Trakt/TMDB) -> Без ієрогліфів
+    function getCleanTitle(tmdbData, show, callback) {
+        var nameUk = tmdbData.name;
+        
+        // 1. Якщо назва з TMDB є і не містить ієрогліфів (тобто перекладена українською)
+        if (nameUk && !hasCJK(nameUk)) {
+            return callback(nameUk);
+        }
+
+        // 2. Якщо в Trakt є англійська назва без ієрогліфів
+        if (show.title && !hasCJK(show.title)) {
+            return callback(show.title);
+        }
+
+        // 3. Фолбек-запит до TMDB англійською мовою (language=en)
+        var enUrl = Lampa.TMDB.api('tv/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
+        var net = new Lampa.Reguest();
+        net.silent(enUrl, function (enData) {
+            if (enData && enData.name && !hasCJK(enData.name)) {
+                callback(enData.name);
+            } else {
+                callback(show.title || tmdbData.original_name || tmdbData.name || '');
+            }
+        }, function () {
+            callback(show.title || tmdbData.name || '');
+        });
     }
 
     function enrichItemsWithTMDB(items, callback) {
@@ -84,16 +117,21 @@
                     var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
 
                     if (isAsianOrigin) {
-                        enriched[index] = {
-                            id: tmdbData.id,
-                            name: tmdbData.name || show.title,
-                            original_name: tmdbData.original_name || show.title,
-                            overview: tmdbData.overview || show.overview || '',
-                            poster_path: tmdbData.poster_path,
-                            vote_average: tmdbData.vote_average || show.rating || 0,
-                            first_air_date: tmdbData.first_air_date || show.first_air_date || '',
-                            method: 'tv'
-                        };
+                        getCleanTitle(tmdbData, show, function (cleanTitle) {
+                            enriched[index] = {
+                                id: tmdbData.id,
+                                name: cleanTitle,
+                                original_name: show.title || tmdbData.original_name || '',
+                                overview: tmdbData.overview || show.overview || '',
+                                poster_path: tmdbData.poster_path,
+                                vote_average: tmdbData.vote_average || show.rating || 0,
+                                first_air_date: tmdbData.first_air_date || show.first_air_date || '',
+                                method: 'tv'
+                            };
+                            count++;
+                            if (count === items.length) callback(enriched.filter(Boolean));
+                        });
+                        return;
                     }
                 }
                 count++;
