@@ -1,4 +1,3 @@
-# lampa-plugua
 # 🎬 Lampa Plugins Collection (`lampa-plugua`)
 
 Набір оптимізованих плагінів для медіа-плеєра **Lampa**. Усі плагіни розроблені для швидкого доступного перегляду каталогу **TMDB** із суворим розмежуванням типів контенту, відсіюванням «сміття» та автоматичним підтягуванням перекладів.
@@ -22,22 +21,22 @@
 
 | Плагін | Категорія | Опис | Посилання для Lampa |
 | :--- | :--- | :--- | :--- |
-| 🎬 **Фільми** | `film.js` | Світовий кінематограф (без мультфільмів, аніме, дорам та рос/укр контенту) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/film.js` |
-| 📺 **Серіали** | `tv.js` | Світові ТВ-серіали (без анімації, аніме та дорам) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/tv.js` |
-| 🍿 **Мультфільми** | `multfilm.js` | Повнометражна анімація (без аніме, без мультсеріалів) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/multfilm.js` |
-| 🧸 **Мультсеріали** | `multtv.js` | Багатосерійна анімація (без аніме) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/multtv.js` |
-| ⚔️ **Аніме фільми** | `animefilm.js` | Повнометражне аніме Японії та Південної Кореї | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/animefilm.js` |
-| 🌀 **Аніме серіали** | `animetv.js` | Багатосерійне аніме та онгоїнги (Японія + Корея) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/animetv.js` |
-| 🎭 **Дорами фільми** | `doramafilm.js` | Художні азійські фільми з акторами (Live-Action JP & KO) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/doramafilm.js` |
-| ⛩️ **Дорами серіали** | `doramatv.js` | Корейські та японські серіали з акторами (K-Drama / J-Drama) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/doramatv.js` |
-| 🇺🇦 **Укр/Рад фільми** | `uafilm.js` | Українське кіно та класика радянських кіностудій (фільми) | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/uafilm.js` |
-| 🇺🇦 **Укр/Рад серіали** | `uatv.js` | Українські та радянські багатосерійні телефільми | `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/uatv.js` |
+| 🎬 **Фільми** | `film.js` | Світовий кінематограф (без мультфільмів, аніме, дорам та рос/укр контенту) | `https://onedezz.github.io/lampa-plugua/film.js` |
+| 📺 **Серіали** | `tv.js` | Світові ТВ-серіали (без анімації, аніме та дорам) | `https://onedezz.github.io/lampa-plugua/tv.js` |
+| 🍿 **Мультфільми** | `multfilm.js` | Повнометражна анімація (без аніме, без мультсеріалів) | `https://onedezz.github.io/lampa-plugua/multfilm.js` |
+| 🧸 **Мультсеріали** | `multtv.js` | Багатосерійна анімація (без аніме) | `https://onedezz.github.io/lampa-plugua/multtv.js` |
+| ⚔️ **Аніме фільми** | `animefilm.js` | Повнометражне аніме Японії та Південної Кореї | `https://onedezz.github.io/lampa-plugua/animefilm.js` |
+| 🌀 **Аніме серіали** | `animetv.js` | Багатосерійне аніме та онгоїнги (Японія + Корея) | `https://onedezz.github.io/lampa-plugua/animetv.js` |
+| 🎭 **Дорами фільми** | `doramafilm.js` | Художні азійські фільми з акторами (Live-Action JP & KO) | `https://onedezz.github.io/lampa-plugua/doramafilm.js` |
+| ⛩️ **Дорами серіали** | `doramatv.js` | Корейські та японські серіали з акторами (K-Drama / J-Drama) | `https://onedezz.github.io/lampa-plugua/doramatv.js` |
+| 🇺🇦 **Укр/Рад фільми** | `uafilm.js` | Українське кіно та класика радянських кіностудій (фільми) | `https://onedezz.github.io/lampa-plugua/uafilm.js` |
+| 🇺🇦 **Укр/Рад серіали** | `uatv.js` | Українські та радянські багатосерійні телефільми | `https://onedezz.github.io/lampa-plugua/uatv.js` |
 
 ---
 
 ## ⚙️ Як встановити в Lampa
 
-1. Скопіюйте потрібне посилання зі списку вище (наприклад, `https://raw.githubusercontent.com/onedezz/lampa-plugua/main/film.js`).
+1. Скопіюйте потрібне посилання зі списку вище (наприклад, `https://onedezz.github.io/lampa-plugua/film.js`).
 2. Запустіть застосунок **Lampa**.
 3. Перейдіть у **Налаштування** ⚙️ ➔ **Плагіни**.
 4. Натисніть **Додати плагін** та вставте скопійоване посилання в поле URL.
