@@ -7,7 +7,7 @@
      */
 
     var ANIME_MOVIES_CONFIG = {
-        title: 'Аніме фільми',
+        title: 'Аніфільми',
         icon: '<svg viewBox="0 0 24 24" fill="#FF5722" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zM8 17H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6V7h2v2zm10 8h-8v-2h8v2zm0-4h-8v-2h8v2zm0-4h-8V7h8v2z"/></svg>',
         categories: [
             // --- ГОЛОВНІ ТРЕНДИ ---
