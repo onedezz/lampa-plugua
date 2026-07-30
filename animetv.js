@@ -2,8 +2,7 @@
     'use strict';
 
     /**
-     * ANIME TV SERIES - TRAKT.TV ENGINE
-     * Strict TMDB Animation Genre Enforcement (ID 16), CJK Filter & English Fallback
+     * ANIME TV SERIES - TRAKT.TV ENGINE (FIXED BUCKET & MORE BUTTON)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -18,32 +17,30 @@
         title: 'Аніме серіали',
         icon: '<svg viewBox="0 0 24 24" fill="#E91E63" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>',
         categories: [
-            // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярне аніме", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&limit=60" },
-            { title: "📈 Тренди", url: "https://api.trakt.tv/shows/trending?genres=anime&countries=jp,kr&limit=60" },
+            // Беремо з запасом limit=50, щоб після фільтрації вивести повні 20 карток
+            { title: "⭐ Популярне аніме", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&limit=50" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/shows/trending?genres=anime&countries=jp,kr&limit=50" },
 
-            // --- 2. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
-            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2020-" + currentYear + "&limit=60" },
-            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=80" },
-            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=80" },
-            { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=100" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=300" },
+            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2020-" + currentYear + "&limit=50" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=50" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=50" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=50" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=80" },
 
-            // --- 3. ОКРЕМІ ЖАНРИ (ЗА ОСТАННІЙ 1 РІК) ---
-            { title: "⚔️ Бойовики (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,action&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🤠 Пригоди (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,adventure&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,science-fiction&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,fantasy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🔪 Трилери (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,thriller&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🔎 Детективи (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,mystery&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "😱 Жахи (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,horror&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,comedy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🎭 Драми (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,drama&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "💖 Романтика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,romance&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🚨 Кримінал (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,crime&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "🎼 Музичні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,music&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "⚔️ Військові (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,war&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
-            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,family&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" }
+            { title: "⚔️ Бойовики (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,action&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🤠 Пригоди (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,adventure&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,science-fiction&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,fantasy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🔪 Трилери (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,thriller&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🔎 Детективи (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,mystery&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "😱 Жахи (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,horror&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,comedy&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🎭 Драми (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,drama&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "💖 Романтика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,romance&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🚨 Кримінал (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,crime&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "🎼 Музичні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,music&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "⚔️ Військові (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,war&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" },
+            { title: "👨‍👩‍👧 Сімейні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=anime,family&countries=jp,kr&years=" + yearRangeOneYear + "&limit=50" }
         ]
     };
 
@@ -108,10 +105,7 @@
 
             network.silent(tmdbUrl, function (tmdbData) {
                 if (tmdbData && tmdbData.poster_path) {
-                    // 1. Жорстка перевірка на наявність жанру "Animation" (ID 16) у TMDB
                     var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
-                    
-                    // 2. Перевірка японського або корейського походження
                     var origLang = (tmdbData.original_language || '').toLowerCase();
                     var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
 
@@ -183,11 +177,16 @@
                     var data = status.data[key];
                     if (data && data.results && data.results.length) {
                         var cat = categories[parseInt(key)];
-                        Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
+                        
+                        // Беремо перші 20 повністю очищених та перевірених карток
+                        var displayResults = data.results.slice(0, 20);
+                        Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
+                        
                         fulldata.push({
                             title: cat.title,
-                            results: data.results,
-                            url: cat.url
+                            results: displayResults,
+                            url: cat.url,
+                            more: true // Кнопка "Показати більше" завжди активна
                         });
                     }
                 });
@@ -210,9 +209,12 @@
             return this.render();
         };
 
+        // Клік на "Показати більше" — розширюємо limit до 60 для сітки
         comp.onMore = function (data) {
+            var fullGridUrl = data.url.replace(/limit=\d+/, 'limit=60');
+
             Lampa.Activity.push({
-                url: data.url,
+                url: fullGridUrl,
                 title: data.title,
                 component: 'trakt_animetv_view',
                 page: 1
