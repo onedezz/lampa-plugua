@@ -14,21 +14,21 @@
         categories: [
             // --- ГОЛОВНІ ТРЕНДИ ---
             { 
-                "title": "🔥 Тренди", 
+                "title": "🔥 Тренди (За останній рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "20",
                     "sort_by": "popularity.desc" 
                 } 
             },
 
             // --- ЖАНРИ ЗА ОСТАННІЙ РІК ---
             { 
-                "title": "⚔️ Екшн", 
+                "title": "⚔️ Бойовики та Екшн (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "28", 
@@ -36,12 +36,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🤠 Пригоди", 
+                "title": "🤠 Пригоди (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "12", 
@@ -49,12 +49,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🚀 Фантастика", 
+                "title": "🚀 Фантастика (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "878", 
@@ -62,12 +62,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🧙‍♂️ Фентезі", 
+                "title": "🧙‍♂️ Фентезі (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "14", 
@@ -75,12 +75,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🔪 Трилери", 
+                "title": "🔪 Трилери (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "53", 
@@ -88,12 +88,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🔎 Детективи", 
+                "title": "🔎 Детективи (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "9648", 
@@ -101,12 +101,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "😱 Жахи", 
+                "title": "😱 Жахи (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "27", 
@@ -114,12 +114,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "😂 Комедії", 
+                "title": "😂 Комедії (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "35", 
@@ -127,12 +127,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎭 Драми", 
+                "title": "🎭 Драми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "18", 
@@ -140,12 +140,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🕵️ Кримінал", 
+                "title": "🕵️ Кримінал (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "80", 
@@ -153,12 +153,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "⚔️ Військові", 
+                "title": "⚔️ Військові фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "10752", 
@@ -166,12 +166,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "📜 Історичні", 
+                "title": "📜 Історичні фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "36", 
@@ -179,12 +179,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "💖 Романтика", 
+                "title": "💖 Мелодрами та Романтика (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "10749", 
@@ -192,12 +192,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "👨‍👩‍👧 Сімейне", 
+                "title": "👨‍👩‍👧 Сімейне кіно (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "10751", 
@@ -205,12 +205,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎥 Документальне", 
+                "title": "🎥 Документальне кіно (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "99", 
@@ -218,12 +218,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🎼 Музичні", 
+                "title": "🎼 Музичні фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "10402", 
@@ -231,12 +231,12 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🌵 Вестерни", 
+                "title": "🌵 Вестерни (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "37", 
@@ -244,7 +244,7 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -258,7 +258,7 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.gte": "2020-01-01", 
                     "vote_average.gte": "7.0",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "300",
                     "sort_by": "vote_average.desc" 
                 } 
             },
@@ -271,7 +271,7 @@
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
                     "vote_average.gte": "7.5",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "500",
                     "sort_by": "vote_average.desc" 
                 } 
             },
@@ -284,7 +284,7 @@
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
                     "vote_average.gte": "7.5",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "500",
                     "sort_by": "vote_average.desc" 
                 } 
             },
@@ -297,7 +297,7 @@
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
                     "vote_average.gte": "7.5",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "500",
                     "sort_by": "vote_average.desc" 
                 } 
             },
@@ -309,7 +309,7 @@
                     "without_original_language": EXCLUDED_LANGS.join(','), 
                     "primary_release_date.lte": "1989-12-31", 
                     "vote_average.gte": "7.5",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "300",
                     "sort_by": "vote_average.desc" 
                 } 
             }
