@@ -2,22 +2,41 @@
     'use strict';
 
     /**
-     * ANIMATED TV SHOWS - TRAKT.TV ENGINE (With Full Category & Pagination Support)
+     * ANIMATED TV SHOWS - TRAKT.TV ENGINE
+     * Complete Genre & Decades Structure with Trakt API & TMDB Localization
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
     var EXCLUDED_LANGS = ['ru', 'be', 'ja', 'ko', 'zh'];
     var EXCLUDED_COUNTRIES = ['ru', 'by', 'jp', 'kr', 'cn'];
 
+    var currentYear = new Date().getFullYear();
+    var lastYear = currentYear - 1;
+    var yearRangeOneYear = lastYear + '-' + currentYear;
+
     var TRAKT_CONFIG = {
         title: 'Мультсеріали',
         icon: '<svg viewBox="0 0 24 24" fill="#FFC107" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 1.99-.9 1.99-2L23 5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/><path d="M9.5 7.5v7l5.5-3.5z" fill="#ffffff"/></svg>',
         categories: [
-            { title: "🔥 Трендові мультсеріали (Trakt)", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=20" },
-            { title: "⭐ Найпопулярніші у спільноті", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=20" },
-            { title: "👁️ Найбільше переглядів за тиждень", url: "https://api.trakt.tv/shows/watched/weekly?genres=animation&limit=20" },
-            { title: "👍 Топ рекомендацій глядачів", url: "https://api.trakt.tv/shows/recommended/weekly?genres=animation&limit=20" },
-            { title: "⚡ Очікувані новинки", url: "https://api.trakt.tv/shows/anticipated?genres=animation&limit=20" }
+            // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
+            { title: "⭐ Популярне", url: "https://api.trakt.tv/shows/popular?genres=animation&limit=20" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/shows/trending?genres=animation&limit=20" },
+
+            // --- 2. ЖАНРИ ЗА ОСТАННІЙ 1 РІК ---
+            { title: "🤠 Пригоди та Екшн (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,action,adventure&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🚀 Фантастика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,science-fiction&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🧙‍♂️ Фентезі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,fantasy&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "😂 Комедії (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,comedy&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🎭 Драми та Душевні (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,drama&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "🔎 Детективи та Містика (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,mystery&years=" + yearRangeOneYear + "&limit=20" },
+            { title: "👨‍👩‍👧 Сімейні та Дитячі (За рік)", url: "https://api.trakt.tv/shows/popular?genres=animation,family&years=" + yearRangeOneYear + "&limit=20" },
+
+            // --- 3. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
+            { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2020-" + currentYear + "&limit=20" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2010-2019&limit=20" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/shows/popular?genres=animation&years=2000-2009&limit=20" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1990-1999&limit=20" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/shows/popular?genres=animation&years=1900-1989&limit=20" }
         ]
     };
 
@@ -31,7 +50,7 @@
         return false;
     }
 
-    // Збагачення списку Trakt даними та постерами з TMDB
+    // Підтягуємо постери та українські назви з TMDB за TMDB ID
     function enrichItemsWithTMDB(items, callback) {
         var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
@@ -78,7 +97,7 @@
         });
     }
 
-    // Запит до Trakt API
+    // Запит сторінки Trakt API
     function fetchTraktPage(baseUrl, page, callback) {
         var pageUrl = baseUrl + '&page=' + page;
         $.ajax({
@@ -105,7 +124,7 @@
         });
     }
 
-    // 1. Головна сторінка зі смугами
+    // 1. Головний компонент горизонтальних смуг
     function TraktAnimatedTvMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
@@ -148,7 +167,7 @@
             return this.render();
         };
 
-        // Клік на "Показати більше"
+        // Натискання на "Показати більше"
         comp.onMore = function (data) {
             Lampa.Activity.push({
                 url: data.url,
@@ -161,7 +180,7 @@
         return comp;
     }
 
-    // 2. Сторінка розгорнутої категорії (з пагінацією)
+    // 2. Компонент розгорнутої категорії з пагінацією
     function TraktAnimatedTvView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
@@ -176,7 +195,7 @@
             });
         };
 
-        // Підгрузка наступних сторінок при скролі вниз
+        // Завантаження наступних сторінок при гортанні вниз
         comp.nextPageReuest = function (objectData, resolve, reject) {
             fetchTraktPage(object.url, objectData.page, function (json) {
                 if (json && json.results && json.results.length) {
