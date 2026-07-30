@@ -38,12 +38,6 @@
             // Дорами Серіали
             { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "popular" },
             { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "trending" },
-            // Українські Фільми
-            { id: "ua_mov_pop", title: "🇺🇦 Популярні Українські Фільми", type: "movie", sub: "ua", sort: "popularity.desc" },
-            { id: "ua_mov_trd", title: "🇺🇦 Новинки Українські Фільми", type: "movie", sub: "ua", sort: "primary_release_date.desc" },
-            // Українські Серіали
-            { id: "ua_tv_pop", title: "🇺🇦 Популярні Українські Серіали", type: "tv", sub: "ua", sort: "popularity.desc" },
-            { id: "ua_tv_trd", title: "🇺🇦 Новинки Українські Серіали", type: "tv", sub: "ua", sort: "first_air_date.desc" }
         ]
     };
 
