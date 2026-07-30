@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (SEPARATED POPULAR & TRENDING)
+     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED UA & STABILITY)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -14,30 +14,16 @@
         title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
-            // Фільми
-            { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", sub: "western", endpoint: "popular" },
-            { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", sub: "western", endpoint: "trending" },
-            // Серіали
-            { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", sub: "western", endpoint: "popular" },
-            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "western", endpoint: "trending" },
-            // Мультфільми
-            { id: "cart_mov_pop", title: "🍿 Популярні Мультфільми", type: "movie", sub: "cartoons", endpoint: "popular" },
-            { id: "cart_mov_trd", title: "🚀 Трендові Мультфільми", type: "movie", sub: "cartoons", endpoint: "trending" },
-            // Мультсеріали
-            { id: "cart_tv_pop", title: "🎨 Популярні Мультсеріали", type: "tv", sub: "cartoons", endpoint: "popular" },
-            { id: "cart_tv_trd", title: "⚡ Трендові Мультсеріали", type: "tv", sub: "cartoons", endpoint: "trending" },
-            // Аніме (Серіали)
-            { id: "anime_tv_pop", title: "⚔️ Популярні Аніме", type: "tv", sub: "anime", endpoint: "popular" },
-            { id: "anime_tv_trd", title: "💥 Трендові Аніме", type: "tv", sub: "anime", endpoint: "trending" },
-            // Аніме Фільми
-            { id: "anime_mov_pop", title: "⛩️ Популярні Аніме Фільми", type: "movie", sub: "anime", endpoint: "popular" },
-            { id: "anime_mov_trd", title: "🌟 Трендові Аніме Фільми", type: "movie", sub: "anime", endpoint: "trending" },
-            // Дорами Фільми
-            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "popular" },
-            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "trending" },
-            // Дорами Серіали
-            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "popular" },
-            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "trending" },
+            { id: "movies", title: "🔥 Трендові Фільми", type: "movie", sub: "western" },
+            { id: "shows", title: "📺 Трендові Серіали", type: "tv", sub: "western" },
+            { id: "multfilm", title: "🍿 Трендові Мультфільми", type: "movie", sub: "cartoons" },
+            { id: "multtv", title: "🎨 Трендові Мультсеріали", type: "tv", sub: "cartoons" },
+            { id: "animetv", title: "⚔️ Трендові Аніме", type: "tv", sub: "anime" },
+            { id: "animefilm", title: "⛩️ Трендові Аніме Фільми", type: "movie", sub: "anime" },
+            { id: "doramafilm", title: "🎭 Трендові Дорами (Фільми)", type: "movie", sub: "dorama" },
+            { id: "doramatv", title: "🌸 Трендові Дорами (Серіали)", type: "tv", sub: "dorama" },
+            { id: "uamovies", title: "🇺🇦 Трендові Українські Фільми", type: "movie", sub: "ua" },
+            { id: "uashows", title: "🇺🇦 Трендові Українські Серіали", type: "tv", sub: "ua" }
         ]
     };
 
@@ -63,48 +49,6 @@
             }
         }, function () {
             callback(traktTitle || tmdbTitle || '');
-        });
-    }
-
-    function fetchUACategory(cat, page, limit, callback) {
-        var network = new Lampa.Reguest();
-        var lang = Lampa.Storage.get('language', 'uk');
-        var tmdbUrl = Lampa.TMDB.api('discover/' + cat.type + '?api_key=' + Lampa.TMDB.key() + '&with_origin_country=UA&sort_by=' + cat.sort + '&page=' + page + '&language=' + lang);
-
-        network.silent(tmdbUrl, function (data) {
-            var results = (data && data.results) ? data.results : [];
-            var formatted = [];
-            var count = 0;
-
-            if (!results.length) return callback({ results: [], page: page, total_pages: 1 });
-
-            results.forEach(function (item, index) {
-                if (!item.poster_path) {
-                    count++;
-                    if (count === results.length) callback({ results: formatted.filter(Boolean), page: page, total_pages: data.total_pages || 1 });
-                    return;
-                }
-
-                getCleanTitle(item, item, cat.type, function (cleanTitle) {
-                    formatted[index] = {
-                        id: item.id,
-                        title: cat.type === 'movie' ? cleanTitle : undefined,
-                        name: cat.type === 'tv' ? cleanTitle : undefined,
-                        original_title: cat.type === 'movie' ? item.original_title : undefined,
-                        original_name: cat.type === 'tv' ? item.original_name : undefined,
-                        overview: item.overview || '',
-                        poster_path: item.poster_path,
-                        vote_average: item.vote_average || 0,
-                        release_date: item.release_date || '',
-                        first_air_date: item.first_air_date || '',
-                        method: cat.type
-                    };
-                    count++;
-                    if (count === results.length) callback({ results: formatted.filter(Boolean), page: page, total_pages: data.total_pages || 1 });
-                });
-            });
-        }, function () {
-            callback({ results: [], page: page, total_pages: 1 });
         });
     }
 
@@ -143,6 +87,9 @@
                         if (isAnim && ALLOWED_ASIAN.indexOf(origLang) !== -1) passFilter = true;
                     } else if (subType === 'dorama') {
                         if (!isAnim && ALLOWED_ASIAN.indexOf(origLang) !== -1) passFilter = true;
+                    } else if (subType === 'ua') {
+                        // Пом'якшений фільтр для українського контенту (мова uk, країна ua або наявність української назви)
+                        if (origLang === 'uk' || origCountry === 'ua' || (tmdbData.title || tmdbData.name)) passFilter = true;
                     }
 
                     if (passFilter) {
@@ -175,45 +122,75 @@
         });
     }
 
-    function fetchCategory(cat, page, limit, callback) {
-        if (cat.sub === 'ua') {
-            fetchUACategory(cat, page, limit, callback);
-            return;
-        }
-
+    function buildTraktUrls(cat, page, limit) {
         var endpoint = cat.type === 'movie' ? 'movies' : 'shows';
-        var url = 'https://api.trakt.tv/' + endpoint + '/' + cat.endpoint + '?page=' + page + '&limit=' + limit;
+        var popularUrl = 'https://api.trakt.tv/' + endpoint + '/popular?page=' + page + '&limit=' + limit;
+        var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
 
-        if (cat.sub === 'cartoons') {
-            url += '&genres=animation';
-        } else if (cat.sub === 'anime') {
-            url += '&genres=anime';
+        if (cat.sub === 'cartoons' || cat.sub === 'anime') {
+            popularUrl += '&genres=animation';
+            trendingUrl += '&genres=animation';
         }
-        if (cat.sub === 'dorama') {
-            url += '&countries=jp,kr';
+        if (cat.sub === 'anime' || cat.sub === 'dorama') {
+            popularUrl += '&countries=jp,kr';
+            trendingUrl += '&countries=jp,kr';
+        }
+        if (cat.sub === 'ua') {
+            // Замість жорсткогофільтрації країн у Trakt для UA використовуємо загальний пул, а TMDB відфільтрує
+            popularUrl = 'https://api.trakt.tv/' + endpoint + '/popular?page=' + page + '&limit=100';
+            trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=100';
         }
 
-        $.ajax({
-            url: url,
-            type: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'trakt-api-version': '2',
-                'trakt-api-key': TRAKT_CLIENT_ID
-            },
-            success: function (response) {
-                var rawList = Array.isArray(response) ? response : [];
-                enrichItemsWithTMDB(rawList, cat.type, cat.sub, function (formattedResults) {
-                    callback({
-                        results: formattedResults,
-                        page: page,
-                        total_pages: 50
-                    });
-                });
-            },
-            error: function () {
-                callback(null);
+        return { popular: popularUrl, trending: trendingUrl };
+    }
+
+    function fetchCombinedCategory(cat, page, limit, callback) {
+        var urls = buildTraktUrls(cat, page, limit);
+        var headers = {
+            'Content-Type': 'application/json',
+            'trakt-api-version': '2',
+            'trakt-api-key': TRAKT_CLIENT_ID
+        };
+
+        $.when(
+            $.ajax({ url: urls.trending, type: 'GET', headers: headers }),
+            $.ajax({ url: urls.popular, type: 'GET', headers: headers })
+        ).done(function (resTrending, resPopular) {
+            var listTrending = (resTrending && resTrending[0]) ? resTrending[0] : [];
+            var listPopular = (resPopular && resPopular[0]) ? resPopular[0] : [];
+
+            var combinedRaw = [];
+            var seenIds = {};
+            var maxLen = Math.max(listTrending.length, listPopular.length);
+
+            for (var i = 0; i < maxLen; i++) {
+                if (listTrending[i]) {
+                    var itemT = listTrending[i].movie || listTrending[i].show || listTrending[i];
+                    var idT = itemT.ids ? itemT.ids.trakt : null;
+                    if (idT && !seenIds[idT]) {
+                        seenIds[idT] = true;
+                        combinedRaw.push(listTrending[i]);
+                    }
+                }
+                if (listPopular[i]) {
+                    var itemP = listPopular[i].movie || listPopular[i].show || listPopular[i];
+                    var idP = itemP.ids ? itemP.ids.trakt : null;
+                    if (idP && !seenIds[idP]) {
+                        seenIds[idP] = true;
+                        combinedRaw.push(listPopular[i]);
+                    }
+                }
             }
+
+            enrichItemsWithTMDB(combinedRaw, cat.type, cat.sub, function (formattedResults) {
+                callback({
+                    results: formattedResults,
+                    page: page,
+                    total_pages: 50
+                });
+            });
+        }).fail(function () {
+            callback(null);
         });
     }
 
@@ -253,7 +230,7 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchCategory(cat, 1, 40, function (data) {
+                fetchCombinedCategory(cat, 1, 40, function (data) {
                     if (data && data.results) status.append(index.toString(), data);
                     else status.error();
                 });
@@ -279,7 +256,7 @@
 
         comp.create = function () {
             var _this = this;
-            fetchCategory(object.catObject, 1, 60, function (json) {
+            fetchCombinedCategory(object.catObject, 1, 60, function (json) {
                 if (json && json.results && json.results.length) {
                     _this.build(json);
                 } else {
@@ -289,7 +266,7 @@
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchCategory(object.catObject, objectData.page, 60, function (json) {
+            fetchCombinedCategory(object.catObject, objectData.page, 60, function (json) {
                 if (json && json.results && json.results.length) {
                     resolve(json);
                 } else {
