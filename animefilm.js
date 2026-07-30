@@ -19,15 +19,15 @@
         icon: '<svg viewBox="0 0 24 24" fill="#E91E63" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярні аніме фільми", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&limit=60" },
-            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=anime&countries=jp,kr&limit=60" },
+            { title: "⭐ Популярні аніме фільми", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&limit=400" },
+            { title: "📈 Тренди", url: "https://api.trakt.tv/movies/trending?genres=anime&countries=jp,kr&limit=400" },
 
             // --- 2. ДЕСЯТИЛІТТЯ (ЗА ПОПУЛЯРНІСТЮ) ---
             { title: "⚡ Сучасність 2020-х", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2020-" + currentYear + "&limit=60" },
-            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=80" },
-            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=80" },
-            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=100" },
-            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=300" },
+            { title: "💎 Ера 2010-х", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2010-2019&limit=160" },
+            { title: "💿 Культові 2000-ні", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=2000-2009&limit=160" },
+            { title: "📼 1990-ті", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1990-1999&limit=300" },
+            { title: "🏛️ Класика (до 1990 року)", url: "https://api.trakt.tv/movies/popular?genres=anime&countries=jp,kr&years=1900-1989&limit=600" },
 
             // --- 3. ОКРЕМІ ЖАНРИ (ЗА ОСТАННІЙ 1 РІК) ---
             { title: "⚔️ Бойовики (За рік)", url: "https://api.trakt.tv/movies/popular?genres=anime,action&countries=jp,kr&years=" + yearRangeOneYear + "&limit=60" },
