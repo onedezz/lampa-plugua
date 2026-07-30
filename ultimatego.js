@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED UA & STABILITY)
+     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED ANIME & UA)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -22,8 +22,6 @@
             { id: "animefilm", title: "⛩️ Трендові Аніме Фільми", type: "movie", sub: "anime" },
             { id: "doramafilm", title: "🎭 Трендові Дорами (Фільми)", type: "movie", sub: "dorama" },
             { id: "doramatv", title: "🌸 Трендові Дорами (Серіали)", type: "tv", sub: "dorama" },
-            { id: "uamovies", title: "🇺🇦 Трендові Українські Фільми", type: "movie", sub: "ua" },
-            { id: "uashows", title: "🇺🇦 Трендові Українські Серіали", type: "tv", sub: "ua" }
         ]
     };
 
@@ -49,6 +47,49 @@
             }
         }, function () {
             callback(traktTitle || tmdbTitle || '');
+        });
+    }
+
+    // Завантаження українського контенту безпосередньо через TMDB Discover
+    function fetchUACategory(cat, page, limit, callback) {
+        var network = new Lampa.Reguest();
+        var lang = Lampa.Storage.get('language', 'uk');
+        var tmdbUrl = Lampa.TMDB.api('discover/' + cat.type + '?api_key=' + Lampa.TMDB.key() + '&with_origin_country=UA&sort_by=popularity.desc&page=' + page + '&language=' + lang);
+
+        network.silent(tmdbUrl, function (data) {
+            var results = (data && data.results) ? data.results : [];
+            var formatted = [];
+            var count = 0;
+
+            if (!results.length) return callback({ results: [], page: page, total_pages: 1 });
+
+            results.forEach(function (item, index) {
+                if (!item.poster_path) {
+                    count++;
+                    if (count === results.length) callback({ results: formatted.filter(Boolean), page: page, total_pages: data.total_pages || 1 });
+                    return;
+                }
+
+                getCleanTitle(item, item, cat.type, function (cleanTitle) {
+                    formatted[index] = {
+                        id: item.id,
+                        title: cat.type === 'movie' ? cleanTitle : undefined,
+                        name: cat.type === 'tv' ? cleanTitle : undefined,
+                        original_title: cat.type === 'movie' ? item.original_title : undefined,
+                        original_name: cat.type === 'tv' ? item.original_name : undefined,
+                        overview: item.overview || '',
+                        poster_path: item.poster_path,
+                        vote_average: item.vote_average || 0,
+                        release_date: item.release_date || '',
+                        first_air_date: item.first_air_date || '',
+                        method: cat.type
+                    };
+                    count++;
+                    if (count === results.length) callback({ results: formatted.filter(Boolean), page: page, total_pages: data.total_pages || 1 });
+                });
+            });
+        }, function () {
+            callback({ results: [], page: page, total_pages: 1 });
         });
     }
 
@@ -87,9 +128,6 @@
                         if (isAnim && ALLOWED_ASIAN.indexOf(origLang) !== -1) passFilter = true;
                     } else if (subType === 'dorama') {
                         if (!isAnim && ALLOWED_ASIAN.indexOf(origLang) !== -1) passFilter = true;
-                    } else if (subType === 'ua') {
-                        // Пом'якшений фільтр для українського контенту (мова uk, країна ua або наявність української назви)
-                        if (origLang === 'uk' || origCountry === 'ua' || (tmdbData.title || tmdbData.name)) passFilter = true;
                     }
 
                     if (passFilter) {
@@ -127,24 +165,28 @@
         var popularUrl = 'https://api.trakt.tv/' + endpoint + '/popular?page=' + page + '&limit=' + limit;
         var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
 
-        if (cat.sub === 'cartoons' || cat.sub === 'anime') {
+        if (cat.sub === 'cartoons') {
             popularUrl += '&genres=animation';
             trendingUrl += '&genres=animation';
+        } else if (cat.sub === 'anime') {
+            popularUrl += '&genres=anime';
+            trendingUrl += '&genres=anime';
         }
-        if (cat.sub === 'anime' || cat.sub === 'dorama') {
+        
+        if (cat.sub === 'dorama') {
             popularUrl += '&countries=jp,kr';
             trendingUrl += '&countries=jp,kr';
-        }
-        if (cat.sub === 'ua') {
-            // Замість жорсткогофільтрації країн у Trakt для UA використовуємо загальний пул, а TMDB відфільтрує
-            popularUrl = 'https://api.trakt.tv/' + endpoint + '/popular?page=' + page + '&limit=100';
-            trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=100';
         }
 
         return { popular: popularUrl, trending: trendingUrl };
     }
 
     function fetchCombinedCategory(cat, page, limit, callback) {
+        if (cat.sub === 'ua') {
+            fetchUACategory(cat, page, limit, callback);
+            return;
+        }
+
         var urls = buildTraktUrls(cat, page, limit);
         var headers = {
             'Content-Type': 'application/json',
