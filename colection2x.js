@@ -2,8 +2,8 @@
     'use strict';
 
     /**
-     * ANIME MASTER COLLECTION
-     * Dedicated Anime Tab for Lampa powered by TMDB JA-Animation query
+     * ANIME MASTER COLLECTION (Enhanced)
+     * Dedicated Anime Tab with English Title Fallback & Smart TMDB Filters
      */
 
     var ANIME_CONFIG = {
@@ -21,7 +21,7 @@
                 } 
             },
             { 
-                "title": "🎬 Нові аніме-фільми", 
+                "title": "🎬 Аніме-фільми та повнометражки", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
@@ -32,22 +32,13 @@
                 } 
             },
             { 
-                "title": "⭐ Найпопулярніші серіали", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "with_original_language": "ja", 
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
                 "title": "🏆 Золота колекція (Рейтинг 8.0+)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja", 
                     "vote_average.gte": "8.0", 
-                    "vote_count.gte": "300", 
+                    "vote_count.gte": "200", 
                     "sort_by": "vote_average.desc" 
                 } 
             },
@@ -61,7 +52,7 @@
                 } 
             },
             { 
-                "title": "🧙‍♂️ Фентезі та Ісекай", 
+                "title": "🧙‍♂️ Фентезі, Магія та Ісекай", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16,10765", 
@@ -70,7 +61,36 @@
                 } 
             },
             { 
-                "title": "🏫 Романтика та Повсякденність", 
+                "title": "🧠 Психологія, Трилери та Детективи", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16,9648", 
+                    "with_original_language": "ja", 
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🤖 Меха, Роботи та Кіберпанк", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja", 
+                    "with_keywords": "10502|10349", 
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🏐 Спорт та Змагання", 
+                "url": "discover/tv", 
+                "params": { 
+                    "with_genres": "16", 
+                    "with_original_language": "ja", 
+                    "with_keywords": "11162", 
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🏫 Романтика, Школа та Повсякденність", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16,35", 
@@ -81,6 +101,54 @@
         ]
     };
 
+    // Хелпер перевірки на японо-китайські ієрогліфи (CJK)
+    function hasJapanese(text) {
+        if (!text) return false;
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf]/.test(text);
+    }
+
+    // Розумне завантаження з автоматичним фолбеком на англійську назву
+    function fetchWithFallback(urlUk, callback) {
+        var network = new Lampa.Reguest();
+
+        network.silent(urlUk, function (jsonUk) {
+            if (!jsonUk || !jsonUk.results || !jsonUk.results.length) {
+                return callback(jsonUk);
+            }
+
+            // Перевіряємо, чи є ієрогліфи замість назв
+            var needEnglish = jsonUk.results.some(function (item) {
+                var title = item.title || item.name || '';
+                return hasJapanese(title);
+            });
+
+            if (needEnglish) {
+                var urlEn = urlUk.replace('language=uk', 'language=en');
+                network.silent(urlEn, function (jsonEn) {
+                    if (jsonEn && jsonEn.results) {
+                        jsonUk.results.forEach(function (item, idx) {
+                            var title = item.title || item.name || '';
+                            if (hasJapanese(title) && jsonEn.results[idx]) {
+                                var enTitle = jsonEn.results[idx].title || jsonEn.results[idx].name;
+                                if (enTitle) {
+                                    if (item.title) item.title = enTitle;
+                                    if (item.name) item.name = enTitle;
+                                }
+                            }
+                        });
+                    }
+                    callback(jsonUk);
+                }, function () {
+                    callback(jsonUk);
+                });
+            } else {
+                callback(jsonUk);
+            }
+        }, function () {
+            callback(null);
+        });
+    }
+
     function AnimeMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
@@ -88,7 +156,6 @@
             var _this = this;
             this.activity.loader(true);
             var categories = ANIME_CONFIG.categories;
-            var network = new Lampa.Reguest();
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -137,10 +204,9 @@
 
                 var url = Lampa.TMDB.api(cat.url + '?' + params.join('&'));
 
-                network.silent(url, function (json) {
-                    status.append(index.toString(), json);
-                }, function () {
-                    status.error();
+                fetchWithFallback(url, function (json) {
+                    if (json) status.append(index.toString(), json);
+                    else status.error();
                 });
             });
 
@@ -162,7 +228,6 @@
 
     function AnimeView(object) {
         var comp = new Lampa.InteractionCategory(object);
-        var network = new Lampa.Reguest();
 
         function buildUrl(page) {
             var params = [];
@@ -189,13 +254,17 @@
 
         comp.create = function () {
             var _this = this;
-            network.silent(buildUrl(1), function (json) {
-                _this.build(json);
-            }, this.empty.bind(this));
+            fetchWithFallback(buildUrl(1), function (json) {
+                if (json) _this.build(json);
+                else _this.empty();
+            });
         };
 
         comp.nextPageReuest = function (object, resolve, reject) {
-            network.silent(buildUrl(object.page), resolve, reject);
+            fetchWithFallback(buildUrl(object.page), function (json) {
+                if (json) resolve(json);
+                else reject();
+            });
         };
 
         return comp;
