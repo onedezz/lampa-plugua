@@ -12,21 +12,21 @@
         categories: [
             // --- ГОЛОВНІ ТРЕНДИ ---
             { 
-                "title": "🔥 Тренди", 
+                "title": "🔥 Тренди (За останній рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
                     "with_original_language": "ja|ko", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "3",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
 
             // --- ЖАНРИ ЗА ОСТАННІЙ РІК ---
             { 
-                "title": "⚔️ Екшн", 
+                "title": "⚔️ Бойовики та Екшн (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,28", 
@@ -38,7 +38,7 @@
                 } 
             },
             { 
-                "title": "🤠 Пригоди", 
+                "title": "🤠 Пригоди (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,12", 
@@ -50,7 +50,7 @@
                 } 
             },
             { 
-                "title": "🚀 Фантастика", 
+                "title": "🚀 Фантастика (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,878", 
@@ -62,7 +62,7 @@
                 } 
             },
             { 
-                "title": "🧙‍♂️ Фентезі", 
+                "title": "🧙‍♂️ Фентезі та Магія (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,14", 
@@ -74,7 +74,7 @@
                 } 
             },
             { 
-                "title": "🔪 Трилери", 
+                "title": "🔪 Трилери (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,53", 
@@ -86,7 +86,7 @@
                 } 
             },
             { 
-                "title": "🔎 Детективи", 
+                "title": "🔎 Детективи (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,9648", 
@@ -98,7 +98,7 @@
                 } 
             },
             { 
-                "title": "😱 Жахи", 
+                "title": "😱 Жахи та Містика (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,27", 
@@ -110,7 +110,7 @@
                 } 
             },
             { 
-                "title": "😂 Комедії", 
+                "title": "😂 Комедії (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,35", 
@@ -122,7 +122,7 @@
                 } 
             },
             { 
-                "title": "🎭 Драми", 
+                "title": "🎭 Драми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,18", 
@@ -134,7 +134,7 @@
                 } 
             },
             { 
-                "title": "🕵️ Кримінал", 
+                "title": "🕵️ Кримінал (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,80", 
@@ -146,7 +146,7 @@
                 } 
             },
             { 
-                "title": "⚔️ Військові", 
+                "title": "⚔️ Військові фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10752", 
@@ -158,7 +158,7 @@
                 } 
             },
             { 
-                "title": "📜 Історичні", 
+                "title": "📜 Історичні фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,36", 
@@ -170,7 +170,7 @@
                 } 
             },
             { 
-                "title": "💖 Романтика", 
+                "title": "💖 Мелодрами та Романтика (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10749", 
@@ -182,7 +182,7 @@
                 } 
             },
             { 
-                "title": "👨‍👩‍👧 Сімейне", 
+                "title": "👨‍👩‍👧 Сімейне аніме (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10751", 
@@ -194,7 +194,7 @@
                 } 
             },
             { 
-                "title": "🎼 Музичні", 
+                "title": "🎼 Музичні фільми (За рік)", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10402", 
