@@ -2,42 +2,39 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (SIMKL API INTEGRATION)
+     * ULTIMATE GO - SIMKL API INTEGRATION FOR LAMPA
+     * Категорії: Фільми, Серіали, Аніме, Дорами (Популярне та Тренди)
      */
 
-    var SIMKL_CLIENT_ID = 'YOUR_SIMKL_CLIENT_ID'; 
+    // 🔑 Вкажіть ваш Client ID від Simkl
+    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf'; 
 
     var EXCLUDED_ALL_ASIAN_RU = ['ru', 'be', 'zh', 'cn', 'hi', 'in', 'ja', 'jp', 'ko', 'kr'];
-    var ALLOWED_ASIAN = ['ja', 'ko'];
+    var ALLOWED_ASIAN = ['ja', 'jp', 'ko', 'kr', 'zh', 'cn', 'tw'];
 
     var CONFIG = {
         title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
-            // Фільми
+            // 🎬 ФІЛЬМИ
             { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", sub: "western", endpoint: "movies/popular" },
             { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", sub: "western", endpoint: "movies/trending" },
-            // Серіали
+
+            // 📺 СЕРІАЛИ
             { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", sub: "western", endpoint: "tv/popular" },
             { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "western", endpoint: "tv/trending" },
-            // Мультфільми
-            { id: "cart_mov_pop", title: "🍿 Популярні Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/popular" },
-            { id: "cart_mov_trd", title: "🚀 Трендові Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/trending" },
-            // Мультсеріали
-            { id: "cart_tv_pop", title: "🎨 Популярні Мультсеріали", type: "tv", sub: "cartoons", endpoint: "tv/genres/animation/popular" },
-            { id: "cart_tv_trd", title: "⚡ Трендові Мультсеріали", type: "tv", sub: "cartoons", endpoint: "tv/genres/animation/trending" },
-            // Аніме (Серіали)
-            { id: "anime_tv_pop", title: "⚔️ Популярні Аніме", type: "tv", sub: "anime", endpoint: "anime/popular" },
-            { id: "anime_tv_trd", title: "💥 Трендові Аніме", type: "tv", sub: "anime", endpoint: "anime/trending" },
-            // Аніме Фільми
+
+            // ⚔️ АНІМЕ
+            { id: "anime_tv_pop", title: "⚔️ Популярне Аніме (Серіали)", type: "tv", sub: "anime", endpoint: "anime/popular" },
+            { id: "anime_tv_trd", title: "💥 Трендове Аніме (Серіали)", type: "tv", sub: "anime", endpoint: "anime/trending" },
             { id: "anime_mov_pop", title: "⛩️ Популярні Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/popular" },
             { id: "anime_mov_trd", title: "🌟 Трендові Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/trending" },
-            // Дорами Фільми
-            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/popular" },
-            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/trending" },
-            // Дорами Серіали
+
+            // 🌸 ДОРАМИ
             { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/popular" },
-            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/trending" }
+            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/trending" },
+            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/popular" },
+            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/trending" }
         ]
     };
 
@@ -93,6 +90,7 @@
             var origLang = (simklItem.language || '').toLowerCase();
             var origCountry = (simklItem.country || '').toLowerCase();
 
+            // Фільтрація Західного контенту від Азійського
             if (subType === 'western') {
                 if (EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) !== -1 || EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) !== -1) {
                     return finish(null);
