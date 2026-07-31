@@ -5,7 +5,7 @@
      * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (SIMKL API INTEGRATION)
      */
 
-    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf'; 
+    var SIMKL_CLIENT_ID = 'YOUR_SIMKL_CLIENT_ID'; 
 
     var EXCLUDED_ALL_ASIAN_RU = ['ru', 'be', 'zh', 'cn', 'hi', 'in', 'ja', 'jp', 'ko', 'kr'];
     var ALLOWED_ASIAN = ['ja', 'ko'];
