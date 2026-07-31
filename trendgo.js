@@ -280,7 +280,8 @@
             });
         };
 
-        comp.nextPageReuest = function (objectData, resolve, reject) {
+        // Виправлено назву методу під стандарти Lampa API
+        comp.nextPageWithRequest = function (objectData, resolve, reject) {
             fetchCombinedCategory(object.catObject, objectData.page, 60, function (json) {
                 if (json && json.results && json.results.length) {
                     resolve(json);
