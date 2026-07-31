@@ -60,7 +60,7 @@
         if (simklTitle && !hasCJK(simklTitle)) return callback(simklTitle);
 
         var enUrl = Lampa.TMDB.api(type + '/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
-        var net = new Lampa.Request();
+        var net = new Lampa.Reguest();
         net.silent(enUrl, function (enData) {
             var enTitle = type === 'movie' ? (enData ? enData.title : '') : (enData ? enData.name : '');
             if (enTitle && !hasCJK(enTitle)) {
@@ -74,7 +74,7 @@
     }
 
     function fetchUACategory(cat, page, limit, callback) {
-        var network = new Lampa.Request();
+        var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
         var tmdbUrl = Lampa.TMDB.api('discover/' + cat.type + '?api_key=' + Lampa.TMDB.key() + '&with_origin_country=UA&sort_by=' + cat.sort + '&page=' + page + '&language=' + lang);
 
@@ -116,7 +116,7 @@
     }
 
     function enrichItemsWithTMDB(items, type, subType, callback) {
-        var network = new Lampa.Request();
+        var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
         var enriched = [];
         var count = 0;
@@ -192,7 +192,6 @@
             return;
         }
 
-        // Формуємо URL для Simkl API згідно з гайдлайнами
         var url = 'https://api.simkl.com/' + cat.endpoint + '?extended=full&limit=' + limit + '&page=' + page;
         url += '&client_id=' + SIMKL_CLIENT_ID + '&app-name=LampaApp&app-version=1.0';
 
