@@ -2,170 +2,131 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - SIMKL API INTEGRATION FOR LAMPA
+     * ULTIMATE GO - SIMKL MEDIA ENGINE FOR LAMPA
      * Категорії: Фільми, Серіали, Аніме, Дорами (Популярне та Тренди)
      */
 
     // 🔑 Вкажіть ваш Client ID від Simkl
-    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf'; 
-
-    var EXCLUDED_ALL_ASIAN_RU = ['ru', 'be', 'zh', 'cn', 'hi', 'in', 'ja', 'jp', 'ko', 'kr'];
-    var ALLOWED_ASIAN = ['ja', 'jp', 'ko', 'kr', 'zh', 'cn', 'tw'];
+    var SIMKL_CLIENT_ID = 'YOUR_SIMKL_CLIENT_ID';
 
     var CONFIG = {
         title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
             // 🎬 ФІЛЬМИ
-            { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", sub: "western", endpoint: "movies/popular" },
-            { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", sub: "western", endpoint: "movies/trending" },
+            { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", endpoint: "movies/popular" },
+            { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", endpoint: "movies/trending" },
 
             // 📺 СЕРІАЛИ
-            { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", sub: "western", endpoint: "tv/popular" },
-            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "western", endpoint: "tv/trending" },
+            { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", endpoint: "tv/popular" },
+            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", endpoint: "tv/trending" },
 
             // ⚔️ АНІМЕ
-            { id: "anime_tv_pop", title: "⚔️ Популярне Аніме (Серіали)", type: "tv", sub: "anime", endpoint: "anime/popular" },
-            { id: "anime_tv_trd", title: "💥 Трендове Аніме (Серіали)", type: "tv", sub: "anime", endpoint: "anime/trending" },
-            { id: "anime_mov_pop", title: "⛩️ Популярні Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/popular" },
-            { id: "anime_mov_trd", title: "🌟 Трендові Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/trending" },
+            { id: "anime_tv_pop", title: "⚔️ Популярне Аніме (Серіали)", type: "tv", endpoint: "anime/popular" },
+            { id: "anime_tv_trd", title: "💥 Трендове Аніме (Серіали)", type: "tv", endpoint: "anime/trending" },
+            { id: "anime_mov_pop", title: "⛩️ Популярне Аніме (Фільми)", type: "movie", endpoint: "anime/movies/popular" },
+            { id: "anime_mov_trd", title: "🌟 Трендове Аніме (Фільми)", type: "movie", endpoint: "anime/movies/trending" },
 
             // 🌸 ДОРАМИ
-            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/popular" },
-            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/trending" },
-            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/popular" },
-            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/trending" }
+            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/popular" },
+            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/trending" },
+            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/popular" },
+            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/trending" }
         ]
     };
 
-    function hasCJK(str) {
-        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
-    }
+    /**
+     * Запит списку контенту з Simkl API
+     */
+    function fetchCategoryData(cat, page, limit, callback) {
+        var url = 'https://api.simkl.com/' + cat.endpoint + '?extended=full&limit=' + limit + '&page=' + page + '&client_id=' + SIMKL_CLIENT_ID;
 
-    function getCleanTitle(tmdbData, item, type, callback) {
-        var tmdbTitle = type === 'movie' ? (tmdbData ? tmdbData.title : '') : (tmdbData ? tmdbData.name : '');
-        var simklTitle = item ? item.title : '';
-
-        if (tmdbTitle && !hasCJK(tmdbTitle)) return callback(tmdbTitle);
-        if (simklTitle && !hasCJK(simklTitle)) return callback(simklTitle);
-
-        if (!tmdbData || !tmdbData.id) return callback(simklTitle || '');
-
-        var enUrl = Lampa.TMDB.api(type + '/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
-        var net = new Lampa.Reguest();
-        net.silent(enUrl, function (enData) {
-            var enTitle = type === 'movie' ? (enData ? enData.title : '') : (enData ? enData.name : '');
-            if (enTitle && !hasCJK(enTitle)) {
-                callback(enTitle);
-            } else {
-                callback(simklTitle || tmdbTitle || '');
-            }
-        }, function () {
-            callback(simklTitle || tmdbTitle || '');
-        });
-    }
-
-    function enrichItemsWithTMDB(items, type, subType, callback) {
         var network = new Lampa.Reguest();
-        var lang = Lampa.Storage.get('language', 'uk');
-        var enriched = [];
-        var count = 0;
-
-        if (!items || !items.length) return callback([]);
-
-        items.forEach(function (rawItem, index) {
-            var simklItem = rawItem.movie || rawItem.show || rawItem.anime || rawItem;
-            var tmdbId = (simklItem.ids && simklItem.ids.tmdb) ? simklItem.ids.tmdb : null;
-
-            var finish = function (res) {
-                if (res) enriched[index] = res;
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
-            };
-
-            if (!tmdbId) {
-                return finish(null);
-            }
-
-            var origLang = (simklItem.language || '').toLowerCase();
-            var origCountry = (simklItem.country || '').toLowerCase();
-
-            // Фільтрація Західного контенту від Азійського
-            if (subType === 'western') {
-                if (EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) !== -1 || EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) !== -1) {
-                    return finish(null);
-                }
-            }
-
-            var simklPoster = simklItem.poster ? ('https://simkl.in/posters/' + simklItem.poster + '_m.jpg') : '';
-            var tmdbUrl = Lampa.TMDB.api(type + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
-
-            network.silent(tmdbUrl, function (tmdbData) {
-                var posterPath = (tmdbData && tmdbData.poster_path) ? tmdbData.poster_path : null;
-
-                getCleanTitle(tmdbData || {}, simklItem, type, function (cleanTitle) {
-                    finish({
-                        id: tmdbData ? tmdbData.id : tmdbId,
-                        title: type === 'movie' ? cleanTitle : undefined,
-                        name: type === 'tv' ? cleanTitle : undefined,
-                        original_title: type === 'movie' ? (simklItem.title || (tmdbData ? tmdbData.original_title : '')) : undefined,
-                        original_name: type === 'tv' ? (simklItem.title || (tmdbData ? tmdbData.original_name : '')) : undefined,
-                        overview: (tmdbData && tmdbData.overview) ? tmdbData.overview : (simklItem.overview || ''),
-                        poster_path: posterPath,
-                        img: posterPath ? undefined : simklPoster,
-                        vote_average: (tmdbData && tmdbData.vote_average) ? tmdbData.vote_average : (simklItem.users_rating || 0),
-                        release_date: (tmdbData && tmdbData.release_date) ? tmdbData.release_date : (simklItem.year ? simklItem.year.toString() : ''),
-                        first_air_date: (tmdbData && tmdbData.first_air_date) ? tmdbData.first_air_date : (simklItem.year ? simklItem.year.toString() : ''),
-                        method: type
-                    });
-                });
-            }, function () {
-                getCleanTitle(null, simklItem, type, function (cleanTitle) {
-                    finish({
-                        id: tmdbId,
-                        title: type === 'movie' ? cleanTitle : undefined,
-                        name: type === 'tv' ? cleanTitle : undefined,
-                        original_title: type === 'movie' ? simklItem.title : undefined,
-                        original_name: type === 'tv' ? simklItem.title : undefined,
-                        overview: simklItem.overview || '',
-                        img: simklPoster,
-                        vote_average: simklItem.users_rating || 0,
-                        release_date: simklItem.year ? simklItem.year.toString() : '',
-                        first_air_date: simklItem.year ? simklItem.year.toString() : '',
-                        method: type
-                    });
+        network.silent(url, function (response) {
+            var rawList = Array.isArray(response) ? response : [];
+            formatSimklItems(rawList, cat.type, function (items) {
+                callback({
+                    results: items,
+                    page: page,
+                    total_pages: 50
                 });
             });
+        }, function () {
+            callback(null);
         });
     }
 
-    function fetchCategory(cat, page, limit, callback) {
-        var url = 'https://api.simkl.com/' + cat.endpoint + '?extended=full&limit=' + limit + '&page=' + page;
-        url += '&client_id=' + SIMKL_CLIENT_ID + '&app-name=LampaApp&app-version=1.0';
+    /**
+     * Конвертація об'єктів Simkl та синхронізація з TMDB
+     */
+    function formatSimklItems(rawList, defaultType, callback) {
+        if (!rawList || !rawList.length) return callback([]);
 
-        $.ajax({
-            url: url,
-            type: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'LampaMediaServer/1.0'
-            },
-            success: function (response) {
-                var rawList = Array.isArray(response) ? response : [];
-                enrichItemsWithTMDB(rawList, cat.type, cat.sub, function (formattedResults) {
-                    callback({
-                        results: formattedResults,
-                        page: page,
-                        total_pages: 50
+        var lang = Lampa.Storage.get('language', 'uk');
+        var network = new Lampa.Reguest();
+        var results = [];
+        var count = 0;
+
+        rawList.forEach(function (raw, index) {
+            var item = raw.movie || raw.show || raw.anime || raw;
+            var tmdbId = (item.ids && item.ids.tmdb) ? item.ids.tmdb : null;
+            var itemType = defaultType;
+
+            var finish = function (formatted) {
+                if (formatted) results[index] = formatted;
+                count++;
+                if (count === rawList.length) {
+                    callback(results.filter(Boolean));
+                }
+            };
+
+            var simklPoster = item.poster ? ('https://simkl.in/posters/' + item.poster + '_m.jpg') : '';
+
+            if (tmdbId) {
+                var tmdbUrl = Lampa.TMDB.api(itemType + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
+                network.silent(tmdbUrl, function (tmdb) {
+                    var title = itemType === 'movie' ? (tmdb ? tmdb.title : item.title) : (tmdb ? tmdb.name : item.title);
+                    var originalTitle = itemType === 'movie' ? (tmdb ? tmdb.original_title : item.title) : (tmdb ? tmdb.original_name : item.title);
+
+                    finish({
+                        id: tmdb ? tmdb.id : tmdbId,
+                        title: itemType === 'movie' ? title : undefined,
+                        name: itemType === 'tv' ? title : undefined,
+                        original_title: itemType === 'movie' ? originalTitle : undefined,
+                        original_name: itemType === 'tv' ? originalTitle : undefined,
+                        overview: (tmdb && tmdb.overview) ? tmdb.overview : (item.overview || ''),
+                        poster_path: tmdb ? tmdb.poster_path : null,
+                        img: (tmdb && tmdb.poster_path) ? undefined : simklPoster,
+                        vote_average: tmdb ? tmdb.vote_average : (item.users_rating || 0),
+                        release_date: tmdb ? tmdb.release_date : (item.year ? item.year.toString() : ''),
+                        first_air_date: tmdb ? tmdb.first_air_date : (item.year ? item.year.toString() : ''),
+                        method: itemType
+                    });
+                }, function () {
+                    // Фолбек, якщо TMDB недоступний
+                    finish({
+                        id: tmdbId,
+                        title: itemType === 'movie' ? item.title : undefined,
+                        name: itemType === 'tv' ? item.title : undefined,
+                        original_title: itemType === 'movie' ? item.title : undefined,
+                        original_name: itemType === 'tv' ? item.title : undefined,
+                        overview: item.overview || '',
+                        img: simklPoster,
+                        vote_average: item.users_rating || 0,
+                        release_date: item.year ? item.year.toString() : '',
+                        first_air_date: item.year ? item.year.toString() : '',
+                        method: itemType
                     });
                 });
-            },
-            error: function () {
-                callback(null);
+            } else {
+                finish(null);
             }
         });
     }
 
+    /**
+     * Компонент головної сторінки плагіна
+     */
     function UltimateGoMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
@@ -180,10 +141,10 @@
                 Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
                     var data = status.data[key];
                     if (data && data.results && data.results.length) {
-                        var cat = categories[parseInt(key)];
+                        var cat = categories[parseInt(key, 10)];
                         var displayResults = data.results.slice(0, 20);
                         Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
-                        
+
                         fulldata.push({
                             title: cat.title,
                             results: displayResults,
@@ -202,9 +163,12 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchCategory(cat, 1, 40, function (data) {
-                    if (data && data.results) status.append(index.toString(), data);
-                    else status.error();
+                fetchCategoryData(cat, 1, 40, function (data) {
+                    if (data && data.results) {
+                        status.append(index.toString(), data);
+                    } else {
+                        status.error();
+                    }
                 });
             });
 
@@ -223,12 +187,15 @@
         return comp;
     }
 
+    /**
+     * Компонент окремої категорії (з пагінацією)
+     */
     function UltimateGoView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         comp.create = function () {
             var _this = this;
-            fetchCategory(object.catObject, 1, 60, function (json) {
+            fetchCategoryData(object.catObject, 1, 60, function (json) {
                 if (json && json.results && json.results.length) {
                     _this.build(json);
                 } else {
@@ -238,7 +205,7 @@
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchCategory(object.catObject, objectData.page, 60, function (json) {
+            fetchCategoryData(object.catObject, objectData.page, 60, function (json) {
                 if (json && json.results && json.results.length) {
                     resolve(json);
                 } else {
@@ -250,6 +217,9 @@
         return comp;
     }
 
+    /**
+     * Ініціалізація та додавання кнопки в меню
+     */
     function startPlugin() {
         if (window.plugin_ultimatego_ready) return;
         window.plugin_ultimatego_ready = true;
@@ -261,10 +231,10 @@
             var menu = $('.menu .menu__list').eq(0);
             if (!menu.length || menu.find('.menu__item[data-action="ultimatego"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="ultimatego">
-                <div class="menu__ico">${CONFIG.icon}</div>
-                <div class="menu__text">${CONFIG.title}</div>
-            </li>`);
+            var btn = $('<li class="menu__item selector" data-action="ultimatego">' +
+                '<div class="menu__ico">' + CONFIG.icon + '</div>' +
+                '<div class="menu__text">' + CONFIG.title + '</div>' +
+                '</li>');
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
@@ -281,7 +251,7 @@
             addMenuButton();
         } else {
             Lampa.Listener.follow('app', function (e) {
-                if (e.type == 'ready') addMenuButton();
+                if (e.type === 'ready') addMenuButton();
             });
         }
 
