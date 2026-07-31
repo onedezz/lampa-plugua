@@ -19,7 +19,7 @@
             { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", sub: "western", endpoint: "movies/trending" },
             // Серіали
             { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", sub: "western", endpoint: "tv/popular" },
-            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "western", endpoint: "tv/trending" },
+            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "tv", endpoint: "tv/trending" },
             // Мультфільми
             { id: "cart_mov_pop", title: "🍿 Популярні Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/popular" },
             { id: "cart_mov_trd", title: "🚀 Трендові Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/trending" },
@@ -33,11 +33,11 @@
             { id: "anime_mov_pop", title: "⛩️ Популярні Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/popular" },
             { id: "anime_mov_trd", title: "🌟 Трендові Аніме Фільми", type: "movie", sub: "anime", endpoint: "anime/movies/trending" },
             // Дорами Фільми
-            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/popular" },
-            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/trending" },
+            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/popular" },
+            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", sub: "dorama", endpoint: "movies/genres/asian/trending" },
             // Дорами Серіали
-            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/popular" },
-            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/trending" }
+            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/popular" },
+            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", sub: "dorama", endpoint: "tv/genres/asian/trending" }
         ]
     };
 
@@ -84,22 +84,15 @@
                 return;
             }
 
-            var genres = simklItem.genres || [];
-            var isAnim = genres.indexOf('animation') !== -1 || genres.indexOf('anime') !== -1 || subType === 'anime' || subType === 'cartoons';
             var origLang = (simklItem.language || '').toLowerCase();
             var origCountry = (simklItem.country || '').toLowerCase();
-            var passFilter = false;
+            var passFilter = true;
 
+            // Фільтрація мов/країн тільки де це строго необхідно
             if (subType === 'western') {
-                if (!isAnim && EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) === -1 && EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) === -1) passFilter = true;
-            } else if (subType === 'cartoons') {
-                if (EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) === -1 && EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) === -1) passFilter = true;
-            } else if (subType === 'anime') {
-                passFilter = true;
-            } else if (subType === 'dorama') {
-                if (!isAnim && (ALLOWED_ASIAN.indexOf(origLang) !== -1 || ALLOWED_ASIAN.indexOf(origCountry) !== -1)) passFilter = true;
-            } else {
-                passFilter = true;
+                if (EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) !== -1 || EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) !== -1) {
+                    passFilter = false;
+                }
             }
 
             if (!passFilter) {
@@ -111,19 +104,22 @@
             var tmdbUrl = Lampa.TMDB.api(type + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
 
             network.silent(tmdbUrl, function (tmdbData) {
-                if (tmdbData && tmdbData.poster_path) {
-                    getCleanTitle(tmdbData, simklItem, type, function (cleanTitle) {
+                var poster = (tmdbData && tmdbData.poster_path) ? tmdbData.poster_path : (simklItem.poster ? 'https://simkl.in/posters/' + simklItem.poster + '_m.jpg' : '');
+                
+                if (tmdbData || poster) {
+                    getCleanTitle(tmdbData || {}, simklItem, type, function (cleanTitle) {
                         enriched[index] = {
-                            id: tmdbData.id,
+                            id: tmdbData ? tmdbData.id : tmdbId,
                             title: type === 'movie' ? cleanTitle : undefined,
                             name: type === 'tv' ? cleanTitle : undefined,
-                            original_title: type === 'movie' ? (simklItem.title || tmdbData.original_title) : undefined,
-                            original_name: type === 'tv' ? (simklItem.title || tmdbData.original_name) : undefined,
-                            overview: tmdbData.overview || simklItem.overview || '',
-                            poster_path: tmdbData.poster_path,
-                            vote_average: tmdbData.vote_average || simklItem.users_rating || 0,
-                            release_date: tmdbData.release_date || (simklItem.year ? simklItem.year.toString() : ''),
-                            first_air_date: tmdbData.first_air_date || (simklItem.year ? simklItem.year.toString() : ''),
+                            original_title: type === 'movie' ? (simklItem.title || (tmdbData ? tmdbData.original_title : '')) : undefined,
+                            original_name: type === 'tv' ? (simklItem.title || (tmdbData ? tmdbData.original_name : '')) : undefined,
+                            overview: (tmdbData && tmdbData.overview) ? tmdbData.overview : (simklItem.overview || ''),
+                            poster_path: tmdbData ? tmdbData.poster_path : null,
+                            img: poster,
+                            vote_average: (tmdbData && tmdbData.vote_average) ? tmdbData.vote_average : (simklItem.users_rating || 0),
+                            release_date: (tmdbData && tmdbData.release_date) ? tmdbData.release_date : (simklItem.year ? simklItem.year.toString() : ''),
+                            first_air_date: (tmdbData && tmdbData.first_air_date) ? tmdbData.first_air_date : (simklItem.year ? simklItem.year.toString() : ''),
                             method: type
                         };
                         count++;
