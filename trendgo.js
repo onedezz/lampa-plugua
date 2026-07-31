@@ -14,16 +14,26 @@
         title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
-            { id: "movies", title: "🔥 Трендові Фільми", type: "movie", sub: "western" },
-            { id: "shows", title: "📺 Трендові Серіали", type: "tv", sub: "western" },
-            { id: "multfilm", title: "🍿 Трендові Мультфільми", type: "movie", sub: "cartoons" },
-            { id: "multtv", title: "🎨 Трендові Мультсеріали", type: "tv", sub: "cartoons" },
-            { id: "animetv", title: "⚔️ Трендові Аніме", type: "tv", sub: "anime" },
-            { id: "animefilm", title: "⛩️ Трендові Аніме Фільми", type: "movie", sub: "anime" },
-            { id: "doramafilm", title: "🎭 Трендові Дорами (Фільми)", type: "movie", sub: "dorama" },
-            { id: "doramatv", title: "🌸 Трендові Дорами (Серіали)", type: "tv", sub: "dorama" },
-            { id: "uamovies", title: "🇺🇦 Трендові Українські Фільми", type: "movie", sub: "ua" },
-            { id: "uashows", title: "🇺🇦 Трендові Українські Серіали", type: "tv", sub: "ua" }
+            // Фільми (Об'єднані Трендові + Переглянуті за тиждень)
+            { id: "mov_mix", title: "🔥 Трендові та Масові Фільми", type: "movie", sub: "western" },
+            // Серіали
+            { id: "tv_mix", title: "📺 Трендові та Масові Серіали", type: "tv", sub: "western" },
+            // Мультфільми
+            { id: "cart_mov_mix", title: "🍿 Трендові та Масові Мультфільми", type: "movie", sub: "cartoons" },
+            // Мультсеріали
+            { id: "cart_tv_mix", title: "🎨 Трендові та Масові Мультсеріали", type: "tv", sub: "cartoons" },
+            // Аніме (Серіали)
+            { id: "anime_tv_mix", title: "⚔️ Трендові та Масові Аніме", type: "tv", sub: "anime" },
+            // Аніме Фільми
+            { id: "anime_mov_mix", title: "⛩️ Трендові та Масові Аніме Фільми", type: "movie", sub: "anime" },
+            // Дорами Фільми
+            { id: "dorama_mov_mix", title: "🎭 Трендові та Масові Дорами (Фільми)", type: "movie", sub: "dorama" },
+            // Дорами Серіали
+            { id: "dorama_tv_mix", title: "🌸 Трендові та Масові Дорами (Серіали)", type: "tv", sub: "dorama" },
+            // Українські Фільми
+            { id: "ua_mov", title: "🇺🇦 Українські Фільми (Топ та Новинки)", type: "movie", sub: "ua" },
+            // Українські Серіали
+            { id: "ua_tv", title: "🇺🇦 Українські Серіали (Топ та Новинки)", type: "tv", sub: "ua" }
         ]
     };
 
@@ -52,7 +62,7 @@
         });
     }
 
-    // Завантаження українського контенту безпосередньо через TMDB Discover
+    // Завантаження українського контенту з TMDB
     function fetchUACategory(cat, page, limit, callback) {
         var network = new Lampa.Reguest();
         var lang = Lampa.Storage.get('language', 'uk');
@@ -162,35 +172,29 @@
         });
     }
 
-    function buildTraktUrls(cat, page, limit) {
-        var endpoint = cat.type === 'movie' ? 'movies' : 'shows';
-        // Замість popular використовуємо watched/weekly (переглянуте за тиждень)
-        var watchedWeeklyUrl = 'https://api.trakt.tv/' + endpoint + '/watched/weekly?page=' + page + '&limit=' + limit;
-        var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
-
-        if (cat.sub === 'cartoons') {
-            watchedWeeklyUrl += '&genres=animation';
-            trendingUrl += '&genres=animation';
-        } else if (cat.sub === 'anime') {
-            watchedWeeklyUrl += '&genres=anime';
-            trendingUrl += '&genres=anime';
-        }
-        
-        if (cat.sub === 'dorama') {
-            watchedWeeklyUrl += '&countries=jp,kr';
-            trendingUrl += '&countries=jp,kr';
-        }
-
-        return { watched: watchedWeeklyUrl, trending: trendingUrl };
-    }
-
+    // Злиття Trending + Watched (Weekly) без повторів
     function fetchCombinedCategory(cat, page, limit, callback) {
         if (cat.sub === 'ua') {
             fetchUACategory(cat, page, limit, callback);
             return;
         }
 
-        var urls = buildTraktUrls(cat, page, limit);
+        var endpoint = cat.type === 'movie' ? 'movies' : 'shows';
+        var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
+        var watchedUrl = 'https://api.trakt.tv/' + endpoint + '/watched/weekly?page=' + page + '&limit=' + limit;
+
+        if (cat.sub === 'cartoons') {
+            trendingUrl += '&genres=animation';
+            watchedUrl += '&genres=animation';
+        } else if (cat.sub === 'anime') {
+            trendingUrl += '&genres=anime';
+            watchedUrl += '&genres=anime';
+        }
+        if (cat.sub === 'dorama') {
+            trendingUrl += '&countries=jp,kr';
+            watchedUrl += '&countries=jp,kr';
+        }
+
         var headers = {
             'Content-Type': 'application/json',
             'trakt-api-version': '2',
@@ -198,8 +202,8 @@
         };
 
         $.when(
-            $.ajax({ url: urls.trending, type: 'GET', headers: headers }),
-            $.ajax({ url: urls.watched, type: 'GET', headers: headers })
+            $.ajax({ url: trendingUrl, type: 'GET', headers: headers }),
+            $.ajax({ url: watchedUrl, type: 'GET', headers: headers })
         ).done(function (resTrending, resWatched) {
             var listTrending = (resTrending && resTrending[0]) ? resTrending[0] : [];
             var listWatched = (resWatched && resWatched[0]) ? resWatched[0] : [];
@@ -302,21 +306,13 @@
         comp.create = function () {
             var _this = this;
             fetchCombinedCategory(object.catObject, 1, 60, function (json) {
-                if (json && json.results && json.results.length) {
-                    _this.build(json);
-                } else {
-                    _this.empty();
-                }
+                json && json.results && json.results.length ? _this.build(json) : _this.empty();
             });
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
             fetchCombinedCategory(object.catObject, objectData.page, 60, function (json) {
-                if (json && json.results && json.results.length) {
-                    resolve(json);
-                } else {
-                    reject();
-                }
+                json && json.results && json.results.length ? resolve(json) : reject();
             });
         };
 
