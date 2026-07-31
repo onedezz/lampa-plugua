@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * TREND GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (ONLY TRENDING)
+     * ULTIMATE GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (TRENDING + WATCHED WEEKLY)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -11,17 +11,19 @@
     var ALLOWED_ASIAN = ['ja', 'ko'];
 
     var TRAKT_CONFIG = {
-        title: 'trendGO',
+        title: 'UltimateGO',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
         categories: [
-            { id: "movies", title: "🔥 Фільми", type: "movie", sub: "western" },
-            { id: "shows", title: "📺 Серіали", type: "tv", sub: "western" },
-            { id: "multfilm", title: "🍿 Мультфільми", type: "movie", sub: "cartoons" },
-            { id: "multtv", title: "🎨 Мультсеріали", type: "tv", sub: "cartoons" },
-            { id: "animefilm", title: "⛩️ Аніме Фільми", type: "movie", sub: "anime" },
-            { id: "animetv", title: "⚔️ Аніме Серіали", type: "tv", sub: "anime" },
-            { id: "doramafilm", title: "🎭 Дорами Фільми", type: "movie", sub: "dorama" },
-            { id: "doramatv", title: "🌸 Дорами Серіали", type: "tv", sub: "dorama" },
+            { id: "movies", title: "🔥 Трендові Фільми", type: "movie", sub: "western" },
+            { id: "shows", title: "📺 Трендові Серіали", type: "tv", sub: "western" },
+            { id: "multfilm", title: "🍿 Трендові Мультфільми", type: "movie", sub: "cartoons" },
+            { id: "multtv", title: "🎨 Трендові Мультсеріали", type: "tv", sub: "cartoons" },
+            { id: "animetv", title: "⚔️ Трендові Аніме", type: "tv", sub: "anime" },
+            { id: "animefilm", title: "⛩️ Трендові Аніме Фільми", type: "movie", sub: "anime" },
+            { id: "doramafilm", title: "🎭 Трендові Дорами (Фільми)", type: "movie", sub: "dorama" },
+            { id: "doramatv", title: "🌸 Трендові Дорами (Серіали)", type: "tv", sub: "dorama" },
+            { id: "uamovies", title: "🇺🇦 Трендові Українські Фільми", type: "movie", sub: "ua" },
+            { id: "uashows", title: "🇺🇦 Трендові Українські Серіали", type: "tv", sub: "ua" }
         ]
     };
 
@@ -160,21 +162,26 @@
         });
     }
 
-    function buildTraktTrendingUrl(cat, page, limit) {
+    function buildTraktUrls(cat, page, limit) {
         var endpoint = cat.type === 'movie' ? 'movies' : 'shows';
+        // Замість popular використовуємо watched/weekly (переглянуте за тиждень)
+        var watchedWeeklyUrl = 'https://api.trakt.tv/' + endpoint + '/watched/weekly?page=' + page + '&limit=' + limit;
         var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
 
         if (cat.sub === 'cartoons') {
+            watchedWeeklyUrl += '&genres=animation';
             trendingUrl += '&genres=animation';
         } else if (cat.sub === 'anime') {
+            watchedWeeklyUrl += '&genres=anime';
             trendingUrl += '&genres=anime';
         }
-
+        
         if (cat.sub === 'dorama') {
+            watchedWeeklyUrl += '&countries=jp,kr';
             trendingUrl += '&countries=jp,kr';
         }
 
-        return trendingUrl;
+        return { watched: watchedWeeklyUrl, trending: trendingUrl };
     }
 
     function fetchCombinedCategory(cat, page, limit, callback) {
@@ -183,21 +190,44 @@
             return;
         }
 
-        var trendingUrl = buildTraktTrendingUrl(cat, page, limit);
+        var urls = buildTraktUrls(cat, page, limit);
         var headers = {
             'Content-Type': 'application/json',
             'trakt-api-version': '2',
             'trakt-api-key': TRAKT_CLIENT_ID
         };
 
-        $.ajax({
-            url: trendingUrl,
-            type: 'GET',
-            headers: headers
-        }).done(function (resTrending) {
-            var listTrending = resTrending || [];
+        $.when(
+            $.ajax({ url: urls.trending, type: 'GET', headers: headers }),
+            $.ajax({ url: urls.watched, type: 'GET', headers: headers })
+        ).done(function (resTrending, resWatched) {
+            var listTrending = (resTrending && resTrending[0]) ? resTrending[0] : [];
+            var listWatched = (resWatched && resWatched[0]) ? resWatched[0] : [];
 
-            enrichItemsWithTMDB(listTrending, cat.type, cat.sub, function (formattedResults) {
+            var combinedRaw = [];
+            var seenIds = {};
+            var maxLen = Math.max(listTrending.length, listWatched.length);
+
+            for (var i = 0; i < maxLen; i++) {
+                if (listTrending[i]) {
+                    var itemT = listTrending[i].movie || listTrending[i].show || listTrending[i];
+                    var idT = itemT.ids ? itemT.ids.trakt : null;
+                    if (idT && !seenIds[idT]) {
+                        seenIds[idT] = true;
+                        combinedRaw.push(listTrending[i]);
+                    }
+                }
+                if (listWatched[i]) {
+                    var itemW = listWatched[i].movie || listWatched[i].show || listWatched[i];
+                    var idW = itemW.ids ? itemW.ids.trakt : null;
+                    if (idW && !seenIds[idW]) {
+                        seenIds[idW] = true;
+                        combinedRaw.push(listWatched[i]);
+                    }
+                }
+            }
+
+            enrichItemsWithTMDB(combinedRaw, cat.type, cat.sub, function (formattedResults) {
                 callback({
                     results: formattedResults,
                     page: page,
@@ -226,7 +256,7 @@
                         var cat = categories[parseInt(key)];
                         var displayResults = data.results.slice(0, 20);
                         Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
-
+                        
                         fulldata.push({
                             title: cat.title,
                             results: displayResults,
@@ -280,7 +310,6 @@
             });
         };
 
-        // Виправлено помилку в назві функції: nextPageRequest замість nextPageReuest
         comp.nextPageReuest = function (objectData, resolve, reject) {
             fetchCombinedCategory(object.catObject, objectData.page, 60, function (json) {
                 if (json && json.results && json.results.length) {
