@@ -2,7 +2,7 @@
     'use strict';
 
     /**
-     * TREND GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (FIXED ANIME & UA)
+     * TREND GO - ALL-IN-ONE MEDIA ENGINE FOR LAMPA (ONLY TRENDING)
      */
 
     var TRAKT_CLIENT_ID = '_vvIvZYJAxb7NikomG3qIfBcUCnMGwf1M7A-rqCLgCc';
@@ -160,25 +160,21 @@
         });
     }
 
-    function buildTraktUrls(cat, page, limit) {
+    function buildTraktTrendingUrl(cat, page, limit) {
         var endpoint = cat.type === 'movie' ? 'movies' : 'shows';
-        var popularUrl = 'https://api.trakt.tv/' + endpoint + '/popular?page=' + page + '&limit=' + limit;
         var trendingUrl = 'https://api.trakt.tv/' + endpoint + '/trending?page=' + page + '&limit=' + limit;
 
         if (cat.sub === 'cartoons') {
-            popularUrl += '&genres=animation';
             trendingUrl += '&genres=animation';
         } else if (cat.sub === 'anime') {
-            popularUrl += '&genres=anime';
             trendingUrl += '&genres=anime';
         }
-        
+
         if (cat.sub === 'dorama') {
-            popularUrl += '&countries=jp,kr';
             trendingUrl += '&countries=jp,kr';
         }
 
-        return { popular: popularUrl, trending: trendingUrl };
+        return trendingUrl;
     }
 
     function fetchCombinedCategory(cat, page, limit, callback) {
@@ -187,44 +183,21 @@
             return;
         }
 
-        var urls = buildTraktUrls(cat, page, limit);
+        var trendingUrl = buildTraktTrendingUrl(cat, page, limit);
         var headers = {
             'Content-Type': 'application/json',
             'trakt-api-version': '2',
             'trakt-api-key': TRAKT_CLIENT_ID
         };
 
-        $.when(
-            $.ajax({ url: urls.trending, type: 'GET', headers: headers }),
-            $.ajax({ url: urls.popular, type: 'GET', headers: headers })
-        ).done(function (resTrending, resPopular) {
-            var listTrending = (resTrending && resTrending[0]) ? resTrending[0] : [];
-            var listPopular = (resPopular && resPopular[0]) ? resPopular[0] : [];
+        $.ajax({
+            url: trendingUrl,
+            type: 'GET',
+            headers: headers
+        }).done(function (resTrending) {
+            var listTrending = resTrending || [];
 
-            var combinedRaw = [];
-            var seenIds = {};
-            var maxLen = Math.max(listTrending.length, listPopular.length);
-
-            for (var i = 0; i < maxLen; i++) {
-                if (listTrending[i]) {
-                    var itemT = listTrending[i].movie || listTrending[i].show || listTrending[i];
-                    var idT = itemT.ids ? itemT.ids.trakt : null;
-                    if (idT && !seenIds[idT]) {
-                        seenIds[idT] = true;
-                        combinedRaw.push(listTrending[i]);
-                    }
-                }
-                if (listPopular[i]) {
-                    var itemP = listPopular[i].movie || listPopular[i].show || listPopular[i];
-                    var idP = itemP.ids ? itemP.ids.trakt : null;
-                    if (idP && !seenIds[idP]) {
-                        seenIds[idP] = true;
-                        combinedRaw.push(listPopular[i]);
-                    }
-                }
-            }
-
-            enrichItemsWithTMDB(combinedRaw, cat.type, cat.sub, function (formattedResults) {
+            enrichItemsWithTMDB(listTrending, cat.type, cat.sub, function (formattedResults) {
                 callback({
                     results: formattedResults,
                     page: page,
@@ -253,7 +226,7 @@
                         var cat = categories[parseInt(key)];
                         var displayResults = data.results.slice(0, 20);
                         Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
-                        
+
                         fulldata.push({
                             title: cat.title,
                             results: displayResults,
