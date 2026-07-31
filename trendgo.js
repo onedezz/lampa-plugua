@@ -19,7 +19,7 @@
             { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", sub: "western", endpoint: "movies/trending" },
             // Серіали
             { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", sub: "western", endpoint: "tv/popular" },
-            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "tv", endpoint: "tv/trending" },
+            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", sub: "western", endpoint: "tv/trending" },
             // Мультфільми
             { id: "cart_mov_pop", title: "🍿 Популярні Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/popular" },
             { id: "cart_mov_trd", title: "🚀 Трендові Мультфільми", type: "movie", sub: "cartoons", endpoint: "movies/genres/animation/trending" },
@@ -46,11 +46,13 @@
     }
 
     function getCleanTitle(tmdbData, item, type, callback) {
-        var tmdbTitle = type === 'movie' ? tmdbData.title : tmdbData.name;
-        var simklTitle = item.title;
+        var tmdbTitle = type === 'movie' ? (tmdbData ? tmdbData.title : '') : (tmdbData ? tmdbData.name : '');
+        var simklTitle = item ? item.title : '';
 
         if (tmdbTitle && !hasCJK(tmdbTitle)) return callback(tmdbTitle);
         if (simklTitle && !hasCJK(simklTitle)) return callback(simklTitle);
+
+        if (!tmdbData || !tmdbData.id) return callback(simklTitle || '');
 
         var enUrl = Lampa.TMDB.api(type + '/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
         var net = new Lampa.Reguest();
@@ -78,60 +80,63 @@
             var simklItem = rawItem.movie || rawItem.show || rawItem.anime || rawItem;
             var tmdbId = (simklItem.ids && simklItem.ids.tmdb) ? simklItem.ids.tmdb : null;
 
-            if (!tmdbId) {
+            var finish = function (res) {
+                if (res) enriched[index] = res;
                 count++;
                 if (count === items.length) callback(enriched.filter(Boolean));
-                return;
+            };
+
+            if (!tmdbId) {
+                return finish(null);
             }
 
             var origLang = (simklItem.language || '').toLowerCase();
             var origCountry = (simklItem.country || '').toLowerCase();
-            var passFilter = true;
 
-            // Фільтрація мов/країн тільки де це строго необхідно
             if (subType === 'western') {
                 if (EXCLUDED_ALL_ASIAN_RU.indexOf(origLang) !== -1 || EXCLUDED_ALL_ASIAN_RU.indexOf(origCountry) !== -1) {
-                    passFilter = false;
+                    return finish(null);
                 }
             }
 
-            if (!passFilter) {
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
-                return;
-            }
-
+            var simklPoster = simklItem.poster ? ('https://simkl.in/posters/' + simklItem.poster + '_m.jpg') : '';
             var tmdbUrl = Lampa.TMDB.api(type + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
 
             network.silent(tmdbUrl, function (tmdbData) {
-                var poster = (tmdbData && tmdbData.poster_path) ? tmdbData.poster_path : (simklItem.poster ? 'https://simkl.in/posters/' + simklItem.poster + '_m.jpg' : '');
-                
-                if (tmdbData || poster) {
-                    getCleanTitle(tmdbData || {}, simklItem, type, function (cleanTitle) {
-                        enriched[index] = {
-                            id: tmdbData ? tmdbData.id : tmdbId,
-                            title: type === 'movie' ? cleanTitle : undefined,
-                            name: type === 'tv' ? cleanTitle : undefined,
-                            original_title: type === 'movie' ? (simklItem.title || (tmdbData ? tmdbData.original_title : '')) : undefined,
-                            original_name: type === 'tv' ? (simklItem.title || (tmdbData ? tmdbData.original_name : '')) : undefined,
-                            overview: (tmdbData && tmdbData.overview) ? tmdbData.overview : (simklItem.overview || ''),
-                            poster_path: tmdbData ? tmdbData.poster_path : null,
-                            img: poster,
-                            vote_average: (tmdbData && tmdbData.vote_average) ? tmdbData.vote_average : (simklItem.users_rating || 0),
-                            release_date: (tmdbData && tmdbData.release_date) ? tmdbData.release_date : (simklItem.year ? simklItem.year.toString() : ''),
-                            first_air_date: (tmdbData && tmdbData.first_air_date) ? tmdbData.first_air_date : (simklItem.year ? simklItem.year.toString() : ''),
-                            method: type
-                        };
-                        count++;
-                        if (count === items.length) callback(enriched.filter(Boolean));
+                var posterPath = (tmdbData && tmdbData.poster_path) ? tmdbData.poster_path : null;
+
+                getCleanTitle(tmdbData || {}, simklItem, type, function (cleanTitle) {
+                    finish({
+                        id: tmdbData ? tmdbData.id : tmdbId,
+                        title: type === 'movie' ? cleanTitle : undefined,
+                        name: type === 'tv' ? cleanTitle : undefined,
+                        original_title: type === 'movie' ? (simklItem.title || (tmdbData ? tmdbData.original_title : '')) : undefined,
+                        original_name: type === 'tv' ? (simklItem.title || (tmdbData ? tmdbData.original_name : '')) : undefined,
+                        overview: (tmdbData && tmdbData.overview) ? tmdbData.overview : (simklItem.overview || ''),
+                        poster_path: posterPath,
+                        img: posterPath ? undefined : simklPoster,
+                        vote_average: (tmdbData && tmdbData.vote_average) ? tmdbData.vote_average : (simklItem.users_rating || 0),
+                        release_date: (tmdbData && tmdbData.release_date) ? tmdbData.release_date : (simklItem.year ? simklItem.year.toString() : ''),
+                        first_air_date: (tmdbData && tmdbData.first_air_date) ? tmdbData.first_air_date : (simklItem.year ? simklItem.year.toString() : ''),
+                        method: type
                     });
-                } else {
-                    count++;
-                    if (count === items.length) callback(enriched.filter(Boolean));
-                }
+                });
             }, function () {
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
+                getCleanTitle(null, simklItem, type, function (cleanTitle) {
+                    finish({
+                        id: tmdbId,
+                        title: type === 'movie' ? cleanTitle : undefined,
+                        name: type === 'tv' ? cleanTitle : undefined,
+                        original_title: type === 'movie' ? simklItem.title : undefined,
+                        original_name: type === 'tv' ? simklItem.title : undefined,
+                        overview: simklItem.overview || '',
+                        img: simklPoster,
+                        vote_average: simklItem.users_rating || 0,
+                        release_date: simklItem.year ? simklItem.year.toString() : '',
+                        first_air_date: simklItem.year ? simklItem.year.toString() : '',
+                        method: type
+                    });
+                });
             });
         });
     }
