@@ -1,12 +1,6 @@
 (function () {
     'use strict';
 
-    /**
-     * WESTERN ANIMATION CATALOG FOR LAMPA
-     * Фільтрація мов оригіналу безпосередньо в запиті до TMDB API.
-     * Забезпечує повні добірки по 20 тайтлів у кожній категорії без аніме.
-     */
-
     var WEST_LANGS = "en|fr|de|es|it|ca|nl|sv|da|no|pl|uk";
 
     var WESTERN_ANIM_CONFIG = {
