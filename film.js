@@ -21,7 +21,7 @@
 
             // --- 2. КУЛЬТОВІ ЗІ СВІТУ (ЗА МОВАМИ ТА РЕГІОНАМИ) ---
             { 
-                "title": "🇬🇧 Британські колонії", 
+                "title": "Британські колонії", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -31,7 +31,7 @@
                 } 
             },
             { 
-                "title": "🇪🇺 Європейська експансія", 
+                "title": "Європейська експансія", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -41,7 +41,7 @@
                 } 
             },
             { 
-                "title": "🌏 Азійська єдність", 
+                "title": "Азійська єдність", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
