@@ -3,9 +3,11 @@
 
     /**
      * WESTERN ANIMATION CATALOG FOR LAMPA
-     * Тільки Свіжачок та Десятиліття (Окремо Мультфільми та Мультсеріали).
-     * Повністю без аніме та азійської продукції, з пом'якшеними порогами видачі.
+     * Фільтрація мов оригіналу безпосередньо в запиті до TMDB API.
+     * Забезпечує повні добірки по 20 тайтлів у кожній категорії без аніме.
      */
+
+    var WEST_LANGS = "en|fr|de|es|it|ca|nl|sv|da|no|pl|uk";
 
     var WESTERN_ANIM_CONFIG = {
         title: 'Мультфільми & Серіали',
@@ -18,6 +20,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16", 
+                    "with_original_language": WEST_LANGS,
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
                     "vote_count.gte": "1",
@@ -31,6 +34,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
+                    "with_original_language": WEST_LANGS,
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
                     "vote_count.gte": "1",
@@ -45,6 +49,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16", 
+                    "with_original_language": WEST_LANGS,
                     "primary_release_date.gte": "2020-01-01", 
                     "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
@@ -57,6 +62,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
+                    "with_original_language": WEST_LANGS,
                     "first_air_date.gte": "2020-01-01", 
                     "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
@@ -68,6 +74,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16", 
+                    "with_original_language": WEST_LANGS,
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
                     "vote_count.gte": "10",
@@ -81,6 +88,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
+                    "with_original_language": WEST_LANGS,
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
                     "vote_count.gte": "10",
@@ -93,6 +101,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16", 
+                    "with_original_language": WEST_LANGS,
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
                     "vote_count.gte": "10",
@@ -106,6 +115,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
+                    "with_original_language": WEST_LANGS,
                     "first_air_date.gte": "2000-01-01", 
                     "first_air_date.lte": "2009-12-31", 
                     "vote_count.gte": "10",
@@ -118,6 +128,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16", 
+                    "with_original_language": WEST_LANGS,
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
                     "vote_count.gte": "5",
@@ -131,6 +142,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
+                    "with_original_language": WEST_LANGS,
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
                     "vote_count.gte": "5",
