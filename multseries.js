@@ -1,163 +1,124 @@
 (function () {
     'use strict';
 
-  
-    var ANIM_TV_CONFIG = {
-        title: 'Мультсеріали',
-        icon: '<svg viewBox="0 0 24 24" fill="#FF5722" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>',
+    var WESTERN_ANIM_CONFIG = {
+        title: 'Мультфільми & Серіали',
+        icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>',
         categories: [
-            // --- 1. Свіжачок ---
+            // --- 1. СВІЖАЧОК ---
             { 
-                "title": "🔥 Свіжачок (За рік)", 
+                "title": "🔥 Свіжачок — Мультфільми (За рік)", 
+                "url": "discover/movie", 
+                "is_tv": false,
+                "params": { 
+                    "with_genres": "16", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "vote_count.gte": "10",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🔥 Свіжачок — Мультсеріали (За рік)", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
-                    "vote_count.gte": "2",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
 
             // --- 2. ВІКОВІ КАТЕГОРІЇ ---
             { 
-                "title": "🔞 Дорослим", 
-                "url": "discover/tv", 
+                "title": "👶 Для дітей — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
                 "params": { 
-                    "with_genres": "16", 
-                    "without_genres": "10763,10764,10767", 
-                    "with_keywords": "210024|283626|208364",
-                    "vote_count.gte": "5",
-                    "sort_by": "popularity.desc" 
+                    "with_genres": "16,10751", 
+                    "vote_count.gte": "30",
+                    "sort_by": "vote_count.desc" 
                 } 
             },
             { 
-                "title": "🧢 Підліткам", 
+                "title": "👶 Для дітей — Мультсеріали", 
                 "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,10759", 
-                    "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "10",
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-            { 
-                "title": "👶 Малюкам", 
-                "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16,10762", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "vote_count.gte": "10",
-                    "sort_by": "popularity.desc" 
-                } 
-            },
-
-            // --- 3. КУЛЬТОВІ ЗІ СВІТУ ---
-            { 
-                "title": "Британські колонії", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16", 
-                    "without_genres": "10763,10764,10767", 
-                    "with_original_language": "en",
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "80",
                     "sort_by": "vote_count.desc" 
                 } 
             },
             { 
-                "title": "Європейська експансія", 
-                "url": "discover/tv", 
+                "title": "🧢 Для підлітків — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
                 "params": { 
-                    "with_genres": "16", 
-                    "without_genres": "10763,10764,10767", 
-                    "with_original_language": "fr|de|it|es|sv|da|no|pl|nl|pt|cs|hu|ro|fi|el|uk",
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "20",
+                    "with_genres": "16,12", 
+                    "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
                 } 
             },
-
-            // --- 4. ЖАНРИ ---
             { 
-                "title": "⚔️ Бойовики та Пригоди", 
+                "title": "🧢 Для підлітків — Мультсеріали", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16,10759", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "30",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "😂 Комедії", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,35", 
-                    "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "30",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "🔎 Детективи & Таємниці", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,9648", 
-                    "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "vote_count.gte": "20",
                     "sort_by": "vote_count.desc" 
                 } 
             },
-            { 
-                "title": "🚀 Фантастика та Фентезі", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,10765", 
-                    "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "30",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "👨‍👩‍👧 Сімейні", 
-                "url": "discover/tv", 
-                "params": { 
-                    "with_genres": "16,10751", 
-                    "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
-                    "vote_count.gte": "30",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
 
-            // --- 5. ДЕСЯТИЛІТТЯ ---
+            // --- 3. ДЕСЯТИЛІТТЯ ---
             { 
-                "title": "⚡ 2020-ті роки", 
+                "title": "⚡ 2020-ті роки — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
+                "params": { 
+                    "with_genres": "16", 
+                    "primary_release_date.gte": "2020-01-01", 
+                    "vote_count.gte": "20",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "⚡ 2020-ті роки — Мультсеріали", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "2020-01-01", 
                     "vote_count.gte": "20",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "💎 2010-ті роки", 
+                "title": "💎 2010-ті роки — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
+                "params": { 
+                    "with_genres": "16", 
+                    "primary_release_date.gte": "2010-01-01", 
+                    "primary_release_date.lte": "2019-12-31", 
+                    "vote_count.gte": "50",
+                    "sort_by": "vote_count.desc" 
+                } 
+            },
+            { 
+                "title": "💎 2010-ті роки — Мультсеріали", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
                     "vote_count.gte": "30",
@@ -165,12 +126,24 @@
                 } 
             },
             { 
-                "title": "💿 2000-ні роки", 
+                "title": "💿 2000-ні роки — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
+                "params": { 
+                    "with_genres": "16", 
+                    "primary_release_date.gte": "2000-01-01", 
+                    "primary_release_date.lte": "2009-12-31", 
+                    "vote_count.gte": "50",
+                    "sort_by": "vote_count.desc" 
+                } 
+            },
+            { 
+                "title": "💿 2000-ні роки — Мультсеріали", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "2000-01-01", 
                     "first_air_date.lte": "2009-12-31", 
                     "vote_count.gte": "30",
@@ -178,12 +151,24 @@
                 } 
             },
             { 
-                "title": "📼 1990-ті роки", 
+                "title": "📼 1990-ті роки — Мультфільми", 
+                "url": "discover/movie", 
+                "is_tv": false,
+                "params": { 
+                    "with_genres": "16", 
+                    "primary_release_date.gte": "1990-01-01", 
+                    "primary_release_date.lte": "1999-12-31", 
+                    "vote_count.gte": "30",
+                    "sort_by": "vote_count.desc" 
+                } 
+            },
+            { 
+                "title": "📼 1990-ті роки — Мультсеріали", 
                 "url": "discover/tv", 
+                "is_tv": true,
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
                     "vote_count.gte": "20",
@@ -218,7 +203,6 @@
             }
         }
 
-        // Перевірка оригінальної та поточної назв на ієрогліфи
         if (hasAsianScript(item.original_name) || hasAsianScript(item.original_title) || hasAsianScript(item.name) || hasAsianScript(item.title)) {
             return true;
         }
@@ -238,7 +222,7 @@
         return val;
     }
 
-    function fetchWithFallback(catUrl, catParams, page, callback) {
+    function fetchWithFallback(catUrl, catParams, isTv, page, callback) {
         var network = new Lampa.Reguest();
         
         function buildQuery(lang) {
@@ -264,9 +248,14 @@
                 return callback(jsonUk);
             }
 
-            // ГЛИБОКИЙ ФІЛЬТР: відсікаємо азійські мови, країни та назви з ієрогліфами
             jsonUk.results = jsonUk.results.filter(function (item) {
-                item.media_type = 'tv';
+                if (isTv) {
+                    item.media_type = 'tv';
+                } else {
+                    item.media_type = 'movie';
+                    delete item.name;
+                }
+
                 if (isAsianOrBlocked(item)) return false;
                 return !!item.poster_path;
             });
@@ -291,11 +280,24 @@
                         if (!title || hasAsianScript(title)) {
                             var enTitle = enMap[item.id];
                             if (enTitle && !hasAsianScript(enTitle)) {
-                                item.name = enTitle;
-                                item.title = enTitle;
-                            } else if (item.original_name && !hasAsianScript(item.original_name)) {
-                                item.name = item.original_name;
-                                item.title = item.original_name;
+                                if (isTv) {
+                                    item.name = enTitle;
+                                    item.title = enTitle;
+                                } else {
+                                    item.title = enTitle;
+                                    delete item.name;
+                                }
+                            } else if (item.original_name || item.original_title) {
+                                var orig = item.original_name || item.original_title;
+                                if (!hasAsianScript(orig)) {
+                                    if (isTv) {
+                                        item.name = orig;
+                                        item.title = orig;
+                                    } else {
+                                        item.title = orig;
+                                        delete item.name;
+                                    }
+                                }
                             }
                         }
                     });
@@ -312,13 +314,13 @@
         });
     }
 
-    function AnimTvMain(object) {
+    function WesternAnimMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var categories = ANIM_TV_CONFIG.categories;
+            var categories = WESTERN_ANIM_CONFIG.categories;
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -332,7 +334,8 @@
                             title: cat.title,
                             results: data.results,
                             url: cat.url,
-                            params: cat.params
+                            params: cat.params,
+                            is_tv: cat.is_tv
                         });
                     }
                 });
@@ -346,7 +349,7 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchWithFallback(cat.url, cat.params, 1, function (json) {
+                fetchWithFallback(cat.url, cat.params, cat.is_tv, 1, function (json) {
                     if (json) status.append(index.toString(), json);
                     else status.error();
                 });
@@ -359,8 +362,9 @@
             Lampa.Activity.push({
                 url: data.url,
                 params: data.params,
+                is_tv: data.is_tv,
                 title: data.title,
-                component: 'anim_tv_catalog_view',
+                component: 'western_anim_catalog_view',
                 page: 1
             });
         };
@@ -368,19 +372,19 @@
         return comp;
     }
 
-    function AnimTvView(object) {
+    function WesternAnimView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         comp.create = function () {
             var _this = this;
-            fetchWithFallback(object.url, object.params, 1, function (json) {
+            fetchWithFallback(object.url, object.params, object.is_tv, 1, function (json) {
                 if (json) _this.build(json);
                 else _this.empty();
             });
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchWithFallback(object.url, object.params, objectData.page, function (json) {
+            fetchWithFallback(object.url, object.params, object.is_tv, objectData.page, function (json) {
                 if (json) resolve(json);
                 else reject();
             });
@@ -390,25 +394,25 @@
     }
 
     function startPlugin() {
-        if (window.plugin_anim_tv_catalog_ready) return;
-        window.plugin_anim_tv_catalog_ready = true;
+        if (window.plugin_western_anim_catalog_ready) return;
+        window.plugin_western_anim_catalog_ready = true;
 
-        Lampa.Component.add('anim_tv_catalog_main', AnimTvMain);
-        Lampa.Component.add('anim_tv_catalog_view', AnimTvView);
+        Lampa.Component.add('western_anim_catalog_main', WesternAnimMain);
+        Lampa.Component.add('western_anim_catalog_view', WesternAnimView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="anim_tv_catalog"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="western_anim_catalog"]').length) return;
 
-            var btn = $('<li class="menu__item selector" data-action="anim_tv_catalog">' +
-                '<div class="menu__ico">' + ANIM_TV_CONFIG.icon + '</div>' +
-                '<div class="menu__text">' + ANIM_TV_CONFIG.title + '</div>' +
+            var btn = $('<li class="menu__item selector" data-action="western_anim_catalog">' +
+                '<div class="menu__ico">' + WESTERN_ANIM_CONFIG.icon + '</div>' +
+                '<div class="menu__text">' + WESTERN_ANIM_CONFIG.title + '</div>' +
             '</li>');
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: ANIM_TV_CONFIG.title,
-                    component: 'anim_tv_catalog_main',
+                    title: WESTERN_ANIM_CONFIG.title,
+                    component: 'western_anim_catalog_main',
                     page: 1
                 });
             });
@@ -431,5 +435,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_anim_tv_catalog_ready) startPlugin();
+    if (!window.plugin_western_anim_catalog_ready) startPlugin();
 })();
