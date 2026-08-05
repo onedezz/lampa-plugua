@@ -2,82 +2,232 @@
     'use strict';
 
     /**
-     * ASIAN LIVE-ACTION MOVIES (DORAMA FILMS) - NATIVE ENGINE
-     * Південнокорейські та Японські художні фільми (Без аніме та TV-шоу)
+     * DORAMA MASTER COLLECTION
+     * Dedicated K-Drama & J-Drama Tab for Lampa (Live-Action JP & KO)
      */
 
-    var CONFIG = {
-        title: 'Дорами Фільми',
-        icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
+    var DORAMA_CONFIG = {
+        title: 'Дорами',
+        icon: '<svg viewBox="0 0 24 24" fill="#E91E63" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>',
         categories: [
-            // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярні дорами (фільми)", params: "&sort_by=popularity.desc&vote_count.gte=30" },
-            { title: "📈 Новинки та релізи", params: "&sort_by=primary_release_date.desc&vote_count.gte=5" },
+            // --- ОСНОВНІ ТРЕНДИ ---
+            { 
+                "title": "🔥 TV Тренди (Останні 90 днів)", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "air_date.gte": "{ninety_days_ago}", 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🎬 Трендові фільми (За рік)", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "{one_year_ago}", 
+                    "primary_release_date.lte": "{current_date}",
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
 
-            // --- 2. ДЕСЯТИЛІТТЯ ---
-            { title: "⚡ Сучасність 2020-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2020-01-01" },
-            { title: "💎 Ера 2010-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2010-01-01&primary_release_date.lte=2019-12-31&vote_count.gte=20" },
-            { title: "💿 Культові 2000-ні", params: "&sort_by=popularity.desc&primary_release_date.gte=2000-01-01&primary_release_date.lte=2009-12-31&vote_count.gte=10" },
-            { title: "📼 1990-ті", params: "&sort_by=popularity.desc&primary_release_date.gte=1990-01-01&primary_release_date.lte=1999-12-31&vote_count.gte=5" },
-
-            // --- 3. ЖАНРИ ---
-            { title: "🔪 Трилери", params: "&with_genres=53&sort_by=popularity.desc" },
-            { title: "🔎 Детективи", params: "&with_genres=9648&sort_by=popularity.desc" },
-            { title: "⚔️ Бойовики", params: "&with_genres=28&sort_by=popularity.desc" },
-            { title: "😱 Жахи", params: "&with_genres=27&sort_by=popularity.desc" },
-            { title: "😂 Комедії", params: "&with_genres=35&sort_by=popularity.desc" },
-            { title: "🎭 Драми", params: "&with_genres=18&sort_by=popularity.desc" },
-            { title: "💖 Романтика", params: "&with_genres=10749&sort_by=popularity.desc" },
-            { title: "🚀 Фантастика та Фентезі", params: "&with_genres=878,14&sort_by=popularity.desc" },
-            { title: "🚨 Кримінал", params: "&with_genres=80&sort_by=popularity.desc" }
+            // --- ДЕСЯТИЛІТТЯ (ВІД СУЧАСНИХ ДО СТАРИХ) ---
+            { 
+                "title": "⚡ Сучасний Період 2020-х — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "2020-01-01", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "⚡ Сучасний Період 2020-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "2020-01-01", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "💎 Ера Процвітання 2010-х — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "2010-01-01", 
+                    "first_air_date.lte": "2019-12-31", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "💎 Ера Процвітання 2010-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "2010-01-01", 
+                    "primary_release_date.lte": "2019-12-31", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "💿 Культові 2000-ні — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "2000-01-01", 
+                    "first_air_date.lte": "2009-12-31", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "💿 Культові 2000-ні — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "2000-01-01", 
+                    "primary_release_date.lte": "2009-12-31", 
+                    "vote_count.gte": "5",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.gte": "1990-01-01", 
+                    "first_air_date.lte": "1999-12-31", 
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "📼 Золота ера 1990-х — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.gte": "1990-01-01", 
+                    "primary_release_date.lte": "1999-12-31", 
+                    "vote_count.gte": "3",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Серіали", 
+                "url": "discover/tv", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "first_air_date.lte": "1989-12-31", 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
+                } 
+            },
+            { 
+                "title": "🏛️ Класика та Легенди (до 1990 року) — Фільми", 
+                "url": "discover/movie", 
+                "params": { 
+                    "without_genres": "16", 
+                    "with_original_language": "ja|ko", 
+                    "primary_release_date.lte": "1989-12-31", 
+                    "vote_count.gte": "2",
+                    "sort_by": "popularity.desc" 
+                } 
+            }
         ]
     };
 
-    function formatTmdbResults(results) {
-        if (!Array.isArray(results)) return [];
-        return results.map(function (item) {
-            return {
-                id: item.id,
-                title: item.title || item.name || item.original_title || '',
-                original_title: item.original_title || item.original_name || '',
-                overview: item.overview || '',
-                poster_path: item.poster_path,
-                backdrop_path: item.backdrop_path,
-                vote_average: item.vote_average || 0,
-                release_date: item.release_date || item.first_air_date || '',
-                method: 'movie'
-            };
-        });
+    function hasAsianScript(text) {
+        if (!text) return false;
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text);
     }
 
-    function fetchDoramaPage(categoryParams, page, callback) {
-        // Формуємо правильний шлях для Lampa (Lampa.TMDB.api сама додає api_key та мову)
-        var urlPath = 'discover/movie?with_original_language=ko|ja&without_genres=16' + categoryParams + '&page=' + page;
-        var fullUrl = Lampa.TMDB.api(urlPath);
+    function resolveParamValue(val) {
+        var d = new Date();
+        if (val === '{current_date}') {
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        if (val === '{ninety_days_ago}') {
+            d.setDate(d.getDate() - 90);
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        if (val === '{one_year_ago}') {
+            d.setFullYear(d.getFullYear() - 1);
+            return [d.getFullYear(), ('0' + (d.getMonth() + 1)).slice(-2), ('0' + d.getDate()).slice(-2)].join('-');
+        }
+        return val;
+    }
 
-        var net = new Lampa.Reguest();
-        net.silent(fullUrl, function (response) {
-            if (response && response.results && response.results.length) {
-                callback({
-                    results: formatTmdbResults(response.results),
-                    page: response.page || page,
-                    total_pages: response.total_pages || 1
+    function fetchWithFallback(urlUk, callback) {
+        var network = new Lampa.Reguest();
+
+        network.silent(urlUk, function (jsonUk) {
+            if (!jsonUk || !jsonUk.results || !jsonUk.results.length) {
+                return callback(jsonUk);
+            }
+
+            // Відсіюємо картки без постерів
+            jsonUk.results = jsonUk.results.filter(function (item) {
+                return item.poster_path;
+            });
+
+            var needEnglish = jsonUk.results.some(function (item) {
+                var title = item.title || item.name || '';
+                return hasAsianScript(title);
+            });
+
+            if (needEnglish) {
+                var urlEn = urlUk.replace('language=uk', 'language=en');
+                network.silent(urlEn, function (jsonEn) {
+                    if (jsonEn && jsonEn.results) {
+                        jsonUk.results.forEach(function (item, idx) {
+                            var title = item.title || item.name || '';
+                            if (hasAsianScript(title) && jsonEn.results[idx]) {
+                                var enTitle = jsonEn.results[idx].title || jsonEn.results[idx].name;
+                                if (enTitle) {
+                                    if (item.title) item.title = enTitle;
+                                    if (item.name) item.name = enTitle;
+                                }
+                            }
+                        });
+                    }
+                    callback(jsonUk);
+                }, function () {
+                    callback(jsonUk);
                 });
             } else {
-                callback(null);
+                callback(jsonUk);
             }
         }, function () {
             callback(null);
         });
     }
 
-    function DoramaMoviesMain(object) {
+    function DoramaMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var categories = CONFIG.categories;
+            var categories = DORAMA_CONFIG.categories;
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -90,7 +240,8 @@
                         fulldata.push({
                             title: cat.title,
                             results: data.results,
-                            url: cat.params
+                            url: cat.url,
+                            params: cat.params
                         });
                     }
                 });
@@ -104,12 +255,23 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchDoramaPage(cat.params, 1, function (data) {
-                    if (data && data.results && data.results.length) {
-                        status.append(index.toString(), data);
-                    } else {
-                        status.error();
+                var params = [];
+                params.push('api_key=' + Lampa.TMDB.key());
+                params.push('language=' + Lampa.Storage.get('language', 'uk'));
+
+                if (cat.params) {
+                    for (var key in cat.params) {
+                        var val = cat.params[key];
+                        val = resolveParamValue(val);
+                        params.push(key + '=' + val);
                     }
+                }
+
+                var url = Lampa.TMDB.api(cat.url + '?' + params.join('&'));
+
+                fetchWithFallback(url, function (json) {
+                    if (json) status.append(index.toString(), json);
+                    else status.error();
                 });
             });
 
@@ -119,8 +281,9 @@
         comp.onMore = function (data) {
             Lampa.Activity.push({
                 url: data.url,
+                params: data.params,
                 title: data.title,
-                component: 'doramafilm_view',
+                component: 'dorama_view',
                 page: 1
             });
         };
@@ -128,27 +291,37 @@
         return comp;
     }
 
-    function DoramaMoviesView(object) {
+    function DoramaView(object) {
         var comp = new Lampa.InteractionCategory(object);
+
+        function buildUrl(page) {
+            var params = [];
+            params.push('api_key=' + Lampa.TMDB.key());
+            params.push('language=' + Lampa.Storage.get('language', 'uk'));
+            params.push('page=' + page);
+
+            if (object.params) {
+                for (var key in object.params) {
+                    var val = object.params[key];
+                    val = resolveParamValue(val);
+                    params.push(key + '=' + val);
+                }
+            }
+            return Lampa.TMDB.api(object.url + '?' + params.join('&'));
+        }
 
         comp.create = function () {
             var _this = this;
-            fetchDoramaPage(object.url, 1, function (json) {
-                if (json && json.results && json.results.length) {
-                    _this.build(json);
-                } else {
-                    _this.empty();
-                }
+            fetchWithFallback(buildUrl(1), function (json) {
+                if (json) _this.build(json);
+                else _this.empty();
             });
         };
 
-        comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchDoramaPage(object.url, objectData.page, function (json) {
-                if (json && json.results && json.results.length) {
-                    resolve(json);
-                } else {
-                    reject();
-                }
+        comp.nextPageReuest = function (object, resolve, reject) {
+            fetchWithFallback(buildUrl(object.page), function (json) {
+                if (json) resolve(json);
+                else reject();
             });
         };
 
@@ -156,25 +329,25 @@
     }
 
     function startPlugin() {
-        if (window.plugin_doramafilm_native_ready) return;
-        window.plugin_doramafilm_native_ready = true;
+        if (window.plugin_dorama_master_ready) return;
+        window.plugin_dorama_master_ready = true;
 
-        Lampa.Component.add('doramafilm_main', DoramaMoviesMain);
-        Lampa.Component.add('doramafilm_view', DoramaMoviesView);
+        Lampa.Component.add('dorama_main', DoramaMain);
+        Lampa.Component.add('dorama_view', DoramaView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="doramafilm_native"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="dorama_master"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="doramafilm_native">
-                <div class="menu__ico">${CONFIG.icon}</div>
-                <div class="menu__text">${CONFIG.title}</div>
+            var btn = $(`<li class="menu__item selector" data-action="dorama_master">
+                <div class="menu__ico">${DORAMA_CONFIG.icon}</div>
+                <div class="menu__text">${DORAMA_CONFIG.title}</div>
             </li>`);
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: CONFIG.title,
-                    component: 'doramafilm_main',
+                    title: DORAMA_CONFIG.title,
+                    component: 'dorama_main',
                     page: 1
                 });
             });
@@ -197,5 +370,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_doramafilm_native_ready) startPlugin();
+    if (!window.plugin_dorama_master_ready) startPlugin();
 })();
