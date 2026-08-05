@@ -3,7 +3,7 @@
 
     /**
      * MOVIES MASTER CATALOG FOR LAMPA
-     * Категорія "Фільми" з англійським фолбеком для ієрогліфів та нативним відкриттям карток.
+     * Категорія "Фільми" з виправленою маршрутизацією карток та англійським фолбеком для категорій.
      */
 
     var MOVIES_CONFIG = {
@@ -318,16 +318,16 @@
                 return callback(jsonUk);
             }
 
-            // Залишаємо тільки позиції з постерами та виставляємо маркер типу
             jsonUk.results = jsonUk.results.filter(function (item) {
-                item.method = 'movie';
+                // Вказуємо тип контенту та ПОВНІСТЮ видаляємо 'name', щоб Lampa не плутала з TV
                 item.media_type = 'movie';
+                delete item.name;
                 return item.poster_path;
             });
 
-            // Перевіряємо, чи є ієрогліфи замість зрозумілої назви
+            // Перевіряємо, чи є ієрогліфи або відсутня назва
             var needsEnglish = jsonUk.results.some(function (item) {
-                var title = item.title || item.name || '';
+                var title = item.title || '';
                 return !title || hasAsianScript(title);
             });
 
@@ -337,22 +337,21 @@
                     var enMap = {};
                     if (jsonEn && jsonEn.results) {
                         jsonEn.results.forEach(function (enItem) {
-                            enMap[enItem.id] = enItem.title || enItem.name || '';
+                            enMap[enItem.id] = enItem.title || '';
                         });
                     }
 
                     jsonUk.results.forEach(function (item) {
-                        var title = item.title || item.name || '';
+                        var title = item.title || '';
                         if (!title || hasAsianScript(title)) {
                             var enTitle = enMap[item.id];
                             if (enTitle && !hasAsianScript(enTitle)) {
                                 item.title = enTitle;
-                                item.name = enTitle;
                             } else if (item.original_title && !hasAsianScript(item.original_title)) {
                                 item.title = item.original_title;
-                                item.name = item.original_title;
                             }
                         }
+                        delete item.name;
                     });
 
                     callback(jsonUk);
