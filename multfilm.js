@@ -18,7 +18,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
