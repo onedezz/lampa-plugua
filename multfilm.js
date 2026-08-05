@@ -1,6 +1,11 @@
 (function () {
     'use strict';
 
+    /**
+     * ANIMATED FEATURE MOVIES CATALOG FOR LAMPA
+     * Мультфільми з жорсткою JS-фільтрацією азійського контенту (Японія, Корея, Китай) та підтримкою ES5.
+     */
+
     var ANIMATION_CONFIG = {
         title: 'Мультфільми',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>',
@@ -11,7 +16,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
                     "vote_count.gte": "10",
@@ -41,13 +45,12 @@
                 } 
             },
 
-            // --- 3. ВСІ ОФІЦІЙНІ ЖАНРИ АНІМАЦІЙНИХ ФІЛЬМІВ ---
+            // --- 3. ЖАНРИ ---
             { 
                 "title": "🤠 Пригоди", 
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,12", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -57,7 +60,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,35", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -67,7 +69,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10751", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -77,7 +78,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,14", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -87,7 +87,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,878", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -97,7 +96,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,28", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -107,7 +105,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,9648", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -117,7 +114,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16,10402", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
                 } 
@@ -129,7 +125,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "primary_release_date.gte": "2020-01-01", 
                     "vote_count.gte": "30",
                     "sort_by": "popularity.desc" 
@@ -140,7 +135,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
                     "vote_count.gte": "50",
@@ -152,7 +146,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
                     "vote_count.gte": "50",
@@ -164,7 +157,6 @@
                 "url": "discover/movie", 
                 "params": { 
                     "with_genres": "16", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
                     "vote_count.gte": "30",
@@ -173,6 +165,28 @@
             }
         ]
     };
+
+    var BLOCKED_LANGS = ['ja', 'ko', 'zh', 'cn', 'ru', 'be'];
+    var BLOCKED_COUNTRIES = ['JP', 'KR', 'CN', 'TW', 'HK', 'RU', 'BY'];
+
+    function isAsianOrBlocked(item) {
+        if (!item) return true;
+        
+        var lang = (item.original_language || '').toLowerCase();
+        if (BLOCKED_LANGS.indexOf(lang) !== -1) {
+            return true;
+        }
+
+        if (item.origin_country && Array.isArray(item.origin_country)) {
+            for (var i = 0; i < item.origin_country.length; i++) {
+                var country = item.origin_country[i].toUpperCase();
+                if (BLOCKED_COUNTRIES.indexOf(country) !== -1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     function hasAsianScript(text) {
         if (!text) return false;
@@ -217,10 +231,12 @@
                 return callback(jsonUk);
             }
 
+            // ЖОРСТКИЙ ФІЛЬТР: відсікаємо азійський контент, серіальні маркери та картки без постерів
             jsonUk.results = jsonUk.results.filter(function (item) {
                 item.media_type = 'movie';
                 delete item.name;
-                return item.poster_path;
+                if (isAsianOrBlocked(item)) return false;
+                return !!item.poster_path;
             });
 
             var needsEnglish = jsonUk.results.some(function (item) {
