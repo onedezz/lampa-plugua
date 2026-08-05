@@ -1,11 +1,18 @@
 (function () {
     'use strict';
 
+    /**
+     * ANIMATED TV SERIES MASTER CATALOG FOR LAMPA
+     * Категорія "Мультсеріали" (без азійської продукції) з віковими категоріями:
+     * Дорослі (18+), Підлітки, Малюки (0-6).
+     * Виключено контент для дорослих з усіх загальних категорій.
+     */
+
     var ANIM_TV_CONFIG = {
         title: 'Мультсеріали',
         icon: '<svg viewBox="0 0 24 24" fill="#FF5722" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>',
         categories: [
-            // --- 1. СВІЖАЧОК (УСІ ВІКОВІ КАТЕГОРІЇ) ---
+            // --- 1. СВІЖАЧОК ---
             { 
                 "title": "🔥 Свіжачок (За рік)", 
                 "url": "discover/tv", 
@@ -13,6 +20,7 @@
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
                     "without_original_language": "ru,be,ja,ko,zh,cn",
+                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
                     "vote_count.gte": "10",
@@ -22,7 +30,7 @@
 
             // --- 2. ВІКОВІ КАТЕГОРІЇ ---
             { 
-                "title": "🔞Дорослим", 
+                "title": "🔞 Для дорослих (18+)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
@@ -34,7 +42,7 @@
                 } 
             },
             { 
-                "title": "🧢 Підліткам", 
+                "title": "🧢 Для підлітків та молоді", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16,10759", 
@@ -46,7 +54,7 @@
                 } 
             },
             { 
-                "title": "👶 Малюкам", 
+                "title": "👶 Для малюків (0-6 років)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16,10762", 
@@ -60,7 +68,7 @@
 
             // --- 3. КУЛЬТОВІ ЗІ СВІТУ (ЗА МОВАМИ ТА РЕГІОНАМИ) ---
             { 
-                "title": "Британські колонії", 
+                "title": "🇬🇧🇺🇸 Культові Англомовні мультсеріали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
@@ -72,7 +80,7 @@
                 } 
             },
             { 
-                "title": "Європейська експансія", 
+                "title": "🇪🇺 Культові Європейські мультсеріали", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
