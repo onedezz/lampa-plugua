@@ -1,19 +1,18 @@
 (function () {
     'use strict';
 
+  
     var ANIM_TV_CONFIG = {
         title: 'Мультсеріали',
         icon: '<svg viewBox="0 0 24 24" fill="#FF5722" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>',
         categories: [
-            // --- 1. СВІЖАЧОК ---
+            // --- 1. Свіжачок ---
             { 
                 "title": "🔥 Свіжачок (За рік)", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
-                    "without_keywords": "210024,283626",
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
                     "vote_count.gte": "5",
@@ -28,21 +27,19 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "with_keywords": "210024|283626|208364",
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "15",
                     "sort_by": "popularity.desc" 
                 } 
             },
             { 
-                "title": "🧢 Молоді", 
+                "title": "🧢 Підліткам", 
                 "url": "discover/tv", 
                 "params": { 
                     "with_genres": "16,10759", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "20",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -52,14 +49,13 @@
                 "params": { 
                     "with_genres": "16,10762", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
 
-            // --- 3. КУЛЬТОВІ ЗІ СВІТУ (ЗА МОВАМИ ТА РЕГІОНАМИ) ---
+            // --- 3. КУЛЬТОВІ ЗІ СВІТУ ---
             { 
                 "title": "Британські колонії", 
                 "url": "discover/tv", 
@@ -92,7 +88,6 @@
                 "params": { 
                     "with_genres": "16,10759", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
@@ -104,7 +99,6 @@
                 "params": { 
                     "with_genres": "16,35", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
@@ -116,7 +110,6 @@
                 "params": { 
                     "with_genres": "16,9648", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "20",
                     "sort_by": "vote_count.desc" 
@@ -128,7 +121,6 @@
                 "params": { 
                     "with_genres": "16,10765", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
@@ -140,7 +132,6 @@
                 "params": { 
                     "with_genres": "16,10751", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "vote_count.gte": "30",
                     "sort_by": "vote_count.desc" 
@@ -154,7 +145,6 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "first_air_date.gte": "2020-01-01", 
                     "vote_count.gte": "20",
@@ -167,7 +157,6 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
@@ -181,7 +170,6 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "first_air_date.gte": "2000-01-01", 
                     "first_air_date.lte": "2009-12-31", 
@@ -195,7 +183,6 @@
                 "params": { 
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
-                    "without_original_language": "ru,be,ja,ko,zh,cn",
                     "without_keywords": "210024,283626",
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
@@ -206,9 +193,37 @@
         ]
     };
 
+    var BLOCKED_LANGS = ['ja', 'ko', 'zh', 'cn', 'ru', 'be'];
+    var BLOCKED_COUNTRIES = ['JP', 'KR', 'CN', 'TW', 'HK', 'RU', 'BY'];
+
     function hasAsianScript(text) {
         if (!text) return false;
         return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text);
+    }
+
+    function isAsianOrBlocked(item) {
+        if (!item) return true;
+        
+        var lang = (item.original_language || '').toLowerCase();
+        if (BLOCKED_LANGS.indexOf(lang) !== -1 || lang.indexOf('zh') === 0) {
+            return true;
+        }
+
+        if (item.origin_country && Array.isArray(item.origin_country)) {
+            for (var i = 0; i < item.origin_country.length; i++) {
+                var country = item.origin_country[i].toUpperCase();
+                if (BLOCKED_COUNTRIES.indexOf(country) !== -1) {
+                    return true;
+                }
+            }
+        }
+
+        // Перевірка оригінальної та поточної назв на ієрогліфи
+        if (hasAsianScript(item.original_name) || hasAsianScript(item.original_title) || hasAsianScript(item.name) || hasAsianScript(item.title)) {
+            return true;
+        }
+
+        return false;
     }
 
     function resolveParamValue(val) {
@@ -249,9 +264,11 @@
                 return callback(jsonUk);
             }
 
+            // ГЛИБОКИЙ ФІЛЬТР: відсікаємо азійські мови, країни та назви з ієрогліфами
             jsonUk.results = jsonUk.results.filter(function (item) {
                 item.media_type = 'tv';
-                return item.poster_path;
+                if (isAsianOrBlocked(item)) return false;
+                return !!item.poster_path;
             });
 
             var needsEnglish = jsonUk.results.some(function (item) {
