@@ -1,376 +1,266 @@
 (function () {
     'use strict';
 
-    // ==========================================
-    // 1. КОНФІГУРАЦІЯ ТА СТАН
-    // ==========================================
-    const CONFIG = {
-        CLIENT_ID: '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf', // Вкажіть ваш Client ID з Simkl API
-        API_URL: 'https://api.simkl.com',
-        PROXY_URL: 'https://cors.lamptv.workers.dev/?url=',
-        STORAGE_KEY: 'simkl_account',
-        PROGRESS_THROTTLE_MS: 90 * 1000
+    /**
+     * ULTIMATE GO - SIMKL MEDIA ENGINE FOR LAMPA
+     * Категорії: Фільми, Серіали, Аніме, Дорами (Популярне та Тренди)
+     */
+
+    // 🔑 Вкажіть ваш Client ID від Simkl
+    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf';
+
+    var CONFIG = {
+        title: 'UltimateGO',
+        icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
+        categories: [
+            // 🎬 ФІЛЬМИ
+            { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", endpoint: "movies/popular" },
+            { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", endpoint: "movies/trending" },
+
+            // 📺 СЕРІАЛИ
+            { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", endpoint: "tv/popular" },
+            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", endpoint: "tv/trending" },
+
+            // ⚔️ АНІМЕ
+            { id: "anime_tv_pop", title: "⚔️ Популярне Аніме (Серіали)", type: "tv", endpoint: "anime/popular" },
+            { id: "anime_tv_trd", title: "💥 Трендове Аніме (Серіали)", type: "tv", endpoint: "anime/trending" },
+            { id: "anime_mov_pop", title: "⛩️ Популярне Аніме (Фільми)", type: "movie", endpoint: "anime/movies/popular" },
+            { id: "anime_mov_trd", title: "🌟 Трендове Аніме (Фільми)", type: "movie", endpoint: "anime/movies/trending" },
+
+            // 🌸 ДОРАМИ
+            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/popular" },
+            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/trending" },
+            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/popular" },
+            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/trending" }
+        ]
     };
 
-    let state = {
-        account: Lampa.Storage.get(CONFIG.STORAGE_KEY, {}),
-        corsFree: detectCorsFree(),
-        isCoolingDown: false,
-        cooldownUntil: 0,
-        inFlightRequests: new Map(),
-        lastScrobbleTime: 0,
-        lastScrobblePercent: 0
-    };
+    /**
+     * Запит списку контенту з Simkl API
+     */
+    function fetchCategoryData(cat, page, limit, callback) {
+        var url = 'https://api.simkl.com/' + cat.endpoint + '?extended=full&limit=' + limit + '&page=' + page + '&client_id=' + SIMKL_CLIENT_ID;
 
-    function detectCorsFree() {
-        if (typeof window === 'undefined') return false;
-        const protocol = window.location.protocol;
-        return (
-            protocol === 'file:' ||
-            protocol === 'widget:' ||
-            typeof LampaApp !== 'undefined' ||
-            /Tizen|WebOS|SmartTV/i.test(navigator.userAgent)
-        );
-    }
-
-    function getEndpointUrl(path, forceProxy = false) {
-        const fullUrl = CONFIG.API_URL + (path.startsWith('/') ? path : '/' + path);
-        if (!forceProxy && state.corsFree) {
-            return fullUrl;
-        }
-        return CONFIG.PROXY_URL + encodeURIComponent(fullUrl);
-    }
-
-    // ==========================================
-    // 2. ЯДРО МЕРЕЖЕВИХ ЗАПИТІВ (з обробкою CORS і RateLimit)
-    // ==========================================
-    async function apiRequest(path, options = {}) {
-        const now = Date.now();
-        if (state.isCoolingDown && now < state.cooldownUntil) {
-            throw new Error(`Wait ${Math.ceil((state.cooldownUntil - now) / 1000)}s`);
-        }
-
-        const method = (options.method || 'GET').toUpperCase();
-        const cacheKey = `${method}:${path}:${options.body ? JSON.stringify(options.body) : ''}`;
-
-        if (method === 'GET' && state.inFlightRequests.has(cacheKey)) {
-            return state.inFlightRequests.get(cacheKey);
-        }
-
-        const requestPromise = (async () => {
-            const isAuthReq = path.includes('/oauth/');
-            const url = getEndpointUrl(path, isAuthReq);
-
-            const headers = {
-                'Content-Type': 'application/json',
-                'simkl-api-key': CONFIG.CLIENT_ID,
-                ...(options.headers || {})
-            };
-
-            if (state.account.access_token && !isAuthReq) {
-                headers['Authorization'] = `Bearer ${state.account.access_token}`;
-            }
-
-            let response;
-            try {
-                response = await fetch(url, {
-                    method: method,
-                    headers: headers,
-                    body: options.body ? JSON.stringify(options.body) : null
+        var network = new Lampa.Reguest();
+        network.silent(url, function (response) {
+            var rawList = Array.isArray(response) ? response : [];
+            formatSimklItems(rawList, cat.type, function (items) {
+                callback({
+                    results: items,
+                    page: page,
+                    total_pages: 50
                 });
-            } catch (err) {
-                if (state.corsFree && !isAuthReq) {
-                    state.corsFree = false;
-                    return apiRequest(path, options);
-                }
-                throw err;
-            }
-
-            if (response.status === 429) {
-                const retryAfter = parseInt(response.headers.get('Retry-After') || '30', 10);
-                state.isCoolingDown = true;
-                state.cooldownUntil = Date.now() + retryAfter * 1000;
-                setTimeout(() => { state.isCoolingDown = false; }, retryAfter * 1000);
-                throw new Error('Rate limit (429)');
-            }
-
-            if (response.status === 401) {
-                clearAuth();
-                Lampa.Bell.show({ text: 'Simkl: Потрібна авторизація.' });
-                throw new Error('Unauthorized');
-            }
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            return await response.json();
-        })();
-
-        if (method === 'GET') {
-            state.inFlightRequests.set(cacheKey, requestPromise);
-            requestPromise.finally(() => state.inFlightRequests.delete(cacheKey));
-        }
-
-        return requestPromise;
-    }
-
-    // ==========================================
-    // 3. НОРМАЛІЗАЦІЯ ДАНИХ (Запобігає помилці forEach)
-    // ==========================================
-    function parseSimklToLampa(data) {
-        let rawList = [];
-        
-        if (Array.isArray(data)) {
-            rawList = data;
-        } else if (data && typeof data === 'object') {
-            rawList = data.movies || data.shows || data.anime || [];
-        }
-
-        if (!Array.isArray(rawList)) {
-            return [];
-        }
-
-        return rawList.map(item => {
-            const target = item.movie || item.show || item;
-            const ids = target.ids || {};
-
-            return {
-                id: ids.tmdb || ids.simkl,
-                simkl_id: ids.simkl,
-                title: target.title || 'Без назви',
-                name: target.title || 'Без назви',
-                original_title: target.title,
-                poster_path: target.poster ? `https://simkl.in/posters/${target.poster}_m.jpg` : '',
-                img: target.poster ? `https://simkl.in/posters/${target.poster}_m.jpg` : '',
-                year: target.year || '',
-                release_date: target.year ? `${target.year}-01-01` : '',
-                vote_average: target.ids?.simkl ? 0 : 0,
-                type: item.show ? 'tv' : 'movie'
-            };
+            });
+        }, function () {
+            callback(null);
         });
     }
 
-    // ==========================================
-    // 4. ПІДКТЮЧЕННЯ АКАУНТУ (PIN AUTH)
-    // ==========================================
-    async function startDeviceAuth() {
-        try {
-            const data = await apiRequest('/oauth/pin', {
-                method: 'GET',
-                headers: { 'simkl-api-key': CONFIG.CLIENT_ID }
-            });
+    /**
+     * Конвертація об'єктів Simkl та синхронізація з TMDB
+     */
+    function formatSimklItems(rawList, defaultType, callback) {
+        if (!rawList || !rawList.length) return callback([]);
 
-            if (!data || !data.user_code) {
-                Lampa.Bell.show({ text: 'Не вдалося отримати код авторизації.' });
-                return;
-            }
+        var lang = Lampa.Storage.get('language', 'uk');
+        var network = new Lampa.Reguest();
+        var results = [];
+        var count = 0;
 
-            Lampa.Modal.open({
-                title: 'Авторизація Simkl',
-                html: `<div style="text-align: center; padding: 1.5em 1em;">
-                    <p style="margin-bottom: 0.5em;">Відкрийте посилання: <b>simkl.com/pin</b></p>
-                    <h1 style="font-size: 2.5em; letter-spacing: 2px; margin: 0.4em 0; color: #fff;">${data.user_code}</h1>
-                    <p style="font-size: 0.9em; opacity: 0.7;">Введіть цей код у вашому профілі Simkl</p>
-                </div>`,
-                size: 'small',
-                onBack: () => {
-                    clearInterval(pollInterval);
-                    Lampa.Modal.close();
+        rawList.forEach(function (raw, index) {
+            var item = raw.movie || raw.show || raw.anime || raw;
+            var tmdbId = (item.ids && item.ids.tmdb) ? item.ids.tmdb : null;
+            var itemType = defaultType;
+
+            var finish = function (formatted) {
+                if (formatted) results[index] = formatted;
+                count++;
+                if (count === rawList.length) {
+                    callback(results.filter(Boolean));
                 }
-            });
-
-            const pollInterval = setInterval(async () => {
-                try {
-                    const check = await apiRequest(`/oauth/pin/${data.user_code}?client_id=${CONFIG.CLIENT_ID}`);
-                    if (check && check.result === 'OK' && check.access_token) {
-                        clearInterval(pollInterval);
-                        state.account = { access_token: check.access_token, created_at: Date.now() };
-                        Lampa.Storage.set(CONFIG.STORAGE_KEY, state.account);
-                        Lampa.Modal.close();
-                        Lampa.Bell.show({ text: 'Simkl успішно підключено!' });
-                    }
-                } catch (e) {}
-            }, 4000);
-
-        } catch (e) {
-            Lampa.Bell.show({ text: 'Помилка запуску авторизації' });
-        }
-    }
-
-    function clearAuth() {
-        state.account = {};
-        Lampa.Storage.remove(CONFIG.STORAGE_KEY);
-    }
-
-    // ==========================================
-    // 5. СКРОББЛІНГ І СИНХРОНІЗАЦІЯ
-    // ==========================================
-    const Scrobbler = {
-        async sendProgress(card, progressPercent, eventType = 'watching') {
-            if (!state.account.access_token || !card) return;
-
-            const now = Date.now();
-            const percentDiff = Math.abs(progressPercent - state.lastScrobblePercent);
-
-            if (eventType === 'watching' && percentDiff < 5 && (now - state.lastScrobbleTime) < CONFIG.PROGRESS_THROTTLE_MS) {
-                return;
-            }
-
-            const payload = card.number_of_seasons ? {
-                shows: [{
-                    ids: { tmdb: card.id },
-                    seasons: [{
-                        number: card.season || 1,
-                        episodes: [{ number: card.episode || 1 }]
-                    }]
-                }],
-                progress: Math.round(progressPercent)
-            } : {
-                movies: [{ ids: { tmdb: card.id } }],
-                progress: Math.round(progressPercent)
             };
 
-            const endpoint = eventType === 'stop' ? '/scrobble/stop' : '/scrobble/start';
+            var simklPoster = item.poster ? ('https://simkl.in/posters/' + item.poster + '_m.jpg') : '';
 
-            try {
-                await apiRequest(endpoint, { method: 'POST', body: payload });
-                state.lastScrobbleTime = now;
-                state.lastScrobblePercent = progressPercent;
-            } catch (err) {}
-        }
-    };
+            if (tmdbId) {
+                var tmdbUrl = Lampa.TMDB.api(itemType + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
+                network.silent(tmdbUrl, function (tmdb) {
+                    var title = itemType === 'movie' ? (tmdb ? tmdb.title : item.title) : (tmdb ? tmdb.name : item.title);
+                    var originalTitle = itemType === 'movie' ? (tmdb ? tmdb.original_title : item.title) : (tmdb ? tmdb.original_name : item.title);
 
-    // ==========================================
-    // 6. КАТЕГОРІЯ З БЕЗПЕЧНИМ РЕНДЕРОМ
-    // ==========================================
-    function Component(object) {
-        let network = new Lampa.Reguest();
-        let scroll = new Lampa.Scroll({ mask: true, over: true });
-        let items = [];
-        let html = $('<div></div>');
-        let body = $('<div class="category-full"></div>');
+                    finish({
+                        id: tmdb ? tmdb.id : tmdbId,
+                        title: itemType === 'movie' ? title : undefined,
+                        name: itemType === 'tv' ? title : undefined,
+                        original_title: itemType === 'movie' ? originalTitle : undefined,
+                        original_name: itemType === 'tv' ? originalTitle : undefined,
+                        overview: (tmdb && tmdb.overview) ? tmdb.overview : (item.overview || ''),
+                        poster_path: tmdb ? tmdb.poster_path : null,
+                        img: (tmdb && tmdb.poster_path) ? undefined : simklPoster,
+                        vote_average: tmdb ? tmdb.vote_average : (item.users_rating || 0),
+                        release_date: tmdb ? tmdb.release_date : (item.year ? item.year.toString() : ''),
+                        first_air_date: tmdb ? tmdb.first_air_date : (item.year ? item.year.toString() : ''),
+                        method: itemType
+                    });
+                }, function () {
+                    // Фолбек, якщо TMDB недоступний
+                    finish({
+                        id: tmdbId,
+                        title: itemType === 'movie' ? item.title : undefined,
+                        name: itemType === 'tv' ? item.title : undefined,
+                        original_title: itemType === 'movie' ? item.title : undefined,
+                        original_name: itemType === 'tv' ? item.title : undefined,
+                        overview: item.overview || '',
+                        img: simklPoster,
+                        vote_average: item.users_rating || 0,
+                        release_date: item.year ? item.year.toString() : '',
+                        first_air_date: item.year ? item.year.toString() : '',
+                        method: itemType
+                    });
+                });
+            } else {
+                finish(null);
+            }
+        });
+    }
 
-        this.create = function () {
+    /**
+     * Компонент головної сторінки плагіна
+     */
+    function UltimateGoMain(object) {
+        var comp = new Lampa.InteractionMain(object);
+
+        comp.create = function () {
+            var _this = this;
             this.activity.loader(true);
+            var categories = CONFIG.categories;
+            var status = new Lampa.Status(categories.length);
 
-            const endpoint = object.url || '/sync/all-items/movies/watching';
-            
-            apiRequest(endpoint)
-                .then(response => {
-                    items = parseSimklToLampa(response); // Гарантовано віддає Array
-                    
-                    this.activity.loader(false);
+            status.onComplite = function () {
+                var fulldata = [];
+                Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
+                    var data = status.data[key];
+                    if (data && data.results && data.results.length) {
+                        var cat = categories[parseInt(key, 10)];
+                        var displayResults = data.results.slice(0, 20);
+                        Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
 
-                    if (items.length === 0) {
-                        let empty = Lampa.Template.get('empty', { title: 'Порожньо', text: 'У цьому списку немає елементів' });
-                        html.append(empty);
-                    } else {
-                        scroll.minus();
-                        html.append(scroll.render());
-                        scroll.append(body);
-
-                        items.forEach(item => {
-                            let card = Lampa.Template.get('card', item);
-                            card.on('hover:enter', () => {
-                                Lampa.Activity.push({
-                                    url: '',
-                                    component: 'full',
-                                    id: item.id,
-                                    method: item.type === 'tv' ? 'tv' : 'movie',
-                                    card: item
-                                });
-                            });
-                            body.append(card);
+                        fulldata.push({
+                            title: cat.title,
+                            results: displayResults,
+                            catObject: cat,
+                            more: true
                         });
                     }
-
-                    this.activity.toggle();
-                })
-                .catch(err => {
-                    this.activity.loader(false);
-                    let empty = Lampa.Template.get('empty', { title: 'Помилка', text: 'Не вдалося завантажити список Simkl' });
-                    html.append(empty);
-                    this.activity.toggle();
                 });
 
-            return html;
-        };
+                if (fulldata.length) {
+                    _this.build(fulldata);
+                    _this.activity.loader(false);
+                } else {
+                    _this.empty();
+                }
+            };
 
-        this.start = function () {
-            Lampa.Controller.add('content', {
-                toggle: () => {
-                    let cards = body.find('.card');
-                    if (cards.length) Lampa.Controller.collectionSet(body);
-                    else Lampa.Controller.collectionClear();
-                },
-                left: () => Lampa.Controller.move('left'),
-                right: () => Lampa.Controller.move('right'),
-                up: () => Lampa.Controller.move('up'),
-                down: () => Lampa.Controller.move('down'),
-                back: () => Lampa.Activity.backward()
-            });
-            Lampa.Controller.toggle('content');
-        };
-
-        this.pause = function () {};
-        this.stop = function () {};
-        this.destroy = function () {
-            network.clear();
-            scroll.destroy();
-            html.remove();
-        };
-    }
-
-    // ==========================================
-    // 7. ІНІЦІАЛІЗАЦІЯ В LAMPA
-    // ==========================================
-    function startPlugin() {
-        Lampa.Component.add('simkl_watchlist', Component);
-
-        // Подієві слухачі плеєра
-        Lampa.Player.listener.follow('timeupdate', (e) => {
-            if (e.duration > 0) {
-                const percent = (e.time / e.duration) * 100;
-                Scrobbler.sendProgress(Lampa.Player.data(), percent, 'watching');
-            }
-        });
-
-        Lampa.Player.listener.follow('destroy', () => {
-            const data = Lampa.Player.data();
-            if (data) {
-                Scrobbler.sendProgress(data, state.lastScrobblePercent, 'stop');
-            }
-        });
-
-        // Меню налаштувань Lampa
-        Lampa.Settings.listener.follow('open', (e) => {
-            if (e.name === 'main') {
-                const item = $(`<div class="settings-param selector" data-action="simkl_auth">
-                    <div class="settings-param__name">Simkl API</div>
-                    <div class="settings-param__value">${state.account.access_token ? 'Підключено' : 'Підключити'}</div>
-                </div>`);
-
-                item.on('hover:enter', () => {
-                    if (state.account.access_token) {
-                        clearAuth();
-                        item.find('.settings-param__value').text('Підключити');
-                        Lampa.Bell.show({ text: 'Акаунт Simkl відключено' });
+            categories.forEach(function (cat, index) {
+                fetchCategoryData(cat, 1, 40, function (data) {
+                    if (data && data.results) {
+                        status.append(index.toString(), data);
                     } else {
-                        startDeviceAuth();
+                        status.error();
                     }
                 });
+            });
 
-                e.body.find('[data-action="account"]').after(item);
+            return this.render();
+        };
+
+        comp.onMore = function (data) {
+            Lampa.Activity.push({
+                catObject: data.catObject,
+                title: data.title,
+                component: 'ultimatego_view',
+                page: 1
+            });
+        };
+
+        return comp;
+    }
+
+    /**
+     * Компонент окремої категорії (з пагінацією)
+     */
+    function UltimateGoView(object) {
+        var comp = new Lampa.InteractionCategory(object);
+
+        comp.create = function () {
+            var _this = this;
+            fetchCategoryData(object.catObject, 1, 60, function (json) {
+                if (json && json.results && json.results.length) {
+                    _this.build(json);
+                } else {
+                    _this.empty();
+                }
+            });
+        };
+
+        comp.nextPageReuest = function (objectData, resolve, reject) {
+            fetchCategoryData(object.catObject, objectData.page, 60, function (json) {
+                if (json && json.results && json.results.length) {
+                    resolve(json);
+                } else {
+                    reject();
+                }
+            });
+        };
+
+        return comp;
+    }
+
+    /**
+     * Ініціалізація та додавання кнопки в меню
+     */
+    function startPlugin() {
+        if (window.plugin_ultimatego_ready) return;
+        window.plugin_ultimatego_ready = true;
+
+        Lampa.Component.add('ultimatego_main', UltimateGoMain);
+        Lampa.Component.add('ultimatego_view', UltimateGoView);
+
+        function addMenuButton() {
+            var menu = $('.menu .menu__list').eq(0);
+            if (!menu.length || menu.find('.menu__item[data-action="ultimatego"]').length) return;
+
+            var btn = $('<li class="menu__item selector" data-action="ultimatego">' +
+                '<div class="menu__ico">' + CONFIG.icon + '</div>' +
+                '<div class="menu__text">' + CONFIG.title + '</div>' +
+                '</li>');
+
+            btn.on('hover:enter', function () {
+                Lampa.Activity.push({
+                    title: CONFIG.title,
+                    component: 'ultimatego_main',
+                    page: 1
+                });
+            });
+
+            menu.append(btn);
+        }
+
+        if (window.appready) {
+            addMenuButton();
+        } else {
+            Lampa.Listener.follow('app', function (e) {
+                if (e.type === 'ready') addMenuButton();
+            });
+        }
+
+        setInterval(function () {
+            if (window.appready && $('.menu .menu__list').eq(0).length) {
+                addMenuButton();
             }
-        });
+        }, 3000);
     }
 
-    if (window.appready) {
-        startPlugin();
-    } else {
-        Lampa.Listener.follow('app', (e) => {
-            if (e.type === 'ready') startPlugin();
-        });
-    }
+    if (!window.plugin_ultimatego_ready) startPlugin();
 })();
