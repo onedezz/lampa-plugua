@@ -15,7 +15,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
-                    "vote_count.gte": "5",
+                    "vote_count.gte": "2",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -28,7 +28,7 @@
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
                     "with_keywords": "210024|283626|208364",
-                    "vote_count.gte": "15",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -39,7 +39,7 @@
                     "with_genres": "16,10759", 
                     "without_genres": "10763,10764,10767", 
                     "without_keywords": "210024,283626",
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -64,7 +64,7 @@
                     "without_genres": "10763,10764,10767", 
                     "with_original_language": "en",
                     "without_keywords": "210024,283626",
-                    "vote_count.gte": "100",
+                    "vote_count.gte": "80",
                     "sort_by": "vote_count.desc" 
                 } 
             },
