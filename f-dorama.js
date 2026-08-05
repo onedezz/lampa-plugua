@@ -1,11 +1,6 @@
 (function () {
     'use strict';
 
-    /**
-     * MOVIES MASTER CATALOG FOR LAMPA
-     * Категорія "Фільми" з виправленою маршрутизацією карток та англійським фолбеком для категорій.
-     */
-
     var MOVIES_CONFIG = {
         title: 'Фільми',
         icon: '<svg viewBox="0 0 24 24" fill="#E91E63" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
@@ -24,30 +19,29 @@
                 } 
             },
 
-            // --- 2. КУЛЬТОВІ ЗІ СВІТУ ---
+            // --- 2. КУЛЬТОВІ ЗІ СВІТУ (ЗА МОВАМИ ТА РЕГІОНАМИ) ---
             { 
-                "title": "🗽 Культові Американські та Канадські фільми", 
+                "title": "🇬🇧 Британські колонії", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
-                    "with_origin_country": "US|CA",
+                    "with_original_language": "en",
                     "vote_count.gte": "300",
                     "sort_by": "vote_count.desc" 
                 } 
             },
             { 
-                "title": "🇪🇺 Культові Європейські фільми", 
+                "title": "🇪🇺 Європейська експансія", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
-                    "without_original_language": "ru,be",
-                    "with_origin_country": "GB|FR|DE|IT|ES|SE|DK|NO|PL",
-                    "vote_count.gte": "150",
+                    "with_original_language": "fr|de|it|es|sv|da|no|pl|nl|pt|cs|hu|ro|fi|el|uk",
+                    "vote_count.gte": "50",
                     "sort_by": "vote_count.desc" 
                 } 
             },
             { 
-                "title": "🌏 Культові Азійські фільми (Корея, Японія, Китай)", 
+                "title": "🌏 Азійська єдність", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -57,7 +51,7 @@
                 } 
             },
 
-            // --- 3. ВСІ ОФІЦІЙНІ КІНОЖАНРИ (ОКРЕМО) ---
+            // --- 3. ВСІ ОФІЦІЙНІ КІНОЖАНРИ ---
             { 
                 "title": "⚔️ Бойовики", 
                 "url": "discover/movie", 
@@ -319,13 +313,11 @@
             }
 
             jsonUk.results = jsonUk.results.filter(function (item) {
-                // Вказуємо тип контенту та ПОВНІСТЮ видаляємо 'name', щоб Lampa не плутала з TV
                 item.media_type = 'movie';
                 delete item.name;
                 return item.poster_path;
             });
 
-            // Перевіряємо, чи є ієрогліфи або відсутня назва
             var needsEnglish = jsonUk.results.some(function (item) {
                 var title = item.title || '';
                 return !title || hasAsianScript(title);
