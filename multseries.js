@@ -14,7 +14,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "2",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -27,7 +27,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
-                    "vote_count.gte": "5",
+                    "vote_count.gte": "2",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -39,7 +39,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16,10751", 
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -50,7 +50,7 @@
                 "params": { 
                     "with_genres": "16,10762", 
                     "without_genres": "10763,10764,10767", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -60,7 +60,7 @@
                 "is_tv": false,
                 "params": { 
                     "with_genres": "16,12", 
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -71,7 +71,7 @@
                 "params": { 
                     "with_genres": "16,10759", 
                     "without_genres": "10763,10764,10767", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -84,7 +84,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "primary_release_date.gte": "2020-01-01", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -96,7 +96,7 @@
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "2020-01-01", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -108,7 +108,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
-                    "vote_count.gte": "50",
+                    "vote_count.gte": "20",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -121,7 +121,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "2010-01-01", 
                     "first_air_date.lte": "2019-12-31", 
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -133,7 +133,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
-                    "vote_count.gte": "50",
+                    "vote_count.gte": "20",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -146,7 +146,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "2000-01-01", 
                     "first_air_date.lte": "2009-12-31", 
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -171,7 +171,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             }
