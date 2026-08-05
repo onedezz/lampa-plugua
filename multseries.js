@@ -16,7 +16,7 @@
                     "without_keywords": "210024,283626",
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
