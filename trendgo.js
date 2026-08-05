@@ -2,138 +2,169 @@
     'use strict';
 
     /**
-     * ULTIMATE GO - SIMKL MEDIA ENGINE FOR LAMPA
-     * Категорії: Фільми, Серіали, Аніме, Дорами (Популярне та Тренди)
+     * ASIAN LIVE-ACTION MOVIES (DORAMA FILMS) - SIMKL.TV ENGINE
+     * Japanese & South Korean Feature Live-Action Films (Excludes Animation & TV Shows)
      */
 
-    // 🔑 Вкажіть ваш Client ID від Simkl
-    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf';
+    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf'; // Вкажіть ваш Client ID з Simkl API
+    var ALLOWED_LANGS = ['ja', 'ko'];
+    var ALLOWED_COUNTRIES = ['jp', 'kr'];
 
-    var CONFIG = {
-        title: 'UltimateGO',
-        icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#ffffff" stroke-width="2" fill="none"/></svg>',
+    var currentYear = new Date().getFullYear();
+    var lastYear = currentYear - 1;
+    var yearRangeOneYear = lastYear + '-' + currentYear;
+
+    var SIMKL_CONFIG = {
+        title: 'Дорами Фільми (Simkl)',
+        icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
         categories: [
-            // 🎬 ФІЛЬМИ
-            { id: "mov_pop", title: "🔥 Популярні Фільми", type: "movie", endpoint: "movies/popular" },
-            { id: "mov_trd", title: "📈 Трендові Фільми", type: "movie", endpoint: "movies/trending" },
+            // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
+            { title: "⭐ Популярні дорами (фільми)", url: "https://api.simkl.com/movies/trending/month?countries=jp,kr&limit=60" },
+            { title: "📈 Тренди тижня", url: "https://api.simkl.com/movies/trending/week?countries=jp,kr&limit=60" },
 
-            // 📺 СЕРІАЛИ
-            { id: "tv_pop", title: "📺 Популярні Серіали", type: "tv", endpoint: "tv/popular" },
-            { id: "tv_trd", title: "📉 Трендові Серіали", type: "tv", endpoint: "tv/trending" },
+            // --- 2. ДЕСЯТИЛІТТЯ ---
+            { title: "⚡ Сучасність 2020-х", url: "https://api.simkl.com/movies/best/2020s?countries=jp,kr&limit=60" },
+            { title: "💎 Ера 2010-х", url: "https://api.simkl.com/movies/best/2010s?countries=jp,kr&limit=80" },
+            { title: "💿 Культові 2000-ні", url: "https://api.simkl.com/movies/best/2000s?countries=jp,kr&limit=80" },
+            { title: "📼 1990-ті", url: "https://api.simkl.com/movies/best/1990s?countries=jp,kr&limit=100" },
 
-            // ⚔️ АНІМЕ
-            { id: "anime_tv_pop", title: "⚔️ Популярне Аніме (Серіали)", type: "tv", endpoint: "anime/popular" },
-            { id: "anime_tv_trd", title: "💥 Трендове Аніме (Серіали)", type: "tv", endpoint: "anime/trending" },
-            { id: "anime_mov_pop", title: "⛩️ Популярне Аніме (Фільми)", type: "movie", endpoint: "anime/movies/popular" },
-            { id: "anime_mov_trd", title: "🌟 Трендове Аніме (Фільми)", type: "movie", endpoint: "anime/movies/trending" },
-
-            // 🌸 ДОРАМИ
-            { id: "dorama_tv_pop", title: "🌸 Популярні Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/popular" },
-            { id: "dorama_tv_trd", title: "🌿 Трендові Дорами (Серіали)", type: "tv", endpoint: "tv/genres/asian/trending" },
-            { id: "dorama_mov_pop", title: "🎭 Популярні Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/popular" },
-            { id: "dorama_mov_trd", title: "🎬 Трендові Дорами (Фільми)", type: "movie", endpoint: "movies/genres/asian/trending" }
+            // --- 3. ОКРЕМІ ЖАНРИ ---
+            { title: "⚔️ Бойовики", url: "https://api.simkl.com/movies/genres/action/japan,south-korea?limit=60" },
+            { title: "🚀 Фантастика", url: "https://api.simkl.com/movies/genres/sci-fi/japan,south-korea?limit=60" },
+            { title: "🔪 Трилери", url: "https://api.simkl.com/movies/genres/thriller/japan,south-korea?limit=60" },
+            { title: "🔎 Детективи", url: "https://api.simkl.com/movies/genres/mystery/japan,south-korea?limit=60" },
+            { title: "😱 Жахи", url: "https://api.simkl.com/movies/genres/horror/japan,south-korea?limit=60" },
+            { title: "😂 Комедії", url: "https://api.simkl.com/movies/genres/comedy/japan,south-korea?limit=60" },
+            { title: "🎭 Драми", url: "https://api.simkl.com/movies/genres/drama/japan,south-korea?limit=60" },
+            { title: "💖 Романтика", url: "https://api.simkl.com/movies/genres/romance/japan,south-korea?limit=60" }
         ]
     };
 
-    /**
-     * Запит списку контенту з Simkl API
-     */
-    function fetchCategoryData(cat, page, limit, callback) {
-        var url = 'https://api.simkl.com/' + cat.endpoint + '?extended=full&limit=' + limit + '&page=' + page + '&client_id=' + SIMKL_CLIENT_ID;
+    function hasCJK(str) {
+        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
+    }
 
-        var network = new Lampa.Reguest();
-        network.silent(url, function (response) {
-            var rawList = Array.isArray(response) ? response : [];
-            formatSimklItems(rawList, cat.type, function (items) {
-                callback({
-                    results: items,
-                    page: page,
-                    total_pages: 50
-                });
-            });
+    function isAllowedDorama(movie) {
+        if (!movie) return false;
+        var lang = (movie.language || movie.lang || '').toLowerCase();
+        var country = (movie.country || '').toLowerCase();
+
+        var langOk = !lang || ALLOWED_LANGS.indexOf(lang) !== -1;
+        var countryOk = !country || ALLOWED_COUNTRIES.indexOf(country) !== -1;
+
+        return langOk && countryOk;
+    }
+
+    function getCleanTitle(tmdbData, movie, callback) {
+        var titleUk = tmdbData.title;
+        
+        if (titleUk && !hasCJK(titleUk)) {
+            return callback(titleUk);
+        }
+
+        if (movie.title && !hasCJK(movie.title)) {
+            return callback(movie.title);
+        }
+
+        var enUrl = Lampa.TMDB.api('movie/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
+        var net = new Lampa.Reguest();
+        net.silent(enUrl, function (enData) {
+            if (enData && enData.title && !hasCJK(enData.title)) {
+                callback(enData.title);
+            } else {
+                callback(movie.title || tmdbData.original_title || tmdbData.title || '');
+            }
         }, function () {
-            callback(null);
+            callback(movie.title || tmdbData.title || '');
         });
     }
 
-    /**
-     * Конвертація об'єктів Simkl та синхронізація з TMDB
-     */
-    function formatSimklItems(rawList, defaultType, callback) {
-        if (!rawList || !rawList.length) return callback([]);
-
-        var lang = Lampa.Storage.get('language', 'uk');
+    function enrichItemsWithTMDB(items, callback) {
         var network = new Lampa.Reguest();
-        var results = [];
+        var lang = Lampa.Storage.get('language', 'uk');
+        var enriched = [];
         var count = 0;
 
-        rawList.forEach(function (raw, index) {
-            var item = raw.movie || raw.show || raw.anime || raw;
-            var tmdbId = (item.ids && item.ids.tmdb) ? item.ids.tmdb : null;
-            var itemType = defaultType;
+        if (!items || !items.length) return callback([]);
 
-            var finish = function (formatted) {
-                if (formatted) results[index] = formatted;
+        items.forEach(function (simklItem, index) {
+            var movie = simklItem.movie || simklItem;
+            // У Simkl ID TMDB зберігається в об'єкті ids
+            var tmdbId = movie.ids ? movie.ids.tmdb : (movie.tmdb_id || null);
+
+            if (!tmdbId || !isAllowedDorama(movie)) {
                 count++;
-                if (count === rawList.length) {
-                    callback(results.filter(Boolean));
+                if (count === items.length) callback(enriched.filter(Boolean));
+                return;
+            }
+
+            var tmdbUrl = Lampa.TMDB.api('movie/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
+
+            network.silent(tmdbUrl, function (tmdbData) {
+                if (tmdbData && tmdbData.poster_path) {
+                    var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
+                    var origLang = (tmdbData.original_language || '').toLowerCase();
+                    var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
+
+                    if (!isAnimation && isAsianOrigin) {
+                        getCleanTitle(tmdbData, movie, function (cleanTitle) {
+                            enriched[index] = {
+                                id: tmdbData.id,
+                                title: cleanTitle,
+                                original_title: movie.title || tmdbData.original_title || '',
+                                overview: tmdbData.overview || movie.overview || '',
+                                poster_path: tmdbData.poster_path,
+                                vote_average: tmdbData.vote_average || (movie.ratings ? movie.ratings.simkl.rating : 0),
+                                release_date: tmdbData.release_date || movie.year || '',
+                                method: 'movie'
+                            };
+                            count++;
+                            if (count === items.length) callback(enriched.filter(Boolean));
+                        });
+                        return;
+                    }
                 }
-            };
+                count++;
+                if (count === items.length) callback(enriched.filter(Boolean));
+            }, function () {
+                count++;
+                if (count === items.length) callback(enriched.filter(Boolean));
+            });
+        });
+    }
 
-            var simklPoster = item.poster ? ('https://simkl.in/posters/' + item.poster + '_m.jpg') : '';
-
-            if (tmdbId) {
-                var tmdbUrl = Lampa.TMDB.api(itemType + '/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
-                network.silent(tmdbUrl, function (tmdb) {
-                    var title = itemType === 'movie' ? (tmdb ? tmdb.title : item.title) : (tmdb ? tmdb.name : item.title);
-                    var originalTitle = itemType === 'movie' ? (tmdb ? tmdb.original_title : item.title) : (tmdb ? tmdb.original_name : item.title);
-
-                    finish({
-                        id: tmdb ? tmdb.id : tmdbId,
-                        title: itemType === 'movie' ? title : undefined,
-                        name: itemType === 'tv' ? title : undefined,
-                        original_title: itemType === 'movie' ? originalTitle : undefined,
-                        original_name: itemType === 'tv' ? originalTitle : undefined,
-                        overview: (tmdb && tmdb.overview) ? tmdb.overview : (item.overview || ''),
-                        poster_path: tmdb ? tmdb.poster_path : null,
-                        img: (tmdb && tmdb.poster_path) ? undefined : simklPoster,
-                        vote_average: tmdb ? tmdb.vote_average : (item.users_rating || 0),
-                        release_date: tmdb ? tmdb.release_date : (item.year ? item.year.toString() : ''),
-                        first_air_date: tmdb ? tmdb.first_air_date : (item.year ? item.year.toString() : ''),
-                        method: itemType
-                    });
-                }, function () {
-                    // Фолбек, якщо TMDB недоступний
-                    finish({
-                        id: tmdbId,
-                        title: itemType === 'movie' ? item.title : undefined,
-                        name: itemType === 'tv' ? item.title : undefined,
-                        original_title: itemType === 'movie' ? item.title : undefined,
-                        original_name: itemType === 'tv' ? item.title : undefined,
-                        overview: item.overview || '',
-                        img: simklPoster,
-                        vote_average: item.users_rating || 0,
-                        release_date: item.year ? item.year.toString() : '',
-                        first_air_date: item.year ? item.year.toString() : '',
-                        method: itemType
+    function fetchSimklPage(baseUrl, page, callback) {
+        var pageUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + page;
+        $.ajax({
+            url: pageUrl,
+            type: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'simkl-api-key': SIMKL_CLIENT_ID
+            },
+            success: function (response) {
+                var rawList = Array.isArray(response) ? response : (response.movies || []);
+                enrichItemsWithTMDB(rawList, function (formattedResults) {
+                    callback({
+                        results: formattedResults,
+                        page: page,
+                        total_pages: 50
                     });
                 });
-            } else {
-                finish(null);
+            },
+            error: function () {
+                callback(null);
             }
         });
     }
 
-    /**
-     * Компонент головної сторінки плагіна
-     */
-    function UltimateGoMain(object) {
+    function SimklDoramaMoviesMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var categories = CONFIG.categories;
+            var categories = SIMKL_CONFIG.categories;
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -141,15 +172,12 @@
                 Object.keys(status.data).sort(function (a, b) { return a - b; }).forEach(function (key) {
                     var data = status.data[key];
                     if (data && data.results && data.results.length) {
-                        var cat = categories[parseInt(key, 10)];
-                        var displayResults = data.results.slice(0, 20);
-                        Lampa.Utils.extendItemsParams(displayResults, { style: { name: 'wide' } });
-
+                        var cat = categories[parseInt(key)];
+                        Lampa.Utils.extendItemsParams(data.results, { style: { name: 'wide' } });
                         fulldata.push({
                             title: cat.title,
-                            results: displayResults,
-                            catObject: cat,
-                            more: true
+                            results: data.results,
+                            url: cat.url
                         });
                     }
                 });
@@ -163,12 +191,9 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchCategoryData(cat, 1, 40, function (data) {
-                    if (data && data.results) {
-                        status.append(index.toString(), data);
-                    } else {
-                        status.error();
-                    }
+                fetchSimklPage(cat.url, 1, function (data) {
+                    if (data && data.results) status.append(index.toString(), data);
+                    else status.error();
                 });
             });
 
@@ -177,9 +202,9 @@
 
         comp.onMore = function (data) {
             Lampa.Activity.push({
-                catObject: data.catObject,
+                url: data.url,
                 title: data.title,
-                component: 'ultimatego_view',
+                component: 'simkl_doramafilm_view',
                 page: 1
             });
         };
@@ -187,15 +212,12 @@
         return comp;
     }
 
-    /**
-     * Компонент окремої категорії (з пагінацією)
-     */
-    function UltimateGoView(object) {
+    function SimklDoramaMoviesView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         comp.create = function () {
             var _this = this;
-            fetchCategoryData(object.catObject, 1, 60, function (json) {
+            fetchSimklPage(object.url, 1, function (json) {
                 if (json && json.results && json.results.length) {
                     _this.build(json);
                 } else {
@@ -205,7 +227,7 @@
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchCategoryData(object.catObject, objectData.page, 60, function (json) {
+            fetchSimklPage(object.url, objectData.page, function (json) {
                 if (json && json.results && json.results.length) {
                     resolve(json);
                 } else {
@@ -217,29 +239,26 @@
         return comp;
     }
 
-    /**
-     * Ініціалізація та додавання кнопки в меню
-     */
     function startPlugin() {
-        if (window.plugin_ultimatego_ready) return;
-        window.plugin_ultimatego_ready = true;
+        if (window.plugin_simkl_doramafilm_ready) return;
+        window.plugin_simkl_doramafilm_ready = true;
 
-        Lampa.Component.add('ultimatego_main', UltimateGoMain);
-        Lampa.Component.add('ultimatego_view', UltimateGoView);
+        Lampa.Component.add('simkl_doramafilm_main', SimklDoramaMoviesMain);
+        Lampa.Component.add('simkl_doramafilm_view', SimklDoramaMoviesView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="ultimatego"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="simkl_doramafilm"]').length) return;
 
-            var btn = $('<li class="menu__item selector" data-action="ultimatego">' +
-                '<div class="menu__ico">' + CONFIG.icon + '</div>' +
-                '<div class="menu__text">' + CONFIG.title + '</div>' +
-                '</li>');
+            var btn = $(`<li class="menu__item selector" data-action="simkl_doramafilm">
+                <div class="menu__ico">${SIMKL_CONFIG.icon}</div>
+                <div class="menu__text">${SIMKL_CONFIG.title}</div>
+            </li>`);
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: CONFIG.title,
-                    component: 'ultimatego_main',
+                    title: SIMKL_CONFIG.title,
+                    component: 'simkl_doramafilm_main',
                     page: 1
                 });
             });
@@ -251,7 +270,7 @@
             addMenuButton();
         } else {
             Lampa.Listener.follow('app', function (e) {
-                if (e.type === 'ready') addMenuButton();
+                if (e.type == 'ready') addMenuButton();
             });
         }
 
@@ -262,5 +281,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_ultimatego_ready) startPlugin();
+    if (!window.plugin_simkl_doramafilm_ready) startPlugin();
 })();
