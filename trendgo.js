@@ -11,7 +11,7 @@
 
     var SOURCE_NAME = 'SIMKL';
     var CACHE_SIZE = 100;
-    var CACHE_TIME = 1000 * 60 * 60 * 3; // 3h
+    var CACHE_TIME = 1000 * 60 * 60 * 3; // 3 години
     var cache = {};
 
     var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf';
@@ -96,23 +96,29 @@
         }
 
         function normalizeData(json, type) {
-            var rawList = Array.isArray(json) ? json : (json.results || []);
+            var rawList = [];
+            if (Array.isArray(json)) {
+                rawList = json;
+            } else if (json && Array.isArray(json.results)) {
+                rawList = json.results;
+            } else if (json && typeof json === 'object') {
+                rawList = [json];
+            }
+
             var results = [];
 
             rawList.forEach(function (item) {
+                if (!item) return;
                 var ids = item.ids || {};
                 var tmdbId = ids.tmdb;
 
-                // Обов'язкова наявність TMDB ID для глибокої інтеграції з Lampa
                 if (!tmdbId) return;
 
-                // Фільтрація за забороненими країнами (RU, BY, CN, IN)
                 if (item.country) {
                     var country = (item.country + '').toLowerCase();
                     if (EXCLUDED_COUNTRIES.indexOf(country) !== -1) return;
                 }
 
-                // Виключення Аніме
                 if (item.anime_type || item.root_type === 'anime') return;
                 if (item.genres && Array.isArray(item.genres)) {
                     var isAnime = item.genres.some(function (g) {
@@ -136,7 +142,7 @@
                     release_date: item.year ? item.year + '-01-01' : '',
                     first_air_date: item.year ? item.year + '-01-01' : '',
                     media_type: isTv ? 'tv' : 'movie',
-                    source: 'tmdb' // Перенаправляємо на TMDB для відкриття деталей
+                    source: 'tmdb'
                 };
 
                 dataItem.promo_title = dataItem.name || dataItem.title;
@@ -147,8 +153,8 @@
 
             return {
                 results: results,
-                page: json.page || 1,
-                total_pages: json.total_pages || 1,
+                page: (json && json.page) || 1,
+                total_pages: (json && json.total_pages) || 1,
                 total_results: results.length
             };
         }
@@ -164,23 +170,18 @@
 
         self.get = function (url, params, type, onComplete, onError) {
             var sep = url.indexOf('?') !== -1 ? '&' : '?';
-            var fullUrl = url + sep + 'client_id=' + SIMKL_CLIENT_ID + '&app-name=' + encodeURIComponent(APP_NAME) + '&app-version=' + APP_VERSION;
+            var fullUrl = url + sep + 'extended=full&client_id=' + SIMKL_CLIENT_ID + '&app-name=' + encodeURIComponent(APP_NAME) + '&app-version=' + APP_VERSION;
 
-            self.network.native(fullUrl, function (json) {
+            self.network.silent(fullUrl, function (json) {
                 if (!json) {
-                    onError(new Error('Empty response from server'));
+                    onComplete({ results: [], page: 1, total_pages: 1, total_results: 0 });
                     return;
                 }
-                var parsedJson = typeof json === 'string' ? JSON.parse(json) : json;
-                var normalizedJson = normalizeData(parsedJson, type);
-                setCache(url, parsedJson);
+                var normalizedJson = normalizeData(json, type);
+                setCache(url, json);
                 onComplete(normalizedJson);
             }, function (error) {
                 onError(error);
-            }, false, {
-                headers: {
-                    'User-Agent': APP_NAME + '/' + APP_VERSION
-                }
             });
         };
 
@@ -247,7 +248,17 @@
                     };
                     callback(result);
                 }, function (error) {
-                    callback({ error: error });
+                    callback({
+                        url: endpoint,
+                        title: title,
+                        page: 1,
+                        total_results: 0,
+                        total_pages: 1,
+                        more: false,
+                        results: [],
+                        source: SOURCE_NAME,
+                        error: error
+                    });
                 });
             }
         };
