@@ -11,14 +11,14 @@
         icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярні дорами (фільми)", params: "&sort_by=popularity.desc&vote_count.gte=50" },
+            { title: "⭐ Популярні дорами (фільми)", params: "&sort_by=popularity.desc&vote_count.gte=30" },
             { title: "📈 Новинки та релізи", params: "&sort_by=primary_release_date.desc&vote_count.gte=5" },
 
             // --- 2. ДЕСЯТИЛІТТЯ ---
             { title: "⚡ Сучасність 2020-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2020-01-01" },
-            { title: "💎 Ера 2010-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2010-01-01&primary_release_date.lte=2019-12-31&vote_count.gte=30" },
-            { title: "💿 Культові 2000-ні", params: "&sort_by=popularity.desc&primary_release_date.gte=2000-01-01&primary_release_date.lte=2009-12-31&vote_count.gte=20" },
-            { title: "📼 1990-ті", params: "&sort_by=popularity.desc&primary_release_date.gte=1990-01-01&primary_release_date.lte=1999-12-31&vote_count.gte=10" },
+            { title: "💎 Ера 2010-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2010-01-01&primary_release_date.lte=2019-12-31&vote_count.gte=20" },
+            { title: "💿 Культові 2000-ні", params: "&sort_by=popularity.desc&primary_release_date.gte=2000-01-01&primary_release_date.lte=2009-12-31&vote_count.gte=10" },
+            { title: "📼 1990-ті", params: "&sort_by=popularity.desc&primary_release_date.gte=1990-01-01&primary_release_date.lte=1999-12-31&vote_count.gte=5" },
 
             // --- 3. ЖАНРИ ---
             { title: "🔪 Трилери", params: "&with_genres=53&sort_by=popularity.desc" },
@@ -33,41 +33,31 @@
         ]
     };
 
-    var BASE_DISCOVER_URL = 'movie?with_origin_country=KR|JP&without_genres=16';
-
-    function hasCJK(str) {
-        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
-    }
-
     function formatTmdbResults(results) {
         if (!Array.isArray(results)) return [];
         return results.map(function (item) {
-            var displayTitle = item.title;
-            if (hasCJK(displayTitle)) {
-                displayTitle = item.original_title || item.title;
-            }
             return {
                 id: item.id,
-                title: displayTitle,
-                original_title: item.original_title || '',
+                title: item.title || item.name || item.original_title || '',
+                original_title: item.original_title || item.original_name || '',
                 overview: item.overview || '',
                 poster_path: item.poster_path,
                 backdrop_path: item.backdrop_path,
                 vote_average: item.vote_average || 0,
-                release_date: item.release_date || '',
+                release_date: item.release_date || item.first_air_date || '',
                 method: 'movie'
             };
         });
     }
 
     function fetchDoramaPage(categoryParams, page, callback) {
-        var lang = Lampa.Storage.get('language', 'uk');
-        var url = BASE_DISCOVER_URL + categoryParams + '&page=' + page;
-        var fullUrl = Lampa.TMDB.api(url + '&api_key=' + Lampa.TMDB.key() + '&language=' + lang);
+        // Формуємо правильний шлях для Lampa (Lampa.TMDB.api сама додає api_key та мову)
+        var urlPath = 'discover/movie?with_original_language=ko|ja&without_genres=16' + categoryParams + '&page=' + page;
+        var fullUrl = Lampa.TMDB.api(urlPath);
 
         var net = new Lampa.Reguest();
         net.silent(fullUrl, function (response) {
-            if (response && response.results) {
+            if (response && response.results && response.results.length) {
                 callback({
                     results: formatTmdbResults(response.results),
                     page: response.page || page,
