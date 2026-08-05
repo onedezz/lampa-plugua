@@ -2,7 +2,7 @@
     'use strict';
 
     var TV_CONFIG = {
-        title: 'TV',
+        title: 'Серіали',
         icon: '<svg viewBox="0 0 24 24" fill="#2196F3" xmlns="http://www.w3.org/2000/svg"><path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12z"/></svg>',
         categories: [
             // --- 1. СВІЖАЧОК ---
@@ -21,7 +21,7 @@
 
             // --- 2. КУЛЬТОВІ ЗІ СВІТУ (ЗА МОВАМИ ТА РЕГІОНАМИ) ---
             { 
-                "title": "Британські колонії, 
+                "title": "Британські колонії", 
                 "url": "discover/tv", 
                 "params": { 
                     "without_genres": "16,10763,10764,10767", 
@@ -41,7 +41,7 @@
                 } 
             },
             { 
-                "title": "Азійська єдність", 
+                "title": "Дорами", 
                 "url": "discover/tv", 
                 "params": { 
                     "without_genres": "16,10763,10764,10767", 
@@ -237,7 +237,6 @@
 
             jsonUk.results = jsonUk.results.filter(function (item) {
                 item.media_type = 'tv';
-                item.method = 'tv';
                 return item.poster_path;
             });
 
@@ -267,8 +266,6 @@
                                 item.name = item.original_name;
                                 item.title = item.original_name;
                             }
-                        } else {
-                            item.title = item.name;
                         }
                     });
 
@@ -277,9 +274,6 @@
                     callback(jsonUk);
                 });
             } else {
-                jsonUk.results.forEach(function (item) {
-                    item.title = item.name;
-                });
                 callback(jsonUk);
             }
         }, function () {
@@ -375,10 +369,10 @@
             var menu = $('.menu .menu__list').eq(0);
             if (!menu.length || menu.find('.menu__item[data-action="tv_catalog"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="tv_catalog">
-                <div class="menu__ico">${TV_CONFIG.icon}</div>
-                <div class="menu__text">${TV_CONFIG.title}</div>
-            </li>`);
+            var btn = $('<li class="menu__item selector" data-action="tv_catalog">' +
+                '<div class="menu__ico">' + TV_CONFIG.icon + '</div>' +
+                '<div class="menu__text">' + TV_CONFIG.title + '</div>' +
+            '</li>');
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
