@@ -2,169 +2,92 @@
     'use strict';
 
     /**
-     * ASIAN LIVE-ACTION MOVIES (DORAMA FILMS) - SIMKL.TV ENGINE
-     * Japanese & South Korean Feature Live-Action Films (Excludes Animation & TV Shows)
+     * ASIAN LIVE-ACTION MOVIES (DORAMA FILMS) - NATIVE ENGINE
+     * Південнокорейські та Японські художні фільми (Без аніме та TV-шоу)
      */
 
-    var SIMKL_CLIENT_ID = '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf'; // Вкажіть ваш Client ID з Simkl API
-    var ALLOWED_LANGS = ['ja', 'ko'];
-    var ALLOWED_COUNTRIES = ['jp', 'kr'];
-
-    var currentYear = new Date().getFullYear();
-    var lastYear = currentYear - 1;
-    var yearRangeOneYear = lastYear + '-' + currentYear;
-
-    var SIMKL_CONFIG = {
-        title: 'Дорами Фільми (Simkl)',
+    var CONFIG = {
+        title: 'Дорами Фільми',
         icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
         categories: [
             // --- 1. ПОПУЛЯРНЕ ТА ТРЕНДИ ---
-            { title: "⭐ Популярні дорами (фільми)", url: "https://api.simkl.com/movies/trending/month?countries=jp,kr&limit=60" },
-            { title: "📈 Тренди тижня", url: "https://api.simkl.com/movies/trending/week?countries=jp,kr&limit=60" },
+            { title: "⭐ Популярні дорами (фільми)", params: "&sort_by=popularity.desc&vote_count.gte=50" },
+            { title: "📈 Новинки та релізи", params: "&sort_by=primary_release_date.desc&vote_count.gte=5" },
 
             // --- 2. ДЕСЯТИЛІТТЯ ---
-            { title: "⚡ Сучасність 2020-х", url: "https://api.simkl.com/movies/best/2020s?countries=jp,kr&limit=60" },
-            { title: "💎 Ера 2010-х", url: "https://api.simkl.com/movies/best/2010s?countries=jp,kr&limit=80" },
-            { title: "💿 Культові 2000-ні", url: "https://api.simkl.com/movies/best/2000s?countries=jp,kr&limit=80" },
-            { title: "📼 1990-ті", url: "https://api.simkl.com/movies/best/1990s?countries=jp,kr&limit=100" },
+            { title: "⚡ Сучасність 2020-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2020-01-01" },
+            { title: "💎 Ера 2010-х", params: "&sort_by=popularity.desc&primary_release_date.gte=2010-01-01&primary_release_date.lte=2019-12-31&vote_count.gte=30" },
+            { title: "💿 Культові 2000-ні", params: "&sort_by=popularity.desc&primary_release_date.gte=2000-01-01&primary_release_date.lte=2009-12-31&vote_count.gte=20" },
+            { title: "📼 1990-ті", params: "&sort_by=popularity.desc&primary_release_date.gte=1990-01-01&primary_release_date.lte=1999-12-31&vote_count.gte=10" },
 
-            // --- 3. ОКРЕМІ ЖАНРИ ---
-            { title: "⚔️ Бойовики", url: "https://api.simkl.com/movies/genres/action/japan,south-korea?limit=60" },
-            { title: "🚀 Фантастика", url: "https://api.simkl.com/movies/genres/sci-fi/japan,south-korea?limit=60" },
-            { title: "🔪 Трилери", url: "https://api.simkl.com/movies/genres/thriller/japan,south-korea?limit=60" },
-            { title: "🔎 Детективи", url: "https://api.simkl.com/movies/genres/mystery/japan,south-korea?limit=60" },
-            { title: "😱 Жахи", url: "https://api.simkl.com/movies/genres/horror/japan,south-korea?limit=60" },
-            { title: "😂 Комедії", url: "https://api.simkl.com/movies/genres/comedy/japan,south-korea?limit=60" },
-            { title: "🎭 Драми", url: "https://api.simkl.com/movies/genres/drama/japan,south-korea?limit=60" },
-            { title: "💖 Романтика", url: "https://api.simkl.com/movies/genres/romance/japan,south-korea?limit=60" }
+            // --- 3. ЖАНРИ ---
+            { title: "🔪 Трилери", params: "&with_genres=53&sort_by=popularity.desc" },
+            { title: "🔎 Детективи", params: "&with_genres=9648&sort_by=popularity.desc" },
+            { title: "⚔️ Бойовики", params: "&with_genres=28&sort_by=popularity.desc" },
+            { title: "😱 Жахи", params: "&with_genres=27&sort_by=popularity.desc" },
+            { title: "😂 Комедії", params: "&with_genres=35&sort_by=popularity.desc" },
+            { title: "🎭 Драми", params: "&with_genres=18&sort_by=popularity.desc" },
+            { title: "💖 Романтика", params: "&with_genres=10749&sort_by=popularity.desc" },
+            { title: "🚀 Фантастика та Фентезі", params: "&with_genres=878,14&sort_by=popularity.desc" },
+            { title: "🚨 Кримінал", params: "&with_genres=80&sort_by=popularity.desc" }
         ]
     };
+
+    var BASE_DISCOVER_URL = 'movie?with_origin_country=KR|JP&without_genres=16';
 
     function hasCJK(str) {
         return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af]/.test(str || '');
     }
 
-    function isAllowedDorama(movie) {
-        if (!movie) return false;
-        var lang = (movie.language || movie.lang || '').toLowerCase();
-        var country = (movie.country || '').toLowerCase();
-
-        var langOk = !lang || ALLOWED_LANGS.indexOf(lang) !== -1;
-        var countryOk = !country || ALLOWED_COUNTRIES.indexOf(country) !== -1;
-
-        return langOk && countryOk;
-    }
-
-    function getCleanTitle(tmdbData, movie, callback) {
-        var titleUk = tmdbData.title;
-        
-        if (titleUk && !hasCJK(titleUk)) {
-            return callback(titleUk);
-        }
-
-        if (movie.title && !hasCJK(movie.title)) {
-            return callback(movie.title);
-        }
-
-        var enUrl = Lampa.TMDB.api('movie/' + tmdbData.id + '?api_key=' + Lampa.TMDB.key() + '&language=en');
-        var net = new Lampa.Reguest();
-        net.silent(enUrl, function (enData) {
-            if (enData && enData.title && !hasCJK(enData.title)) {
-                callback(enData.title);
-            } else {
-                callback(movie.title || tmdbData.original_title || tmdbData.title || '');
+    function formatTmdbResults(results) {
+        if (!Array.isArray(results)) return [];
+        return results.map(function (item) {
+            var displayTitle = item.title;
+            if (hasCJK(displayTitle)) {
+                displayTitle = item.original_title || item.title;
             }
-        }, function () {
-            callback(movie.title || tmdbData.title || '');
+            return {
+                id: item.id,
+                title: displayTitle,
+                original_title: item.original_title || '',
+                overview: item.overview || '',
+                poster_path: item.poster_path,
+                backdrop_path: item.backdrop_path,
+                vote_average: item.vote_average || 0,
+                release_date: item.release_date || '',
+                method: 'movie'
+            };
         });
     }
 
-    function enrichItemsWithTMDB(items, callback) {
-        var network = new Lampa.Reguest();
+    function fetchDoramaPage(categoryParams, page, callback) {
         var lang = Lampa.Storage.get('language', 'uk');
-        var enriched = [];
-        var count = 0;
+        var url = BASE_DISCOVER_URL + categoryParams + '&page=' + page;
+        var fullUrl = Lampa.TMDB.api(url + '&api_key=' + Lampa.TMDB.key() + '&language=' + lang);
 
-        if (!items || !items.length) return callback([]);
-
-        items.forEach(function (simklItem, index) {
-            var movie = simklItem.movie || simklItem;
-            // У Simkl ID TMDB зберігається в об'єкті ids
-            var tmdbId = movie.ids ? movie.ids.tmdb : (movie.tmdb_id || null);
-
-            if (!tmdbId || !isAllowedDorama(movie)) {
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
-                return;
-            }
-
-            var tmdbUrl = Lampa.TMDB.api('movie/' + tmdbId + '?api_key=' + Lampa.TMDB.key() + '&language=' + lang);
-
-            network.silent(tmdbUrl, function (tmdbData) {
-                if (tmdbData && tmdbData.poster_path) {
-                    var isAnimation = tmdbData.genres && tmdbData.genres.some(function (g) { return g.id === 16; });
-                    var origLang = (tmdbData.original_language || '').toLowerCase();
-                    var isAsianOrigin = ALLOWED_LANGS.indexOf(origLang) !== -1;
-
-                    if (!isAnimation && isAsianOrigin) {
-                        getCleanTitle(tmdbData, movie, function (cleanTitle) {
-                            enriched[index] = {
-                                id: tmdbData.id,
-                                title: cleanTitle,
-                                original_title: movie.title || tmdbData.original_title || '',
-                                overview: tmdbData.overview || movie.overview || '',
-                                poster_path: tmdbData.poster_path,
-                                vote_average: tmdbData.vote_average || (movie.ratings ? movie.ratings.simkl.rating : 0),
-                                release_date: tmdbData.release_date || movie.year || '',
-                                method: 'movie'
-                            };
-                            count++;
-                            if (count === items.length) callback(enriched.filter(Boolean));
-                        });
-                        return;
-                    }
-                }
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
-            }, function () {
-                count++;
-                if (count === items.length) callback(enriched.filter(Boolean));
-            });
-        });
-    }
-
-    function fetchSimklPage(baseUrl, page, callback) {
-        var pageUrl = baseUrl + (baseUrl.indexOf('?') !== -1 ? '&' : '?') + 'page=' + page;
-        $.ajax({
-            url: pageUrl,
-            type: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'simkl-api-key': SIMKL_CLIENT_ID
-            },
-            success: function (response) {
-                var rawList = Array.isArray(response) ? response : (response.movies || []);
-                enrichItemsWithTMDB(rawList, function (formattedResults) {
-                    callback({
-                        results: formattedResults,
-                        page: page,
-                        total_pages: 50
-                    });
+        var net = new Lampa.Reguest();
+        net.silent(fullUrl, function (response) {
+            if (response && response.results) {
+                callback({
+                    results: formatTmdbResults(response.results),
+                    page: response.page || page,
+                    total_pages: response.total_pages || 1
                 });
-            },
-            error: function () {
+            } else {
                 callback(null);
             }
+        }, function () {
+            callback(null);
         });
     }
 
-    function SimklDoramaMoviesMain(object) {
+    function DoramaMoviesMain(object) {
         var comp = new Lampa.InteractionMain(object);
 
         comp.create = function () {
             var _this = this;
             this.activity.loader(true);
-            var categories = SIMKL_CONFIG.categories;
+            var categories = CONFIG.categories;
             var status = new Lampa.Status(categories.length);
 
             status.onComplite = function () {
@@ -177,7 +100,7 @@
                         fulldata.push({
                             title: cat.title,
                             results: data.results,
-                            url: cat.url
+                            url: cat.params
                         });
                     }
                 });
@@ -191,9 +114,12 @@
             };
 
             categories.forEach(function (cat, index) {
-                fetchSimklPage(cat.url, 1, function (data) {
-                    if (data && data.results) status.append(index.toString(), data);
-                    else status.error();
+                fetchDoramaPage(cat.params, 1, function (data) {
+                    if (data && data.results && data.results.length) {
+                        status.append(index.toString(), data);
+                    } else {
+                        status.error();
+                    }
                 });
             });
 
@@ -204,7 +130,7 @@
             Lampa.Activity.push({
                 url: data.url,
                 title: data.title,
-                component: 'simkl_doramafilm_view',
+                component: 'doramafilm_view',
                 page: 1
             });
         };
@@ -212,12 +138,12 @@
         return comp;
     }
 
-    function SimklDoramaMoviesView(object) {
+    function DoramaMoviesView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
         comp.create = function () {
             var _this = this;
-            fetchSimklPage(object.url, 1, function (json) {
+            fetchDoramaPage(object.url, 1, function (json) {
                 if (json && json.results && json.results.length) {
                     _this.build(json);
                 } else {
@@ -227,7 +153,7 @@
         };
 
         comp.nextPageReuest = function (objectData, resolve, reject) {
-            fetchSimklPage(object.url, objectData.page, function (json) {
+            fetchDoramaPage(object.url, objectData.page, function (json) {
                 if (json && json.results && json.results.length) {
                     resolve(json);
                 } else {
@@ -240,25 +166,25 @@
     }
 
     function startPlugin() {
-        if (window.plugin_simkl_doramafilm_ready) return;
-        window.plugin_simkl_doramafilm_ready = true;
+        if (window.plugin_doramafilm_native_ready) return;
+        window.plugin_doramafilm_native_ready = true;
 
-        Lampa.Component.add('simkl_doramafilm_main', SimklDoramaMoviesMain);
-        Lampa.Component.add('simkl_doramafilm_view', SimklDoramaMoviesView);
+        Lampa.Component.add('doramafilm_main', DoramaMoviesMain);
+        Lampa.Component.add('doramafilm_view', DoramaMoviesView);
 
         function addMenuButton() {
             var menu = $('.menu .menu__list').eq(0);
-            if (!menu.length || menu.find('.menu__item[data-action="simkl_doramafilm"]').length) return;
+            if (!menu.length || menu.find('.menu__item[data-action="doramafilm_native"]').length) return;
 
-            var btn = $(`<li class="menu__item selector" data-action="simkl_doramafilm">
-                <div class="menu__ico">${SIMKL_CONFIG.icon}</div>
-                <div class="menu__text">${SIMKL_CONFIG.title}</div>
+            var btn = $(`<li class="menu__item selector" data-action="doramafilm_native">
+                <div class="menu__ico">${CONFIG.icon}</div>
+                <div class="menu__text">${CONFIG.title}</div>
             </li>`);
 
             btn.on('hover:enter', function () {
                 Lampa.Activity.push({
-                    title: SIMKL_CONFIG.title,
-                    component: 'simkl_doramafilm_main',
+                    title: CONFIG.title,
+                    component: 'doramafilm_main',
                     page: 1
                 });
             });
@@ -281,5 +207,5 @@
         }, 3000);
     }
 
-    if (!window.plugin_simkl_doramafilm_ready) startPlugin();
+    if (!window.plugin_doramafilm_native_ready) startPlugin();
 })();
