@@ -8,7 +8,7 @@
      */
 
     var DORAMA_MOVIES_CONFIG = {
-        title: 'Дорами Фільми',
+        title: 'Дорафільми',
         icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
         categories: [
             // --- 1. ТРЕНДИ ТА ХІТИ ---
@@ -36,7 +36,7 @@
 
             // --- 2. РЕГІОНАЛЬНІ ХІТИ ---
             { 
-                "title": "🇰🇷 Популярні Корейські Фільми (K-Movies)", 
+                "title": "🇰🇷 Корейське (K-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -46,7 +46,7 @@
                 } 
             },
             { 
-                "title": "🇯🇵 Японські Художні Фільми (J-Movies)", 
+                "title": "🇯🇵 Японське (J-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
