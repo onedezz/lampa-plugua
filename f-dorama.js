@@ -2,13 +2,13 @@
     'use strict';
 
     /**
-     * DORAMA MOVIES MASTER COLLECTION
-     * Тільки азійські художні фільми (Корея та Японія). 
-     * З фіксом відкриття карток (method: 'movie') та англійським фолбеком.
+     * DORAMA MOVIES MASTER COLLECTION (Pure Categories Engine)
+     * Вся внутрішня логіка карток та підміна назв видалені.
+     * Працює нативно через стандартний TMDB API Lampa.
      */
 
     var DORAMA_MOVIES_CONFIG = {
-        title: 'Дорафільми',
+        title: 'Дорами Фільми',
         icon: '<svg viewBox="0 0 24 24" fill="#9C27B0" xmlns="http://www.w3.org/2000/svg"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H9l2 4H8L6 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>',
         categories: [
             // --- 1. ТРЕНДИ ТА ХІТИ ---
@@ -36,27 +36,27 @@
 
             // --- 2. РЕГІОНАЛЬНІ ХІТИ ---
             { 
-                "title": "🇰🇷 Корейське (K-Movies)", 
+                "title": "🇰🇷 Популярні Корейські Фільми (K-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
                     "with_original_language": "ko", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "vote_count.desc" 
                 } 
             },
             { 
-                "title": "🇯🇵 Японське (J-Movies)", 
+                "title": "🇯🇵 Японські Художні Фільми (J-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
                     "with_original_language": "ja", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "vote_count.desc" 
                 } 
             },
 
-            // --- 3. ОКРЕМІ КІНОЖАНРИ ---
+            // --- 3. ВСІ КІНОЖАНРИ (ОКРЕМО) ---
             { 
                 "title": "⚔️ Бойовики", 
                 "url": "discover/movie", 
@@ -157,7 +157,7 @@
                 } 
             },
             { 
-                "title": "💖 Романтика / Мелодрами", 
+                "title": "💖 Романтика", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -225,7 +225,7 @@
 
             // --- 4. ДЕСЯТИЛІТТЯ ---
             { 
-                "title": "⚡ Сучасний Період (2020-ті)", 
+                "title": "⚡ 2020-ті роки", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -236,7 +236,7 @@
                 } 
             },
             { 
-                "title": "💎 Ера Процвітання (2010-ті)", 
+                "title": "💎 2010-ті роки", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -248,7 +248,7 @@
                 } 
             },
             { 
-                "title": "💿 Золота Класика (2000-ні)", 
+                "title": "💿 2000-ні роки", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -260,7 +260,7 @@
                 } 
             },
             { 
-                "title": "📼 1990-ті", 
+                "title": "📼 1990-ті роки", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -274,11 +274,6 @@
         ]
     };
 
-    function hasAsianScript(text) {
-        if (!text) return false;
-        return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uffef\u4e00-\u9faf\uac00-\ud7af\u1100-\u11ff\u3130-\u318f]/.test(text);
-    }
-
     function resolveParamValue(val) {
         var d = new Date();
         if (val === '{current_date}') {
@@ -291,60 +286,29 @@
         return val;
     }
 
-    function normalizeItem(item, enTitle) {
-        // Гарантуємо, що Lampa чітко знає тип контенту для маршрутизатора картки
-        item.method = 'movie';
-        item.media_type = 'movie';
+    function fetchTmdbDirect(catUrl, catParams, page, callback) {
+        var network = new Lampa.Reguest();
+        var params = [];
+        params.push('api_key=' + Lampa.TMDB.key());
+        params.push('language=' + Lampa.Storage.get('language', 'uk'));
+        if (page) params.push('page=' + page);
 
-        var ukTitle = item.title || item.name || '';
-        
-        if (!ukTitle || hasAsianScript(ukTitle)) {
-            if (enTitle && !hasAsianScript(enTitle)) {
-                item.title = enTitle;
-                item.name = enTitle;
-            } else if (item.original_title && !hasAsianScript(item.original_title)) {
-                item.title = item.original_title;
-                item.name = item.original_title;
+        if (catParams) {
+            for (var key in catParams) {
+                var val = catParams[key];
+                val = resolveParamValue(val);
+                params.push(key + '=' + val);
             }
         }
 
-        if (item.title) item.name = item.title;
-        if (item.name) item.title = item.name;
-    }
+        var fullUrl = Lampa.TMDB.api(catUrl + '?' + params.join('&'));
 
-    function fetchWithFallback(urlUk, callback) {
-        var network = new Lampa.Reguest();
-
-        network.silent(urlUk, function (jsonUk) {
-            if (!jsonUk || !jsonUk.results || !jsonUk.results.length) {
-                return callback(jsonUk);
+        network.silent(fullUrl, function (json) {
+            if (json && json.results) {
+                callback(json);
+            } else {
+                callback(null);
             }
-
-            jsonUk.results = jsonUk.results.filter(function (item) {
-                return item.poster_path;
-            });
-
-            var urlEn = urlUk.replace(/language=[^&]+/, 'language=en');
-            
-            network.silent(urlEn, function (jsonEn) {
-                var enMap = {};
-                if (jsonEn && jsonEn.results) {
-                    jsonEn.results.forEach(function (enItem) {
-                        enMap[enItem.id] = enItem.title || enItem.name || '';
-                    });
-                }
-
-                jsonUk.results.forEach(function (item) {
-                    normalizeItem(item, enMap[item.id]);
-                });
-
-                callback(jsonUk);
-            }, function () {
-                jsonUk.results.forEach(function (item) {
-                    normalizeItem(item, null);
-                });
-                callback(jsonUk);
-            });
         }, function () {
             callback(null);
         });
@@ -384,21 +348,7 @@
             };
 
             categories.forEach(function (cat, index) {
-                var params = [];
-                params.push('api_key=' + Lampa.TMDB.key());
-                params.push('language=' + Lampa.Storage.get('language', 'uk'));
-
-                if (cat.params) {
-                    for (var key in cat.params) {
-                        var val = cat.params[key];
-                        val = resolveParamValue(val);
-                        params.push(key + '=' + val);
-                    }
-                }
-
-                var url = Lampa.TMDB.api(cat.url + '?' + params.join('&'));
-
-                fetchWithFallback(url, function (json) {
+                fetchTmdbDirect(cat.url, cat.params, 1, function (json) {
                     if (json) status.append(index.toString(), json);
                     else status.error();
                 });
@@ -423,32 +373,16 @@
     function DoramaMoviesView(object) {
         var comp = new Lampa.InteractionCategory(object);
 
-        function buildUrl(page) {
-            var params = [];
-            params.push('api_key=' + Lampa.TMDB.key());
-            params.push('language=' + Lampa.Storage.get('language', 'uk'));
-            params.push('page=' + page);
-
-            if (object.params) {
-                for (var key in object.params) {
-                    var val = object.params[key];
-                    val = resolveParamValue(val);
-                    params.push(key + '=' + val);
-                }
-            }
-            return Lampa.TMDB.api(object.url + '?' + params.join('&'));
-        }
-
         comp.create = function () {
             var _this = this;
-            fetchWithFallback(buildUrl(1), function (json) {
+            fetchTmdbDirect(object.url, object.params, 1, function (json) {
                 if (json) _this.build(json);
                 else _this.empty();
             });
         };
 
-        comp.nextPageReuest = function (object, resolve, reject) {
-            fetchWithFallback(buildUrl(object.page), function (json) {
+        comp.nextPageReuest = function (objectData, resolve, reject) {
+            fetchTmdbDirect(object.url, object.params, objectData.page, function (json) {
                 if (json) resolve(json);
                 else reject();
             });
