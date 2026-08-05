@@ -4,7 +4,7 @@
     /**
      * DORAMA MOVIES MASTER COLLECTION
      * Тільки азійські художні фільми (Корея та Японія). 
-     * Англійський фолбек для назв у списках та картках.
+     * З фіксом відкриття карток (method: 'movie') та англійським фолбеком.
      */
 
     var DORAMA_MOVIES_CONFIG = {
@@ -36,7 +36,7 @@
 
             // --- 2. РЕГІОНАЛЬНІ ХІТИ ---
             { 
-                "title": "🇰🇷 Корейське (K-Movies)", 
+                "title": "🇰🇷 Популярні Корейські Фільми (K-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -46,7 +46,7 @@
                 } 
             },
             { 
-                "title": "🇯🇵 Японське (J-Movies)", 
+                "title": "🇯🇵 Японські Художні Фільми (J-Movies)", 
                 "url": "discover/movie", 
                 "params": { 
                     "without_genres": "16", 
@@ -291,6 +291,27 @@
         return val;
     }
 
+    function normalizeItem(item, enTitle) {
+        // Гарантуємо, що Lampa чітко знає тип контенту для маршрутизатора картки
+        item.method = 'movie';
+        item.media_type = 'movie';
+
+        var ukTitle = item.title || item.name || '';
+        
+        if (!ukTitle || hasAsianScript(ukTitle)) {
+            if (enTitle && !hasAsianScript(enTitle)) {
+                item.title = enTitle;
+                item.name = enTitle;
+            } else if (item.original_title && !hasAsianScript(item.original_title)) {
+                item.title = item.original_title;
+                item.name = item.original_title;
+            }
+        }
+
+        if (item.title) item.name = item.title;
+        if (item.name) item.title = item.name;
+    }
+
     function fetchWithFallback(urlUk, callback) {
         var network = new Lampa.Reguest();
 
@@ -303,7 +324,8 @@
                 return item.poster_path;
             });
 
-            var urlEn = urlUk.replace('language=uk', 'language=en');
+            var urlEn = urlUk.replace(/language=[^&]+/, 'language=en');
+            
             network.silent(urlEn, function (jsonEn) {
                 var enMap = {};
                 if (jsonEn && jsonEn.results) {
@@ -313,28 +335,13 @@
                 }
 
                 jsonUk.results.forEach(function (item) {
-                    var ukTitle = item.title || item.name || '';
-                    var enTitle = enMap[item.id] || '';
-
-                    if (!ukTitle || hasAsianScript(ukTitle)) {
-                        if (enTitle && !hasAsianScript(enTitle)) {
-                            item.title = enTitle;
-                            item.name = enTitle;
-                        } else if (item.original_title && !hasAsianScript(item.original_title)) {
-                            item.title = item.original_title;
-                            item.name = item.original_title;
-                        }
-                    }
-
-                    if (item.title) item.name = item.title;
-                    if (item.name) item.title = item.name;
+                    normalizeItem(item, enMap[item.id]);
                 });
 
                 callback(jsonUk);
             }, function () {
                 jsonUk.results.forEach(function (item) {
-                    if (!item.title && item.name) item.title = item.name;
-                    if (!item.name && item.title) item.name = item.title;
+                    normalizeItem(item, null);
                 });
                 callback(jsonUk);
             });
