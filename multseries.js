@@ -1,6 +1,12 @@
 (function () {
     'use strict';
 
+    /**
+     * WESTERN ANIMATION CATALOG FOR LAMPA
+     * Тільки Свіжачок та Десятиліття (Окремо Мультфільми та Мультсеріали).
+     * Повністю без аніме та азійської продукції, з пом'якшеними порогами видачі.
+     */
+
     var WESTERN_ANIM_CONFIG = {
         title: 'Мультфільми & Серіали',
         icon: '<svg viewBox="0 0 24 24" fill="#FF9800" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>',
@@ -14,7 +20,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "{one_year_ago}", 
                     "primary_release_date.lte": "{current_date}",
-                    "vote_count.gte": "2",
+                    "vote_count.gte": "1",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -27,56 +33,12 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "{one_year_ago}", 
                     "first_air_date.lte": "{current_date}",
-                    "vote_count.gte": "2",
+                    "vote_count.gte": "1",
                     "sort_by": "popularity.desc" 
                 } 
             },
 
-            // --- 2. ВІКОВІ КАТЕГОРІЇ ---
-            { 
-                "title": "👶 Для дітей — Мультфільми", 
-                "url": "discover/movie", 
-                "is_tv": false,
-                "params": { 
-                    "with_genres": "16,10751", 
-                    "vote_count.gte": "10",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "👶 Для дітей — Мультсеріали", 
-                "url": "discover/tv", 
-                "is_tv": true,
-                "params": { 
-                    "with_genres": "16,10762", 
-                    "without_genres": "10763,10764,10767", 
-                    "vote_count.gte": "5",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "🧢 Для підлітків — Мультфільми", 
-                "url": "discover/movie", 
-                "is_tv": false,
-                "params": { 
-                    "with_genres": "16,12", 
-                    "vote_count.gte": "10",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-            { 
-                "title": "🧢 Для підлітків — Мультсеріали", 
-                "url": "discover/tv", 
-                "is_tv": true,
-                "params": { 
-                    "with_genres": "16,10759", 
-                    "without_genres": "10763,10764,10767", 
-                    "vote_count.gte": "10",
-                    "sort_by": "vote_count.desc" 
-                } 
-            },
-
-            // --- 3. ДЕСЯТИЛІТТЯ ---
+            // --- 2. ДЕСЯТИЛІТТЯ ---
             { 
                 "title": "⚡ 2020-ті роки — Мультфільми", 
                 "url": "discover/movie", 
@@ -84,7 +46,7 @@
                 "params": { 
                     "with_genres": "16", 
                     "primary_release_date.gte": "2020-01-01", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -96,7 +58,7 @@
                     "with_genres": "16", 
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "2020-01-01", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "popularity.desc" 
                 } 
             },
@@ -108,7 +70,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "2010-01-01", 
                     "primary_release_date.lte": "2019-12-31", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -133,7 +95,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "2000-01-01", 
                     "primary_release_date.lte": "2009-12-31", 
-                    "vote_count.gte": "20",
+                    "vote_count.gte": "10",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -158,7 +120,7 @@
                     "with_genres": "16", 
                     "primary_release_date.gte": "1990-01-01", 
                     "primary_release_date.lte": "1999-12-31", 
-                    "vote_count.gte": "30",
+                    "vote_count.gte": "5",
                     "sort_by": "vote_count.desc" 
                 } 
             },
@@ -171,7 +133,7 @@
                     "without_genres": "10763,10764,10767", 
                     "first_air_date.gte": "1990-01-01", 
                     "first_air_date.lte": "1999-12-31", 
-                    "vote_count.gte": "10",
+                    "vote_count.gte": "5",
                     "sort_by": "vote_count.desc" 
                 } 
             }
@@ -203,7 +165,7 @@
             }
         }
 
-        if (hasAsianScript(item.original_name) || hasAsianScript(item.original_title) || hasAsianScript(item.name) || hasAsianScript(item.title)) {
+        if (hasAsianScript(item.original_name) || hasAsianScript(item.original_title)) {
             return true;
         }
 
