@@ -2,17 +2,14 @@
     'use strict';
 
     // ==========================================
-    // 1. КОНФІГУРАЦІЯ ТА КОНСТАНТИ SIMKL API
+    // 1. КОНФІГУРАЦІЯ ТА СТАН
     // ==========================================
     const CONFIG = {
-        CLIENT_ID: 'YOUR_SIMKL_CLIENT_ID', // Вкажіть ваші реєстраційні дані Simkl
-        CLIENT_SECRET: 'YOUR_SIMKL_CLIENT_SECRET',
+        CLIENT_ID: '28411c2510ddc138f76bc3e1022981f88e4402ad1b9e9e11e5d379667360bfdf', // Вкажіть ваш Client ID з Simkl API
         API_URL: 'https://api.simkl.com',
-        PROXY_URL: 'https://cors.lamptv.workers.dev/?url=', // Або ваш проксі-сервер
+        PROXY_URL: 'https://cors.lamptv.workers.dev/?url=',
         STORAGE_KEY: 'simkl_account',
-        TOKEN_SKEW_MS: 2 * 60 * 1000, // 2 хвилини запасу для токера
-        MAX_RETRIES: 3,
-        PROGRESS_THROTTLE_MS: 90 * 1000 // 90 секунд між відправками прогресу
+        PROGRESS_THROTTLE_MS: 90 * 1000
     };
 
     let state = {
@@ -25,9 +22,6 @@
         lastScrobblePercent: 0
     };
 
-    // ==========================================
-    // 2. ДЕТЕКЦІЯ СЕРЕДОВИЩА (CORS / DIRECT)
-    // ==========================================
     function detectCorsFree() {
         if (typeof window === 'undefined') return false;
         const protocol = window.location.protocol;
@@ -48,18 +42,17 @@
     }
 
     // ==========================================
-    // 3. СМАРТ-МАРШРУТИЗАТОР ЗАПИТІВ (NETWORK CORE)
+    // 2. ЯДРО МЕРЕЖЕВИХ ЗАПИТІВ (з обробкою CORS і RateLimit)
     // ==========================================
     async function apiRequest(path, options = {}) {
         const now = Date.now();
         if (state.isCoolingDown && now < state.cooldownUntil) {
-            throw new Error(`Rate limit cooldown in effect. Wait ${Math.ceil((state.cooldownUntil - now) / 1000)}s`);
+            throw new Error(`Wait ${Math.ceil((state.cooldownUntil - now) / 1000)}s`);
         }
 
         const method = (options.method || 'GET').toUpperCase();
         const cacheKey = `${method}:${path}:${options.body ? JSON.stringify(options.body) : ''}`;
 
-        // Deduplication для GET-запитів
         if (method === 'GET' && state.inFlightRequests.has(cacheKey)) {
             return state.inFlightRequests.get(cacheKey);
         }
@@ -86,7 +79,6 @@
                     body: options.body ? JSON.stringify(options.body) : null
                 });
             } catch (err) {
-                // Fallback: якщо упав direct-запит через CORS, перемикаємося на проксі
                 if (state.corsFree && !isAuthReq) {
                     state.corsFree = false;
                     return apiRequest(path, options);
@@ -99,17 +91,17 @@
                 state.isCoolingDown = true;
                 state.cooldownUntil = Date.now() + retryAfter * 1000;
                 setTimeout(() => { state.isCoolingDown = false; }, retryAfter * 1000);
-                throw new Error(`Simkl Rate Limit (429). Retry after ${retryAfter}s`);
+                throw new Error('Rate limit (429)');
             }
 
             if (response.status === 401) {
                 clearAuth();
-                Lampa.Bell.show({ text: 'Simkl: Сесія закінчилася. Авторизуйтесь знову.' });
+                Lampa.Bell.show({ text: 'Simkl: Потрібна авторизація.' });
                 throw new Error('Unauthorized');
             }
 
             if (!response.ok) {
-                throw new Error(`Simkl API Error: ${response.status}`);
+                throw new Error(`API Error: ${response.status}`);
             }
 
             return await response.json();
@@ -124,7 +116,43 @@
     }
 
     // ==========================================
-    // 4. АВТОРИЗАЦІЯ (OAUTH / USER CODE)
+    // 3. НОРМАЛІЗАЦІЯ ДАНИХ (Запобігає помилці forEach)
+    // ==========================================
+    function parseSimklToLampa(data) {
+        let rawList = [];
+        
+        if (Array.isArray(data)) {
+            rawList = data;
+        } else if (data && typeof data === 'object') {
+            rawList = data.movies || data.shows || data.anime || [];
+        }
+
+        if (!Array.isArray(rawList)) {
+            return [];
+        }
+
+        return rawList.map(item => {
+            const target = item.movie || item.show || item;
+            const ids = target.ids || {};
+
+            return {
+                id: ids.tmdb || ids.simkl,
+                simkl_id: ids.simkl,
+                title: target.title || 'Без назви',
+                name: target.title || 'Без назви',
+                original_title: target.title,
+                poster_path: target.poster ? `https://simkl.in/posters/${target.poster}_m.jpg` : '',
+                img: target.poster ? `https://simkl.in/posters/${target.poster}_m.jpg` : '',
+                year: target.year || '',
+                release_date: target.year ? `${target.year}-01-01` : '',
+                vote_average: target.ids?.simkl ? 0 : 0,
+                type: item.show ? 'tv' : 'movie'
+            };
+        });
+    }
+
+    // ==========================================
+    // 4. ПІДКТЮЧЕННЯ АКАУНТУ (PIN AUTH)
     // ==========================================
     async function startDeviceAuth() {
         try {
@@ -133,12 +161,17 @@
                 headers: { 'simkl-api-key': CONFIG.CLIENT_ID }
             });
 
+            if (!data || !data.user_code) {
+                Lampa.Bell.show({ text: 'Не вдалося отримати код авторизації.' });
+                return;
+            }
+
             Lampa.Modal.open({
                 title: 'Авторизація Simkl',
-                html: `<div style="text-align: center; padding: 1em;">
-                    <p>Перейдіть на сайт <b>https://simkl.com/pin</b></p>
-                    <h2 style="font-size: 2em; margin: 0.5em 0;">${data.user_code}</h2>
-                    <p>Та введіть цей код для підключення акаунту.</p>
+                html: `<div style="text-align: center; padding: 1.5em 1em;">
+                    <p style="margin-bottom: 0.5em;">Відкрийте посилання: <b>simkl.com/pin</b></p>
+                    <h1 style="font-size: 2.5em; letter-spacing: 2px; margin: 0.4em 0; color: #fff;">${data.user_code}</h1>
+                    <p style="font-size: 0.9em; opacity: 0.7;">Введіть цей код у вашому профілі Simkl</p>
                 </div>`,
                 size: 'small',
                 onBack: () => {
@@ -150,25 +183,19 @@
             const pollInterval = setInterval(async () => {
                 try {
                     const check = await apiRequest(`/oauth/pin/${data.user_code}?client_id=${CONFIG.CLIENT_ID}`);
-                    if (check.result === 'OK' && check.access_token) {
+                    if (check && check.result === 'OK' && check.access_token) {
                         clearInterval(pollInterval);
-                        saveAuth(check.access_token);
+                        state.account = { access_token: check.access_token, created_at: Date.now() };
+                        Lampa.Storage.set(CONFIG.STORAGE_KEY, state.account);
                         Lampa.Modal.close();
                         Lampa.Bell.show({ text: 'Simkl успішно підключено!' });
                     }
-                } catch (e) {
-                    // Код ще не підтверджено користувачем
-                }
-            }, (data.expires_in ? 5 : 3) * 1000);
+                } catch (e) {}
+            }, 4000);
 
         } catch (e) {
-            Lampa.Bell.show({ text: 'Помилка отримання PIN-коду Simkl' });
+            Lampa.Bell.show({ text: 'Помилка запуску авторизації' });
         }
-    }
-
-    function saveAuth(token) {
-        state.account = { access_token: token, created_at: Date.now() };
-        Lampa.Storage.set(CONFIG.STORAGE_KEY, state.account);
     }
 
     function clearAuth() {
@@ -177,74 +204,131 @@
     }
 
     // ==========================================
-    // 5. МОДУЛЬ СКРОББЛІНГУ (WATCHING & PROGRESS)
+    // 5. СКРОББЛІНГ І СИНХРОНІЗАЦІЯ
     // ==========================================
     const Scrobbler = {
         async sendProgress(card, progressPercent, eventType = 'watching') {
-            if (!state.account.access_token) return;
+            if (!state.account.access_token || !card) return;
 
             const now = Date.now();
             const percentDiff = Math.abs(progressPercent - state.lastScrobblePercent);
 
-            // Throttling: відправляємо тільки при зміні > 5% або пройшло достатньо часу
             if (eventType === 'watching' && percentDiff < 5 && (now - state.lastScrobbleTime) < CONFIG.PROGRESS_THROTTLE_MS) {
                 return;
             }
 
-            const payload = {
-                shows: card.number_of_seasons ? [{
+            const payload = card.number_of_seasons ? {
+                shows: [{
                     ids: { tmdb: card.id },
                     seasons: [{
                         number: card.season || 1,
                         episodes: [{ number: card.episode || 1 }]
                     }]
-                }] : undefined,
-                movies: !card.number_of_seasons ? [{
-                    ids: { tmdb: card.id }
-                }] : undefined,
+                }],
+                progress: Math.round(progressPercent)
+            } : {
+                movies: [{ ids: { tmdb: card.id } }],
                 progress: Math.round(progressPercent)
             };
 
             const endpoint = eventType === 'stop' ? '/scrobble/stop' : '/scrobble/start';
 
             try {
-                await apiRequest(endpoint, {
-                    method: 'POST',
-                    body: payload
-                });
+                await apiRequest(endpoint, { method: 'POST', body: payload });
                 state.lastScrobbleTime = now;
                 state.lastScrobblePercent = progressPercent;
-            } catch (err) {
-                console.error('[Simkl Scrobbler]', err);
-            }
-        },
-
-        async markAsWatched(card) {
-            if (!state.account.access_token) return;
-
-            const payload = card.number_of_seasons ? {
-                shows: [{ ids: { tmdb: card.id } }]
-            } : {
-                movies: [{ ids: { tmdb: card.id } }]
-            };
-
-            try {
-                await apiRequest('/sync/add-to-history', {
-                    method: 'POST',
-                    body: payload
-                });
-                Lampa.Bell.show({ text: 'Додано в переглянуті Simkl' });
-            } catch (err) {
-                Lampa.Bell.show({ text: 'Помилка синхронізації з Simkl' });
-            }
+            } catch (err) {}
         }
     };
 
     // ==========================================
-    // 6. ІНТЕГРАЦІЯ З LAMPA (LISTENERS & MENU)
+    // 6. КАТЕГОРІЯ З БЕЗПЕЧНИМ РЕНДЕРОМ
     // ==========================================
-    function initEvents() {
-        // Відстеження прогресу плеєра Lampa
+    function Component(object) {
+        let network = new Lampa.Reguest();
+        let scroll = new Lampa.Scroll({ mask: true, over: true });
+        let items = [];
+        let html = $('<div></div>');
+        let body = $('<div class="category-full"></div>');
+
+        this.create = function () {
+            this.activity.loader(true);
+
+            const endpoint = object.url || '/sync/all-items/movies/watching';
+            
+            apiRequest(endpoint)
+                .then(response => {
+                    items = parseSimklToLampa(response); // Гарантовано віддає Array
+                    
+                    this.activity.loader(false);
+
+                    if (items.length === 0) {
+                        let empty = Lampa.Template.get('empty', { title: 'Порожньо', text: 'У цьому списку немає елементів' });
+                        html.append(empty);
+                    } else {
+                        scroll.minus();
+                        html.append(scroll.render());
+                        scroll.append(body);
+
+                        items.forEach(item => {
+                            let card = Lampa.Template.get('card', item);
+                            card.on('hover:enter', () => {
+                                Lampa.Activity.push({
+                                    url: '',
+                                    component: 'full',
+                                    id: item.id,
+                                    method: item.type === 'tv' ? 'tv' : 'movie',
+                                    card: item
+                                });
+                            });
+                            body.append(card);
+                        });
+                    }
+
+                    this.activity.toggle();
+                })
+                .catch(err => {
+                    this.activity.loader(false);
+                    let empty = Lampa.Template.get('empty', { title: 'Помилка', text: 'Не вдалося завантажити список Simkl' });
+                    html.append(empty);
+                    this.activity.toggle();
+                });
+
+            return html;
+        };
+
+        this.start = function () {
+            Lampa.Controller.add('content', {
+                toggle: () => {
+                    let cards = body.find('.card');
+                    if (cards.length) Lampa.Controller.collectionSet(body);
+                    else Lampa.Controller.collectionClear();
+                },
+                left: () => Lampa.Controller.move('left'),
+                right: () => Lampa.Controller.move('right'),
+                up: () => Lampa.Controller.move('up'),
+                down: () => Lampa.Controller.move('down'),
+                back: () => Lampa.Activity.backward()
+            });
+            Lampa.Controller.toggle('content');
+        };
+
+        this.pause = function () {};
+        this.stop = function () {};
+        this.destroy = function () {
+            network.clear();
+            scroll.destroy();
+            html.remove();
+        };
+    }
+
+    // ==========================================
+    // 7. ІНІЦІАЛІЗАЦІЯ В LAMPA
+    // ==========================================
+    function startPlugin() {
+        Lampa.Component.add('simkl_watchlist', Component);
+
+        // Подієві слухачі плеєра
         Lampa.Player.listener.follow('timeupdate', (e) => {
             if (e.duration > 0) {
                 const percent = (e.time / e.duration) * 100;
@@ -259,34 +343,34 @@
             }
         });
 
-        // Додавання налаштувань у меню Lampa
+        // Меню налаштувань Lampa
         Lampa.Settings.listener.follow('open', (e) => {
             if (e.name === 'main') {
-                e.body.find('[data-action="account"]').after(
-                    `<div class="settings-param selector" data-action="simkl_auth">
-                        <div class="settings-param__name">Simkl</div>
-                        <div class="settings-param__value">${state.account.access_token ? 'Підключено' : 'Підключити'}</div>
-                    </div>`
-                );
+                const item = $(`<div class="settings-param selector" data-action="simkl_auth">
+                    <div class="settings-param__name">Simkl API</div>
+                    <div class="settings-param__value">${state.account.access_token ? 'Підключено' : 'Підключити'}</div>
+                </div>`);
 
-                e.body.find('[data-action="simkl_auth"]').on('hover:enter', () => {
+                item.on('hover:enter', () => {
                     if (state.account.access_token) {
                         clearAuth();
+                        item.find('.settings-param__value').text('Підключити');
                         Lampa.Bell.show({ text: 'Акаунт Simkl відключено' });
                     } else {
                         startDeviceAuth();
                     }
                 });
+
+                e.body.find('[data-action="account"]').after(item);
             }
         });
     }
 
-    // Реєстрація плагіна в Lampa
     if (window.appready) {
-        initEvents();
+        startPlugin();
     } else {
         Lampa.Listener.follow('app', (e) => {
-            if (e.type === 'ready') initEvents();
+            if (e.type === 'ready') startPlugin();
         });
     }
 })();
