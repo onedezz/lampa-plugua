@@ -21,8 +21,10 @@
 ## 🚀 Встановлення
 Скопіюй пряме посилання на файл `ultimate_collections.js` з GitHub:
 
+
    ```text
    https://onedezz.github.io/lampa-plugua/ultimate_collections.js
+
 Відкрий Lampa.
 
 Перейди в Налаштування ➔ Плагіни.
