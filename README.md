@@ -19,12 +19,10 @@
 ---
 
 ## 🚀 Встановлення
-Скопіюй пряме посилання на файл `ultimate_collections.js` з GitHub:
 
-
+1. Скопіюй пряме посилання на файл `ultimate_collections.js`:
    ```text
    https://onedezz.github.io/lampa-plugua/ultimate_collections.js
-
 Відкрий Lampa.
 
 Перейди в Налаштування ➔ Плагіни.
@@ -37,7 +35,6 @@
 Якщо плагін став у пригоді і ти хочеш підтримати автора:
 
 👉 Підтримати через Donatello
-https://donatello.to/onedezz
 
 🛠 Технічні деталі
 Мова: JavaScript (ES5 / ES6)
